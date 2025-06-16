@@ -7,7 +7,7 @@ st.markdown(
     """
     <style>
     div[data-testid="stTextInput"] > div > input {
-        max-width: 150px;
+        max-width: 50px;
     }
     </style>
     """,
