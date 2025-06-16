@@ -44,9 +44,9 @@ with col_in:
 
     fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
 
-if fundament_i_vatten:
-    st.markdown(r"**$z_{v}$ (m) från underkant fundament**", unsafe_allow_html=True)
-    zv_str = st.text_input("", value="0.0", key="z_niva")
+    if fundament_i_vatten:
+        st.markdown(r"**$z_{v}$ (m) från underkant fundament**", unsafe_allow_html=True)
+        zv_str = st.text_input("", value="0.0", key="z_niva")
     else:
         zv_str = None
 
@@ -68,18 +68,16 @@ with col_out:
 
     fig, ax = plt.subplots(figsize=(6, 6))
 
-if fundament_i_vatten:
-    zv_str = st.text_input("z_v (m) från underkant fundament", value="0.0", key="z_niva")
+    if fundament_i_vatten and zv is not None and zv > 0:
         ax.fill_between(
             x=[-max(D_b, D_s) - 1, max(D_b, D_s) + 1],
             y1=0, y2=zv, color='lightblue', alpha=0.5)
         ax.hlines(y=zv, xmin=-max(D_b, D_s) - 1, xmax=max(D_b, D_s) + 1,
                   colors='blue', linestyles='--', linewidth=2, label='Vattenlinje')
 
-        # Måttpil för vattennivå zv
         ax.annotate("", xy=(max(D_b, D_s) + 0.5, 0), xytext=(max(D_b, D_s) + 0.5, zv),
                     arrowprops=dict(arrowstyle="<->"))
-        ax.text(max(D_b, D_s) + 0.7, zv / 2, r"$z_v$", va='center', fontsize=12, color='blue')
+        ax.text(max(D_b, D_s) + 0.7, zv / 2, r"$z_{v}$", va='center', fontsize=12, color='blue')
 
     # Bottenplatta
     ax.plot([-D_b/2, D_b/2], [0, 0], 'k-')
@@ -154,4 +152,3 @@ with col_res:
         "Vikt (kN)": [vikt_ovan, vikt_under, vikt_tot]
     }, index=["Över vatten", "Under vatten", "Total egenvikt (Gk)"])
     st.table(df_vikter.style.format("{:.1f}"))
-
