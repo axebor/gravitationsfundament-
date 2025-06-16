@@ -1,3 +1,4 @@
+import streamlit as st
 # Geometri
 st.subheader("Geometri")
 
