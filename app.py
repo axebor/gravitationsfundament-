@@ -1,57 +1,42 @@
 import streamlit as st
-import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="Stabilitets­kontroll – cirkulärt gravitations­fundament",
-                   layout="wide")
+st.set_page_config(page_title="Gravitationsfundament", layout="wide")
 
-# ───────────────────────────────
-# 1. Skapa två kolumner
-# ───────────────────────────────
+# ─────────────────────────────────────
+# Layout: två kolumner – vänster & höger
+# ─────────────────────────────────────
 col_in, col_out = st.columns(2)
 
-# ───────────────────────────────
-# 2. Vänstra kolumnen – indata
-# ───────────────────────────────
+# ───────────────
+# INDATA – Vänster kolumn
+# ───────────────
 with col_in:
     st.header("Indata")
-
-    # Geometri
     st.subheader("Geometri")
-    D = st.number_input("Diameter D (m)", min_value=0.5, value=5.0)
-    H = st.number_input("Höjd H (m)", min_value=0.5, value=3.0)
 
-    # Material
-    st.subheader("Material")
-    gamma_c = st.number_input("Betongens torrvolymvikt γc (kN/m³)", value=24.0)
-    # Om du i stället vill mata in densitet (kg/m³):
-    # rho_c = st.number_input("Densitet (kg/m³)", value=2400.0)
+    # --- Bottenplatta ---
+    st.markdown("**Bottenplatta**")
+    col_b1, col_b2 = st.columns(2)
+    with col_b1:
+        D_b_str = st.text_input("Diameter Dₐ (m)", value="5.0")
+    with col_b2:
+        h_b_str = st.text_input("Höjd hₐ (m)", value="1.0")
 
-    # Last & miljö
-    st.subheader("Laster & Miljö")
-    water_depth = st.number_input("Vattendjup (m)", value=0.0)
-    uplift = st.number_input("Extern lyftkraft (kN)", value=0.0)
-    phi = st.number_input("Friktionskoefficient φ", value=0.6)
+    # --- Skaft ---
+    st.markdown("**Skaft (centrerat ovanpå)**")
+    col_s1, col_s2 = st.columns(2)
+    with col_s1:
+        D_s_str = st.text_input("Diameter Dₛ (m)", value="1.0")
+    with col_s2:
+        h_s_str = st.text_input("Höjd hₛ (m)", value="2.0")
 
-    st.write("---")
-    st.caption("Lägg till fler fält allt eftersom du behöver dem.")
+    # Konvertera till float med avrundning till 1 decimal
+    try:
+        D_b = round(float(D_b_str), 1)
+        h_b = round(float(h_b_str), 1)
+        D_s = round(float(D_s_str), 1)
+        h_s = round(float(h_s_str), 1)
+    except ValueError:
+        st.error("❌ Ange giltiga numeriska värden för geometri.")
+        st.stop()
 
-# ───────────────────────────────
-# 3. Högra kolumnen – resultat & figur
-# ───────────────────────────────
-with col_out:
-    st.header("Resultat")
-
-    # --- Här kommer beräkningar senare ---
-    st.info("Resultaten visas här när vi har lagt in beräknings­kod.")
-
-    # Rita en enkel skalenlig planfigur
-    st.subheader("Figur (planvy)")
-
-    fig, ax = plt.subplots(figsize=(4, 4))
-    ax.add_patch(plt.Circle((0, 0), radius=D/2, fill=False, lw=2))
-    ax.set_aspect("equal")
-    ax.set_xlim(-(D/2)*1.2, (D/2)*1.2)
-    ax.set_ylim(-(D/2)*1.2, (D/2)*1.2)
-    ax.axis("off")
-    ax.set_title(f"D = {D:.2f} m")
-    st.pyplot(fig)
