@@ -2,6 +2,7 @@ import streamlit as st
 
 st.set_page_config(page_title="Gravitationsfundament", layout="wide")
 
+# CSS för alla textinput-fält
 st.markdown(
     """
     <style>
@@ -9,6 +10,9 @@ st.markdown(
         max-width: 120px;
         width: 100%;
         box-sizing: border-box;
+    }
+    div[data-testid="stTextInput"][data-key="z_niva"] > div > input {
+        max-width: 150px;
     }
     </style>
     """,
@@ -35,19 +39,19 @@ with col_in:
     with col_s2:
         h_s_str = st.text_input("Höjd hₛ (m)", value="2.0")
 
-fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
+    fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
 
-if fundament_i_vatten:
-    z_niva_str = st.text_input("Z-nivå vatten (m) från underkant fundament", value="0.0")
-    try:
-        z_niva = float(z_niva_str)
-    except ValueError:
-        st.error("❌ Ange ett giltigt tal för Z-nivå.")
-        st.stop()
-else:
-    z_niva = None  # eller 0.0 eller vad som passar
+    if fundament_i_vatten:
+        z_niva_str = st.text_input("Z-nivå vatten (m) från underkant fundament", value="0.0", key="z_niva")
+        try:
+            z_niva = float(z_niva_str)
+        except ValueError:
+            st.error("❌ Ange ett giltigt tal för Z-nivå.")
+            st.stop()
+    else:
+        z_niva = None
 
-
+    # Konvertera till float med avrundning till 1 decimal
     try:
         D_b = round(float(D_b_str), 1)
         h_b = round(float(h_b_str), 1)
@@ -57,4 +61,3 @@ else:
         st.error("❌ Ange giltiga numeriska värden för geometri.")
         st.stop()
 
-# Du kan nu använda variabeln 'fundament_i_vatten' som True/False i din beräkning
