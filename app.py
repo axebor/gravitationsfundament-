@@ -1,3 +1,13 @@
+import streamlit as st
+
+st.set_page_config(page_title="Gravitationsfundament", layout="wide")
+
+# Två kolumner – vänster för indata, höger för resultat
+col_in, col_out = st.columns(2)
+
+# ───────────────────────────────
+# Vänsterkolumn – INDATA
+# ───────────────────────────────
 with col_in:
     st.header("Indata")
     st.subheader("Geometri")
@@ -41,3 +51,9 @@ with col_in:
         h_s = float(col3.text_input(label="", value="2.0", key="h_s"))
         col4.write("m")
 
+# ───────────────────────────────
+# Högerkolumn – RESULTAT
+# ───────────────────────────────
+with col_out:
+    st.header("Resultat")
+    st.info("Resultat kommer att visas här.")
