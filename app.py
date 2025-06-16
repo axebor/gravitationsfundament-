@@ -63,29 +63,44 @@ with col_in:
 import matplotlib.pyplot as plt
 
 with col_out:
-    st.header("Figur")
+    st.header("Måttkedjor")
 
-    fig, ax = plt.subplots(figsize=(4,6))
+    fig, ax = plt.subplots(figsize=(6, 6))
 
-    # Bottenplatta: bredd = diameter, höjd = höjd
-    bottenplatta_rect = plt.Rectangle(
-        (-D_b/2, 0), D_b, h_b, color='lightgrey', edgecolor='black', label='Bottenplatta')
+    # Ritning av bottenplatta och skaft som rektanglar
+    ax.plot([-D_b/2, D_b/2], [0, 0], 'k-')           # Bottenplattans bottenlinje
+    ax.plot([-D_b/2, -D_b/2], [0, h_b], 'k-')       # Bottenplattans vänsterkant
+    ax.plot([D_b/2, D_b/2], [0, h_b], 'k-')         # Bottenplattans högerkant
+    ax.plot([-D_b/2, D_b/2], [h_b, h_b], 'k-')       # Bottenplattans topp
 
-    # Skaft: bredd = diameter, höjd = höjd, placerat ovanpå bottenplatta
-    skaft_rect = plt.Rectangle(
-        (-D_s/2, h_b), D_s, h_s, color='darkgrey', edgecolor='black', label='Skaft')
+    ax.plot([-D_s/2, D_s/2], [h_b, h_b], 'k-')       # Skaftets bottenlinje
+    ax.plot([-D_s/2, -D_s/2], [h_b, h_b + h_s], 'k-') # Skaftets vänsterkant
+    ax.plot([D_s/2, D_s/2], [h_b, h_b + h_s], 'k-')   # Skaftets högerkant
+    ax.plot([-D_s/2, D_s/2], [h_b + h_s, h_b + h_s], 'k-') # Skaftets topp
 
-    ax.add_patch(bottenplatta_rect)
-    ax.add_patch(skaft_rect)
+    # Måttpilar och beteckningar (horisontella diametrar)
+    ax.annotate("", xy=(D_b/2, -0.5), xytext=(-D_b/2, -0.5),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(0, -0.7, r"$D_b$", ha='center', va='top', fontsize=12)
+
+    ax.annotate("", xy=(D_s/2, h_b + h_s + 0.5), xytext=(-D_s/2, h_b + h_s + 0.5),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(0, h_b + h_s + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
+
+    # Måttpilar och beteckningar (vertikala höjder)
+    ax.annotate("", xy=(D_b/2 + 0.5, 0), xytext=(D_b/2 + 0.5, h_b),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(D_b/2 + 0.6, h_b/2, r"$h_b$", va='center', fontsize=12)
+
+    ax.annotate("", xy=(D_s/2 + 0.5, h_b), xytext=(D_s/2 + 0.5, h_b + h_s),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(D_s/2 + 0.6, h_b + h_s/2, r"$h_s$", va='center', fontsize=12)
 
     # Axlar och gränser
-    ax.set_xlim(-max(D_b, D_s), max(D_b, D_s))
-    ax.set_ylim(0, h_b + h_s + 1)
+    ax.set_xlim(-max(D_b, D_s), max(D_b, D_s) + 1)
+    ax.set_ylim(-1, h_b + h_s + 1)
     ax.set_aspect('equal')
-    ax.set_xlabel("Bredd (m)")
-    ax.set_ylabel("Höjd (m)")
-    ax.grid(True)
-    ax.legend()
+    ax.axis('off')  # Dölj axlar
 
     st.pyplot(fig)
 
