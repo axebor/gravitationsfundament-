@@ -35,7 +35,18 @@ with col_in:
     with col_s2:
         h_s_str = st.text_input("Höjd hₛ (m)", value="2.0")
 
-    fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
+fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
+
+if fundament_i_vatten:
+    z_niva_str = st.text_input("Z-nivå vatten (m) från underkant fundament", value="0.0")
+    try:
+        z_niva = float(z_niva_str)
+    except ValueError:
+        st.error("❌ Ange ett giltigt tal för Z-nivå.")
+        st.stop()
+else:
+    z_niva = None  # eller 0.0 eller vad som passar
+
 
     try:
         D_b = round(float(D_b_str), 1)
