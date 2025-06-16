@@ -5,7 +5,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Gravitationsfundament", layout="wide")
 
-# CSS för lika breda inputfält
+# CSS för att styra bredd på inputfält och justera enhets-text inline
 st.markdown(
     """
     <style>
@@ -13,13 +13,15 @@ st.markdown(
         max-width: 120px;
         width: 100%;
         box-sizing: border-box;
-    }
-    div[data-testid="stTextInput"][data-key="z_niva"] > div > input {
-        max-width: 70px;
         display: inline-block;
+        vertical-align: middle;
     }
-    div[data-testid="stTextInput"][data-key="z_niva"] > label {
-        display: none;
+    .inline-unit {
+        display: inline-block;
+        margin-left: 6px;
+        vertical-align: middle;
+        font-size: 16px;
+        color: #333;
     }
     </style>
     """,
@@ -49,15 +51,11 @@ with col_in:
     fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
 
     if fundament_i_vatten:
-        # Visa "Mått från underkant fundament," med beteckning
         st.markdown("Mått från underkant fundament,  $z_{v}$")
-        # Inputfält och enhet på samma rad:
-        col_zv, col_unit = st.columns([1, 1])
-        with col_zv:
-            zv_str = st.text_input("", value="0.0", key="z_niva")
-        with col_unit:
-            st.markdown("m")
-
+        # Här kommer inputfält och enhet på samma rad i inline-block
+        zv_input = st.text_input("", value="0.0", key="z_niva")
+        st.markdown(f'<span class="inline-unit">m</span>', unsafe_allow_html=True)
+        zv_str = zv_input
     else:
         zv_str = None
 
@@ -75,4 +73,5 @@ with col_in:
         st.stop()
 
 # Resten av din kod för figur och resultat...
+
 
