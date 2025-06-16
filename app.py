@@ -2,58 +2,21 @@ import streamlit as st
 
 st.set_page_config(page_title="Gravitationsfundament", layout="wide")
 
-# Två kolumner – vänster för indata, höger för resultat
-col_in, col_out = st.columns(2)
+st.header("Indata")
+st.subheader("Geometri")
 
-# ───────────────────────────────
-# Vänsterkolumn – INDATA
-# ───────────────────────────────
-with col_in:
-    st.header("Indata")
-    st.subheader("Geometri")
+# Diameter bottenplatta
+D_b = st.text_input(" ", value="5.0", key="D_b")
+st.latex(r"D_b = \text{" + D_b + r"\text{ m}}")
 
-    # Rubrikrad
-    col1, col2, col3, col4 = st.columns([2.5, 1, 1.2, 1])
-    col1.markdown("**Parameter**")
-    col2.markdown("**Beteckning**")
-    col3.markdown("**Värde**")
-    col4.markdown("**Enhet**")
+# Höjd bottenplatta
+h_b = st.text_input(" ", value="1.0", key="h_b")
+st.latex(r"h_b = \text{" + h_b + r"\text{ m}}")
 
-    # Diameter bottenplatta
-    with st.container():
-        col1, col2, col3, col4 = st.columns([2.5, 1, 1.2, 1])
-        col1.write("Diameter bottenplatta")
-        col2.write("D_b")
-        D_b = float(col3.text_input(label="", value="5.0", key="D_b"))
-        col4.write("m")
+# Diameter skaft
+D_s = st.text_input(" ", value="1.0", key="D_s")
+st.latex(r"D_s = \text{" + D_s + r"\text{ m}}")
 
-    # Höjd bottenplatta
-    with st.container():
-        col1, col2, col3, col4 = st.columns([2.5, 1, 1.2, 1])
-        col1.write("Höjd bottenplatta")
-        col2.write("h_b")
-        h_b = float(col3.text_input(label="", value="1.0", key="h_b"))
-        col4.write("m")
-
-    # Diameter skaft
-    with st.container():
-        col1, col2, col3, col4 = st.columns([2.5, 1, 1.2, 1])
-        col1.write("Diameter skaft")
-        col2.write("D_s")
-        D_s = float(col3.text_input(label="", value="1.0", key="D_s"))
-        col4.write("m")
-
-    # Höjd skaft
-    with st.container():
-        col1, col2, col3, col4 = st.columns([2.5, 1, 1.2, 1])
-        col1.write("Höjd skaft")
-        col2.write("h_s")
-        h_s = float(col3.text_input(label="", value="2.0", key="h_s"))
-        col4.write("m")
-
-# ───────────────────────────────
-# Högerkolumn – RESULTAT
-# ───────────────────────────────
-with col_out:
-    st.header("Resultat")
-    st.info("Resultat kommer att visas här.")
+# Höjd skaft
+h_s = st.text_input(" ", value="2.0", key="h_s")
+st.latex(r"h_s = \text{" + h_s + r"\text{ m}}")
