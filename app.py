@@ -67,7 +67,8 @@ with col_out:
 
     fig, ax = plt.subplots(figsize=(6, 6))
 
-    if fundament_i_vatten and zv is not None and zv > 0:
+if fundament_i_vatten:
+    zv_str = st.text_input("z_v (m) från underkant fundament", value="0.0", key="z_niva")
         ax.fill_between(
             x=[-max(D_b, D_s) - 1, max(D_b, D_s) + 1],
             y1=0, y2=zv, color='lightblue', alpha=0.5)
