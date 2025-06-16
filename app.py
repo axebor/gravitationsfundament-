@@ -2,7 +2,6 @@ import streamlit as st
 
 st.set_page_config(page_title="Gravitationsfundament", layout="wide")
 
-# CSS för lika breda inputfält
 st.markdown(
     """
     <style>
@@ -10,15 +9,6 @@ st.markdown(
         max-width: 120px;
         width: 100%;
         box-sizing: border-box;
-        display: inline-block;
-        vertical-align: middle;
-    }
-    span.unit {
-        display: inline-block;
-        margin-left: 6px;
-        vertical-align: middle;
-        color: #444;
-        font-size: 16px;
     }
     </style>
     """,
@@ -34,26 +24,26 @@ with col_in:
     st.markdown("**Bottenplatta**")
     col_b1, col_b2 = st.columns(2)
     with col_b1:
-        st.markdown("Diameter Dₐ (m)")
-        D_b_str = st.text_input("", value="5.0", key="D_b", max_chars=6)
+        st.markdown("Diameter D_b (m)")
+        D_b_str = st.text_input("", value="5.0", key="D_b")
     with col_b2:
-        st.markdown("Höjd hₐ (m)")
-        h_b_str = st.text_input("", value="1.0", key="h_b", max_chars=6)
+        st.markdown("Höjd h_b (m)")
+        h_b_str = st.text_input("", value="1.0", key="h_b")
 
     st.markdown("**Skaft (centrerat ovanpå)**")
     col_s1, col_s2 = st.columns(2)
     with col_s1:
-        st.markdown("Diameter Dₛ (m)")
-        D_s_str = st.text_input("", value="1.0", key="D_s", max_chars=6)
+        st.markdown("Diameter D_s (m)")
+        D_s_str = st.text_input("", value="1.0", key="D_s")
     with col_s2:
-        st.markdown("Höjd hₛ (m)")
-        h_s_str = st.text_input("", value="2.0", key="h_s", max_chars=6)
+        st.markdown("Höjd h_s (m)")
+        h_s_str = st.text_input("", value="2.0", key="h_s")
 
     fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
 
     if fundament_i_vatten:
         st.markdown("Mått från underkant fundament,  $z_{v}$ (m)")
-        zv_str = st.text_input("", value="0.0", key="zv", max_chars=6)
+        zv_str = st.text_input("", value="0.0", key="zv")
     else:
         zv_str = None
 
@@ -69,6 +59,5 @@ with col_in:
     except ValueError:
         st.error("❌ Ange giltiga numeriska värden för geometri och vattennivå.")
         st.stop()
-
 
 
