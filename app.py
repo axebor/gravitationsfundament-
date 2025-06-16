@@ -1,4 +1,6 @@
-st.header("Indata")
+import streamlit as st
+
+st.set_page_config(page_title="Gravitationsfundament", layout="wide")st.header("Indata")
 st.subheader("Geometri")
 
 # Titelrad
