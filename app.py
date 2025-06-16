@@ -1,25 +1,57 @@
 import streamlit as st
-import math
+import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="Fundamentsberäkning", layout="centered")
-st.title("Stabilitetsberäkning – Cirkulärt gravitationsfundament")
+st.set_page_config(page_title="Stabilitets­kontroll – cirkulärt gravitations­fundament",
+                   layout="wide")
 
-st.header("1. Indata")
+# ───────────────────────────────
+# 1. Skapa två kolumner
+# ───────────────────────────────
+col_in, col_out = st.columns(2)
 
-D = st.number_input("Diameter D (meter)", value=5.0, min_value=0.1)
-H = st.number_input("Höjd H (meter)", value=1.5, min_value=0.1)
-rho_betong = st.number_input("Densitet betong (kg/m³)", value=2400)
-rho_vatten = st.number_input("Densitet vatten (kg/m³)", value=1000)
-g = 9.81  # tyngdacceleration
+# ───────────────────────────────
+# 2. Vänstra kolumnen – indata
+# ───────────────────────────────
+with col_in:
+    st.header("Indata")
 
-# Val av friktion och lyft
-friktion = st.number_input("Friktionskoefficient (jord-fundament)", value=0.5)
-lyftkraft = st.checkbox("Räkna med uppåtriktad lyftkraft (ex. flytkraft)?", value=True)
+    # Geometri
+    st.subheader("Geometri")
+    D = st.number_input("Diameter D (m)", min_value=0.5, value=5.0)
+    H = st.number_input("Höjd H (m)", min_value=0.5, value=3.0)
 
-st.header("2. Beräkningar")
+    # Material
+    st.subheader("Material")
+    gamma_c = st.number_input("Betongens torrvolymvikt γc (kN/m³)", value=24.0)
+    # Om du i stället vill mata in densitet (kg/m³):
+    # rho_c = st.number_input("Densitet (kg/m³)", value=2400.0)
 
-A = math.pi * (D/2)**2
-V = A * H
-vikt = V * rho_betong * g
-lyft = V * rho_vatten * g if lyftkraft else 0
+    # Last & miljö
+    st.subheader("Laster & Miljö")
+    water_depth = st.number_input("Vattendjup (m)", value=0.0)
+    uplift = st.number_input("Extern lyftkraft (kN)", value=0.0)
+    phi = st.number_input("Friktionskoefficient φ", value=0.6)
 
+    st.write("---")
+    st.caption("Lägg till fler fält allt eftersom du behöver dem.")
+
+# ───────────────────────────────
+# 3. Högra kolumnen – resultat & figur
+# ───────────────────────────────
+with col_out:
+    st.header("Resultat")
+
+    # --- Här kommer beräkningar senare ---
+    st.info("Resultaten visas här när vi har lagt in beräknings­kod.")
+
+    # Rita en enkel skalenlig planfigur
+    st.subheader("Figur (planvy)")
+
+    fig, ax = plt.subplots(figsize=(4, 4))
+    ax.add_patch(plt.Circle((0, 0), radius=D/2, fill=False, lw=2))
+    ax.set_aspect("equal")
+    ax.set_xlim(-(D/2)*1.2, (D/2)*1.2)
+    ax.set_ylim(-(D/2)*1.2, (D/2)*1.2)
+    ax.axis("off")
+    ax.set_title(f"D = {D:.2f} m")
+    st.pyplot(fig)
