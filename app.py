@@ -1,3 +1,11 @@
+import streamlit as st
+
+st.set_page_config(page_title="Gravitationsfundament", layout="wide")
+
+# Två kolumner
+col_in, col_out = st.columns(2)
+
+# Vänsterkolumn – Indata
 with col_in:
     st.header("Indata")
     st.subheader("Geometri")
@@ -51,3 +59,7 @@ with col_in:
         st.error("❌ Ange numeriska värden i fälten ovan.")
         st.stop()
 
+# Högerkolumn – Resultat (tom för nu)
+with col_out:
+    st.header("Resultat")
+    st.info("Resultat kommer att visas här.")
