@@ -60,4 +60,32 @@ with col_in:
     except ValueError:
         st.error("❌ Ange giltiga numeriska värden för geometri.")
         st.stop()
+import matplotlib.pyplot as plt
+
+with col_out:
+    st.header("Figur")
+
+    fig, ax = plt.subplots(figsize=(4,6))
+
+    # Bottenplatta: bredd = diameter, höjd = höjd
+    bottenplatta_rect = plt.Rectangle(
+        (-D_b/2, 0), D_b, h_b, color='lightgrey', edgecolor='black', label='Bottenplatta')
+
+    # Skaft: bredd = diameter, höjd = höjd, placerat ovanpå bottenplatta
+    skaft_rect = plt.Rectangle(
+        (-D_s/2, h_b), D_s, h_s, color='darkgrey', edgecolor='black', label='Skaft')
+
+    ax.add_patch(bottenplatta_rect)
+    ax.add_patch(skaft_rect)
+
+    # Axlar och gränser
+    ax.set_xlim(-max(D_b, D_s), max(D_b, D_s))
+    ax.set_ylim(0, h_b + h_s + 1)
+    ax.set_aspect('equal')
+    ax.set_xlabel("Bredd (m)")
+    ax.set_ylabel("Höjd (m)")
+    ax.grid(True)
+    ax.legend()
+
+    st.pyplot(fig)
 
