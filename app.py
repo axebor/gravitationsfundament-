@@ -5,7 +5,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Gravitationsfundament", layout="wide")
 
-# CSS för att styra bredd på inputfält och justera enhets-text inline
+# CSS för lika breda inputfält
 st.markdown(
     """
     <style>
@@ -13,15 +13,6 @@ st.markdown(
         max-width: 120px;
         width: 100%;
         box-sizing: border-box;
-        display: inline-block;
-        vertical-align: middle;
-    }
-    .inline-unit {
-        display: inline-block;
-        margin-left: 6px;
-        vertical-align: middle;
-        font-size: 16px;
-        color: #333;
     }
     </style>
     """,
@@ -51,11 +42,14 @@ with col_in:
     fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
 
     if fundament_i_vatten:
-        st.markdown("Mått från underkant fundament,  $z_{v}$")
-        # Här kommer inputfält och enhet på samma rad i inline-block
-        zv_input = st.text_input("", value="0.0", key="z_niva")
-        st.markdown(f'<span class="inline-unit">m</span>', unsafe_allow_html=True)
-        zv_str = zv_input
+        # Här skapar vi tre kolumner med proportioner som passar
+        col1, col2, col3 = st.columns([3, 1, 1])
+        with col1:
+            st.markdown("Mått från underkant fundament,  $z_{v}$")
+        with col2:
+            zv_str = st.text_input("", value="0.0", key="z_niva")
+        with col3:
+            st.markdown("m")
     else:
         zv_str = None
 
@@ -72,6 +66,6 @@ with col_in:
         st.error("❌ Ange giltiga numeriska värden för geometri och vattennivå.")
         st.stop()
 
-# Resten av din kod för figur och resultat...
+# ... fortsätt med figurer och resultat ...
 
 
