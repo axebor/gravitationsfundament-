@@ -1,8 +1,9 @@
 import streamlit as st
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Gravitationsfundament", layout="wide")
 
-# CSS för alla textinput-fält
+# CSS för lika breda inputfält
 st.markdown(
     """
     <style>
@@ -43,13 +44,8 @@ with col_in:
 
     if fundament_i_vatten:
         z_niva_str = st.text_input("Z-nivå vatten (m) från underkant fundament", value="0.0", key="z_niva")
-        try:
-            z_niva = float(z_niva_str)
-        except ValueError:
-            st.error("❌ Ange ett giltigt tal för Z-nivå.")
-            st.stop()
     else:
-        z_niva = None
+        z_niva_str = None
 
     # Konvertera till float med avrundning till 1 decimal
     try:
@@ -57,45 +53,61 @@ with col_in:
         h_b = round(float(h_b_str), 1)
         D_s = round(float(D_s_str), 1)
         h_s = round(float(h_s_str), 1)
+        if fundament_i_vatten:
+            z_niva = float(z_niva_str)
+        else:
+            z_niva = None
     except ValueError:
-        st.error("❌ Ange giltiga numeriska värden för geometri.")
+        st.error("❌ Ange giltiga numeriska värden för geometri och vattennivå.")
         st.stop()
-import matplotlib.pyplot as plt
 
 with col_out:
     st.header("Måttkedjor")
 
     fig, ax = plt.subplots(figsize=(6, 6))
 
-    # Om vattennivån finns och är över 0
+    # Rita ljusblå bakgrund och vattenlinje om fundament är i vatten
     if fundament_i_vatten and z_niva is not None and z_niva > 0:
-        # Färga bakgrunden under vattennivån ljusblå
         ax.fill_between(
-            x=[-max(D_b, D_s) - 1, max(D_b, D_s) + 1], 
+            x=[-max(D_b, D_s) - 1, max(D_b, D_s) + 1],
             y1=0, y2=z_niva, color='lightblue', alpha=0.5)
-
-        # Rita vattenlinjen
-        ax.hlines(y=z_niva, xmin=-max(D_b, D_s) - 1, xmax=max(D_b, D_s) + 1, 
+        ax.hlines(y=z_niva, xmin=-max(D_b, D_s) - 1, xmax=max(D_b, D_s) + 1,
                   colors='blue', linestyles='--', linewidth=2, label='Vattenlinje')
 
-    # Ritning av bottenplatta och skaft som rektanglar
-    ax.plot([-D_b/2, D_b/2], [0, 0], 'k-')             # Bottenplattans bottenlinje
-    ax.plot([-D_b/2, -D_b/2], [0, h_b], 'k-')          # Bottenplattans vänsterkant
-    ax.plot([D_b/2, D_b/2], [0, h_b], 'k-')            # Bottenplattans högerkant
-    ax.plot([-D_b/2, D_b/2], [h_b, h_b], 'k-')         # Bottenplattans topp
+    # Bottenplatta
+    ax.plot([-D_b/2, D_b/2], [0, 0], 'k-')
+    ax.plot([-D_b/2, -D_b/2], [0, h_b], 'k-')
+    ax.plot([D_b/2, D_b/2], [0, h_b], 'k-')
+    ax.plot([-D_b/2, D_b/2], [h_b, h_b], 'k-')
 
-    ax.plot([-D_s/2, D_s/2], [h_b, h_b], 'k-')         # Skaftets bottenlinje
-    ax.plot([-D_s/2, -D_s/2], [h_b, h_b + h_s], 'k-')  # Skaftets vänsterkant
-    ax.plot([D_s/2, D_s/2], [h_b, h_b + h_s], 'k-')    # Skaftets högerkant
-    ax.plot([-D_s/2, D_s/2], [h_b + h_s, h_b + h_s], 'k-') # Skaftets topp
+    # Skaft
+    ax.plot([-D_s/2, D_s/2], [h_b, h_b], 'k-')
+    ax.plot([-D_s/2, -D_s/2], [h_b, h_b + h_s], 'k-')
+    ax.plot([D_s/2, D_s/2], [h_b, h_b + h_s], 'k-')
+    ax.plot([-D_s/2, D_s/2], [h_b + h_s, h_b + h_s], 'k-')
 
-    # Måttpilar och beteckningar (horisontella diametrar)
+    # Måttpilar och etiketter - diametrar
     ax.annotate("", xy=(D_b/2, -0.5), xytext=(-D_b/2, -0.5),
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(0, -0.7, r"$D_b$", ha='center', va='top', fontsize=12)
 
     ax.annotate("", xy=(D_s/2, h_b + h_s + 0.5), xytext=(-D_s/2, h_b + h_s + 0.5),
                 arrowprops=dict(arrowstyle="<->"))
-    ax.text(0, h_b + h_s + 0.7, r"$D_s$", ha='center', va='bottom', f_
+    ax.text(0, h_b + h_s + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
 
+    # Måttpilar och etiketter - höjder
+    ax.annotate("", xy=(D_b/2 + 0.5, 0), xytext=(D_b/2 + 0.5, h_b),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(D_b/2 + 0.6, h_b/2, r"$h_b$", va='center', fontsize=12)
+
+    ax.annotate("", xy=(D_s/2 + 0.5, h_b), xytext=(D_s/2 + 0.5, h_b + h_s),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(D_s/2 + 0.6, h_b + h_s/2, r"$h_s$", va='center', fontsize=12)
+
+    ax.set_xlim(-max(D_b, D_s) - 1, max(D_b, D_s) + 1)
+    ax.set_ylim(-1, max(h_b + h_s, z_niva if z_niva else 0) + 1)
+    ax.set_aspect('equal')
+    ax.axis('off')
+
+    st.pyplot(fig)
 
