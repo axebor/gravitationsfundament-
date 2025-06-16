@@ -22,7 +22,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Tre lika breda kolumner
 col_in, col_out, col_res = st.columns([1, 1, 1])
 
 with col_in:
@@ -46,9 +45,9 @@ with col_in:
     fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
 
     if fundament_i_vatten:
-        z_niva_str = st.text_input("Z-nivå vatten (m) från underkant fundament", value="0.0", key="z_niva")
+        zv_str = st.text_input("zv (v nedsänkt) (m) från underkant fundament", value="0.0", key="z_niva")
     else:
-        z_niva_str = None
+        zv_str = None
 
     try:
         D_b = round(float(D_b_str), 1)
@@ -56,9 +55,9 @@ with col_in:
         D_s = round(float(D_s_str), 1)
         h_s = round(float(h_s_str), 1)
         if fundament_i_vatten:
-            z_niva = float(z_niva_str)
+            zv = float(zv_str)
         else:
-            z_niva = None
+            zv = None
     except ValueError:
         st.error("❌ Ange giltiga numeriska värden för geometri och vattennivå.")
         st.stop()
@@ -68,12 +67,17 @@ with col_out:
 
     fig, ax = plt.subplots(figsize=(6, 6))
 
-    if fundament_i_vatten and z_niva is not None and z_niva > 0:
+    if fundament_i_vatten and zv is not None and zv > 0:
         ax.fill_between(
             x=[-max(D_b, D_s) - 1, max(D_b, D_s) + 1],
-            y1=0, y2=z_niva, color='lightblue', alpha=0.5)
-        ax.hlines(y=z_niva, xmin=-max(D_b, D_s) - 1, xmax=max(D_b, D_s) + 1,
+            y1=0, y2=zv, color='lightblue', alpha=0.5)
+        ax.hlines(y=zv, xmin=-max(D_b, D_s) - 1, xmax=max(D_b, D_s) + 1,
                   colors='blue', linestyles='--', linewidth=2, label='Vattenlinje')
+
+        # Måttpil för vattennivå zv
+        ax.annotate("", xy=(max(D_b, D_s) + 0.5, 0), xytext=(max(D_b, D_s) + 0.5, zv),
+                    arrowprops=dict(arrowstyle="<->"))
+        ax.text(max(D_b, D_s) + 0.7, zv / 2, r"$z_v$", va='center', fontsize=12, color='blue')
 
     # Bottenplatta
     ax.plot([-D_b/2, D_b/2], [0, 0], 'k-')
@@ -105,8 +109,8 @@ with col_out:
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s/2 + 0.6, h_b + h_s/2, r"$h_s$", va='center', fontsize=12)
 
-    ax.set_xlim(-max(D_b, D_s) - 1, max(D_b, D_s) + 1)
-    ax.set_ylim(-1, max(h_b + h_s, z_niva if z_niva else 0) + 1)
+    ax.set_xlim(-max(D_b, D_s) - 1, max(D_b, D_s) + 1.5)
+    ax.set_ylim(-1, max(h_b + h_s, zv if zv else 0) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
 
@@ -120,11 +124,11 @@ with col_res:
     vol_bottenplatta = pi * (D_b / 2) ** 2 * h_b
     vol_skaft = pi * (D_s / 2) ** 2 * h_s
 
-    if fundament_i_vatten and z_niva is not None and z_niva > 0:
-        under_vatten_botten = max(0, min(z_niva, h_b)) * pi * (D_b / 2) ** 2
+    if fundament_i_vatten and zv is not None and zv > 0:
+        under_vatten_botten = max(0, min(zv, h_b)) * pi * (D_b / 2) ** 2
         ovan_vatten_botten = vol_bottenplatta - under_vatten_botten
 
-        under_vatten_skaft = max(0, min(z_niva - h_b, h_s)) * pi * (D_s / 2) ** 2
+        under_vatten_skaft = max(0, min(zv - h_b, h_s)) * pi * (D_s / 2) ** 2
         ovan_vatten_skaft = vol_skaft - under_vatten_skaft
     else:
         under_vatten_botten = 0
@@ -143,8 +147,9 @@ with col_res:
     }, index=["Bottenplatta", "Skaft"])
     st.table(df_volymer.style.format("{:.1f}"))
 
-    st.subheader("Egenvikt fundament")
+    st.subheader("Gk, fund")
     df_vikter = pd.DataFrame({
         "Vikt (kN)": [vikt_ovan, vikt_under, vikt_tot]
     }, index=["Över vatten", "Under vatten", "Total egenvikt (Gk)"])
     st.table(df_vikter.style.format("{:.1f}"))
+
