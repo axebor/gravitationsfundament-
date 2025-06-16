@@ -22,7 +22,7 @@ with col_in:
         col1, col2, col3, col4 = st.columns([2.5, 1, 1.2, 1])
         col1.write("Diameter bottenplatta")
         col2.markdown("$D_b$")
-        D_b_str = col3.text_input(label="", value="5.0", key="D_b")
+        D_b = col3.number_input(label="", value=5.0, step=0.1, format="%.1f", key="D_b")
         col4.write("m")
 
     # --- Höjd bottenplatta ---
