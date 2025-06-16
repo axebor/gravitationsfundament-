@@ -50,14 +50,6 @@ with col_in:
         col4.write("m")
 
     # --- Konvertera till tal ---
-    try:
-        D_b = round(float(D_b_str), 1)
-        h_b = round(float(h_b_str), 1)
-        D_s = round(float(D_s_str), 1)
-        h_s = round(float(h_s_str), 1)
-    except ValueError:
-        st.error("❌ Ange numeriska värden i fälten ovan.")
-        st.stop()
 
 # Högerkolumn – Resultat (tom för nu)
 with col_out:
