@@ -11,11 +11,15 @@ st.markdown("""
         .element-container:has(.stMarkdown) {
             line-height: 1.1rem;
         }
+        .stMarkdown {
+            vertical-align: top;
+        }
         input[type="text"] {
             margin-top: 0.2rem;
         }
     </style>
 """, unsafe_allow_html=True)
+
 
 # Två kolumner: vänster = indata, höger = resultat
 col_in, col_out = st.columns(2)
