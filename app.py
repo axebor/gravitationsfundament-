@@ -1,46 +1,21 @@
 import streamlit as st
 
 st.set_page_config(page_title="Gravitationsfundament", layout="wide")
+col_in, col_out = st.columns(2)
 
-st.markdown("""
-<style>
-.table-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 0.5rem;
-}
-.label {
-    width: 220px;
-}
-.symbol {
-    width: 80px;
-    font-family: 'Computer Modern', serif;
-}
-.input {
-    width: 100px;
-}
-.unit {
-    width: 40px;
-}
-input[type="number"] {
-    padding: 4px;
-    font-size: 15px;
-    width: 80px;
-}
-</style>
-""", unsafe_allow_html=True)
+with col_in:
+    st.header("Indata")
+    
+    def indata_rad(label, symbol, enhet, key, default):
+        col1, col2, col3, col4 = st.columns([2.5, 1, 1.2, 1])
+        col1.write(label)
+        col2.write(symbol)
+        val = col3.text_input(label="", value=default, key=key)
+        col4.write(enhet)
+        return float(val)
 
-# En rad (hårdkodad) – justera/förläng för fler
-st.markdown("""
-<div class="table-row">
-    <div class="label">Diameter bottenplatta</div>
-    <div class="symbol">\( D_b \)</div>
-    <div class="input">
-        <input type="number" name="D_b" value="5.0" step="0.1">
-    </div>
-    <div class="unit">m</div>
-</div>
-""", unsafe_allow_html=True)
+    D_b = indata_rad("Diameter bottenplatta", "D_b", "m", "D_b", "5.0")
+    h_b = indata_rad("Höjd bottenplatta", "h_b", "m", "h_b", "1.0")
+    D_s = indata_rad("Diameter skaft", "D_s", "m", "D_s", "1.0")
+    h_s = indata_rad("Höjd skaft", "h_s", "m", "h_s", "2.0")
 
-st.info("⚠️ Värdet ovan kan inte direkt användas i Python – endast visning.")
