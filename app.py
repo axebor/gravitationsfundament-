@@ -2,23 +2,19 @@ import streamlit as st
 
 st.set_page_config(page_title="Gravitationsfundament", layout="wide")
 
-# CSS: Alla textinput-fält får samma maxbredd och bredd
-st.markdown("""
-    <style>
-    div[data-testid="stTextInput"] > div > input {
-        width: 120px !important;
-        max-width: 120px !important;
-        box-sizing: border-box;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# ─────────────────────────────────────
+# Layout: två kolumner – vänster & höger
+# ─────────────────────────────────────
+col_in, col_out = st.columns([1, 3])
 
-col_in, col_out = st.columns(2)
-
+# ───────────────
+# INDATA – Vänster kolumn
+# ───────────────
 with col_in:
     st.header("Indata")
     st.subheader("Geometri")
 
+    # --- Bottenplatta ---
     st.markdown("**Bottenplatta**")
     col_b1, col_b2 = st.columns(2)
     with col_b1:
@@ -26,6 +22,7 @@ with col_in:
     with col_b2:
         h_b_str = st.text_input("Höjd hₐ (m)", value="1.0")
 
+    # --- Skaft ---
     st.markdown("**Skaft (centrerat ovanpå)**")
     col_s1, col_s2 = st.columns(2)
     with col_s1:
@@ -33,6 +30,7 @@ with col_in:
     with col_s2:
         h_s_str = st.text_input("Höjd hₛ (m)", value="2.0")
 
+    # Konvertera till float med avrundning till 1 decimal
     try:
         D_b = round(float(D_b_str), 1)
         h_b = round(float(h_b_str), 1)
@@ -41,5 +39,3 @@ with col_in:
     except ValueError:
         st.error("❌ Ange giltiga numeriska värden för geometri.")
         st.stop()
-
-
