@@ -22,8 +22,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Tre kolumner: vänster, mitten, höger
-col_in, col_out, col_res = st.columns([1, 3, 1.5])
+# Alla kolumner lika breda
+col_in, col_out, col_res = st.columns([1, 1, 1])
 
 with col_in:
     st.header("Indata")
@@ -65,7 +65,7 @@ with col_in:
         st.stop()
 
 with col_out:
-    st.header("Måttkedjor")
+    st.header("Figur")
 
     fig, ax = plt.subplots(figsize=(6, 6))
 
@@ -140,10 +140,17 @@ with col_res:
     vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
     vikt_tot = vikt_ovan + vikt_under
 
-    df = pd.DataFrame({
-        "Över vatten (m³)": [round(ovan_vatten_botten, 3), round(ovan_vatten_skaft, 3), round(vikt_ovan, 3)],
-        "Under vatten (m³)": [round(under_vatten_botten, 3), round(under_vatten_skaft, 3), round(vikt_under, 3)]
-    }, index=["Bottenplatta", "Skaft", "Egenvikt (kN)"])
+    # Tabell med volymer
+    df_volymer = pd.DataFrame({
+        "Över vatten (m³)": [round(ovan_vatten_botten, 3), round(ovan_vatten_skaft, 3)],
+        "Under vatten (m³)": [round(under_vatten_botten, 3), round(under_vatten_skaft, 3)]
+    }, index=["Bottenplatta", "Skaft"])
+    st.table(df_volymer)
 
-    st.table(df)
+    # Tabell med vikter
+    df_vikter = pd.DataFrame({
+        "Vikt (kN)": [round(vikt_ovan, 3), round(vikt_under, 3), round(vikt_tot, 3)]
+    }, index=["Över vatten", "Under vatten", "Total egenvikt (Gk)"])
+    st.table(df_vikter)
+
 
