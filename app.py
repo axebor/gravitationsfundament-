@@ -44,8 +44,9 @@ with col_in:
 
     fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
 
-    if fundament_i_vatten:
-        zv_str = st.text_input("zv (v nedsänkt) (m) från underkant fundament", value="0.0", key="z_niva")
+if fundament_i_vatten:
+    st.markdown(r"**$z_{v}$ (m) från underkant fundament**", unsafe_allow_html=True)
+    zv_str = st.text_input("", value="0.0", key="z_niva")
     else:
         zv_str = None
 
