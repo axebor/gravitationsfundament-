@@ -1,5 +1,7 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 st.set_page_config(page_title="Gravitationsfundament", layout="wide")
 
@@ -20,7 +22,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-col_in, col_out = st.columns([1, 3])
+# Tre kolumner: vänster, mitten, höger
+col_in, col_out, col_res = st.columns([1, 3, 1.5])
 
 with col_in:
     st.header("Indata")
@@ -66,7 +69,6 @@ with col_out:
 
     fig, ax = plt.subplots(figsize=(6, 6))
 
-    # Rita ljusblå bakgrund och vattenlinje om fundament är i vatten
     if fundament_i_vatten and z_niva is not None and z_niva > 0:
         ax.fill_between(
             x=[-max(D_b, D_s) - 1, max(D_b, D_s) + 1],
@@ -110,4 +112,38 @@ with col_out:
     ax.axis('off')
 
     st.pyplot(fig)
+
+with col_res:
+    st.header("Resultat")
+
+    pi = np.pi
+
+    # Volymer
+    vol_bottenplatta = pi * (D_b / 2) ** 2 * h_b
+    vol_skaft = pi * (D_s / 2) ** 2 * h_s
+
+    # Volymer under vatten och ovan vatten
+    if fundament_i_vatten and z_niva is not None and z_niva > 0:
+        under_vatten_botten = max(0, min(z_niva, h_b)) * pi * (D_b / 2) ** 2
+        ovan_vatten_botten = vol_bottenplatta - under_vatten_botten
+
+        under_vatten_skaft = max(0, min(z_niva - h_b, h_s)) * pi * (D_s / 2) ** 2
+        ovan_vatten_skaft = vol_skaft - under_vatten_skaft
+    else:
+        under_vatten_botten = 0
+        ovan_vatten_botten = vol_bottenplatta
+        under_vatten_skaft = 0
+        ovan_vatten_skaft = vol_skaft
+
+    # Vikter (kN)
+    vikt_ovan = (ovan_vatten_botten + ovan_vatten_skaft) * 25
+    vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
+    vikt_tot = vikt_ovan + vikt_under
+
+    df = pd.DataFrame({
+        "Över vatten (m³)": [round(ovan_vatten_botten, 3), round(ovan_vatten_skaft, 3), round(vikt_ovan, 3)],
+        "Under vatten (m³)": [round(under_vatten_botten, 3), round(under_vatten_skaft, 3), round(vikt_under, 3)]
+    }, index=["Bottenplatta", "Skaft", "Egenvikt (kN)"])
+
+    st.table(df)
 
