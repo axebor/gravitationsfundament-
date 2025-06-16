@@ -46,7 +46,7 @@ with col_in:
     fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
 
     if fundament_i_vatten:
-        z_niva_str = st.text_input("Z-nivå vatten (m) från underkant fundament", value="0.0", key="z_niva")
+        z_niva_str = st.text_input(r"$Z_{v}$ (m) från underkant fundament", value="0.0", key="z_niva")
     else:
         z_niva_str = None
 
@@ -69,12 +69,19 @@ with col_out:
 
     fig, ax = plt.subplots(figsize=(6, 6))
 
+    max_diameter = max(D_b, D_s)
+
     if fundament_i_vatten and z_niva is not None and z_niva > 0:
         ax.fill_between(
-            x=[-max(D_b, D_s) - 1, max(D_b, D_s) + 1],
+            x=[-max_diameter - 1, max_diameter + 1],
             y1=0, y2=z_niva, color='lightblue', alpha=0.5)
-        ax.hlines(y=z_niva, xmin=-max(D_b, D_s) - 1, xmax=max(D_b, D_s) + 1,
+        ax.hlines(y=z_niva, xmin=-max_diameter - 1, xmax=max_diameter + 1,
                   colors='blue', linestyles='--', linewidth=2, label='Vattenlinje')
+
+        # Måttpil och etikett för Zv
+        ax.annotate("", xy=(max_diameter + 0.5, 0), xytext=(max_diameter + 0.5, z_niva),
+                    arrowprops=dict(arrowstyle="<->", color='blue'))
+        ax.text(max_diameter + 0.7, z_niva / 2, r"$Z_{v}$", va='center', fontsize=12, color='blue')
 
     # Bottenplatta
     ax.plot([-D_b/2, D_b/2], [0, 0], 'k-')
@@ -106,7 +113,7 @@ with col_out:
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s/2 + 0.6, h_b + h_s/2, r"$h_s$", va='center', fontsize=12)
 
-    ax.set_xlim(-max(D_b, D_s) - 1, max(D_b, D_s) + 1)
+    ax.set_xlim(-max_diameter - 1, max_diameter + 1.5)
     ax.set_ylim(-1, max(h_b + h_s, z_niva if z_niva else 0) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
