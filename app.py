@@ -25,7 +25,8 @@ st.markdown(
 
 pil_längd_extra = 3
 pil_längd_extra_vert = 1.5
-zQ1_x_offset = 0.7  # flytt av zQ1 mått utåt till vänster
+zQ1_x_offset = 1.2  # flytt ut åt vänster för zQ1
+zQ2_x_offset = 0.9  # flytt ut åt vänster för zQ2
 
 col_in, col_out, col_res = st.columns([1, 1, 1])
 
@@ -139,7 +140,7 @@ with col_out:
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s / 2 + 0.6, H_b + H_s / 2, r"$H_s$", va='center', fontsize=12)
 
-    # Horisontella laster Qk,H1 och Qk,H2 i rött
+    # Horisontella laster Qk,H1 och Qk,H2 i rött, med större x-offset på zQ1 och zQ2
     if Qk_H1 > 0:
         ax.annotate(
             "",
@@ -147,7 +148,8 @@ with col_out:
             xytext=(-D_s / 2 - pil_längd_extra, z_Q1),
             arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
         )
-        ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ1_x_offset, z_Q1 + 0.3, r"$Q_{k,H1}$", fontsize=14, color='red', ha='center')
+        ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ1_x_offset, z_Q1 + 0.3,
+                r"$Q_{k,H1}$", fontsize=14, color='red', ha='center')
 
         ax.annotate(
             "",
@@ -155,7 +157,8 @@ with col_out:
             xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, z_Q1),
             arrowprops=dict(arrowstyle="<->", color='red')
         )
-        ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ1_x_offset, z_Q1 / 2, r"$z_{Q1}$", va='center', fontsize=12, color='red')
+        ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ1_x_offset, z_Q1 / 2,
+                r"$z_{Q1}$", va='center', fontsize=12, color='red')
 
     if Qk_H2 > 0:
         ax.annotate(
@@ -164,15 +167,17 @@ with col_out:
             xytext=(-D_s / 2 - pil_längd_extra, z_Q2),
             arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
         )
-        ax.text(-D_s / 2 - pil_längd_extra / 2, z_Q2 + 0.3, r"$Q_{k,H2}$", fontsize=14, color='red', ha='center')
+        ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ2_x_offset, z_Q2 + 0.3,
+                r"$Q_{k,H2}$", fontsize=14, color='red', ha='center')
 
         ax.annotate(
             "",
-            xy=(-D_s / 2 - pil_längd_extra - 0.3, 0),
-            xytext=(-D_s / 2 - pil_längd_extra - 0.3, z_Q2),
+            xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, 0),
+            xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, z_Q2),
             arrowprops=dict(arrowstyle="<->", color='red')
         )
-        ax.text(-D_s / 2 - pil_längd_extra - 0.1, z_Q2 / 2, r"$z_{Q2}$", va='center', fontsize=12, color='red')
+        ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ2_x_offset, z_Q2 / 2,
+                r"$z_{Q2}$", va='center', fontsize=12, color='red')
 
     # Vertikal last Gk,övrigt
     if Gk_ovr > 0:
@@ -184,7 +189,7 @@ with col_out:
         )
         ax.text(0, pil_längd_extra_vert + 0.3, r"$G_{k,\mathrm{övrigt}}$", fontsize=14, color='red', ha='center')
 
-    ax.set_xlim(-max_diameter - pil_längd_extra - 1 - zQ1_x_offset, max_diameter + 1.5)
+    ax.set_xlim(-max_diameter - pil_längd_extra - 1 - max(zQ1_x_offset, zQ2_x_offset), max_diameter + 1.5)
     ax.set_ylim(-pil_längd_extra_vert - 1, max(H_b + H_s, z_v if z_v else 0, z_Q1, z_Q2) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
