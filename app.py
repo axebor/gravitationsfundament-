@@ -321,8 +321,3 @@ with col_res:
     """
 
     st.markdown(lastkombination_md)
-
-
-    st.markdown(lastkombination_md)
-
-
