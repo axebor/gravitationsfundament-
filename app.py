@@ -32,16 +32,16 @@ with col_in:
     st.markdown("**Bottenplatta**")
     col_b1, col_b2 = st.columns(2)
     with col_b1:
-        D_b_str = st.text_input("Diameter Dₐ (m)", value="5.0")
+        D_b_str = st.text_input(r"Diameter D_{b} (m)", value="5.0")
     with col_b2:
-        h_b_str = st.text_input("Höjd hₐ (m)", value="1.0")
+        h_b_str = st.text_input("Höjd Hₐ (m)", value="1.0")
 
     st.markdown("**Skaft (centrerat ovanpå)**")
     col_s1, col_s2 = st.columns(2)
     with col_s1:
         D_s_str = st.text_input("Diameter Dₛ (m)", value="1.0")
     with col_s2:
-        h_s_str = st.text_input("Höjd hₛ (m)", value="2.0")
+        h_s_str = st.text_input("Höjd Hₛ (m)", value="2.0")
 
     fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
 
