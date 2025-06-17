@@ -150,18 +150,18 @@ with col_res:
     # Underrubrik Volym
     st.markdown("### Volym")
 
-    # Tabell med volymer (avrundat till 1 decimal)
+    # Tabell med volymer (avrundat till 1 decimal och formaterat)
     df_volymer = pd.DataFrame({
-        "Över vatten (m³)": [round(ovan_vatten_botten, 1), round(ovan_vatten_skaft, 1)],
-        "Under vatten (m³)": [round(under_vatten_botten, 1), round(under_vatten_skaft, 1)]
+        "Över vatten (m³)": [ovan_vatten_botten, ovan_vatten_skaft],
+        "Under vatten (m³)": [under_vatten_botten, under_vatten_skaft]
     }, index=["Bottenplatta", "Skaft"])
-    st.table(df_volymer)
+    st.table(df_volymer.style.format("{:.1f}"))
 
     # Underrubrik Egenvikt
     st.markdown("### Egenvikt")
 
-    # Tabell med vikter (avrundat till 1 decimal)
+    # Tabell med vikter (avrundat till 1 decimal och formaterat)
     df_vikter = pd.DataFrame({
-        "Vikt (kN)": [round(vikt_ovan, 1), round(vikt_under, 1), round(vikt_tot, 1)]
+        "Vikt (kN)": [vikt_ovan, vikt_under, vikt_tot]
     }, index=["Över vatten", "Under vatten", "Total egenvikt (Gk, fund)"])
-    st.table(df_vikter)
+    st.table(df_vikter.style.format("{:.1f}"))
