@@ -249,38 +249,6 @@ with col_res:
     df_moment = pd.DataFrame({
         "Moment (kNm)": [M_Q1, M_Q2, M_tot]
     }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
-   st.markdown("### Lastkombinationer enligt SS-EN 1990")
-
-st.markdown(r"""
-**STR 6.10**  
-$M_{Ed} = 1.35 \times M_{tot}$  
-$V_{Ed} = 1.35 \times G_{tot}$  
-
-**EQU 6.10**  
-$M_{Ed} = 1.0 \times M_{tot} + 1.5 \times 0.5 \times G_{tot}$  
-$V_{Ed} = 1.0 \times G_{tot}$  
-
-**SLS 6.14b**  
-$M_{Ed} = 1.0 \times M_{tot}$  
-$V_{Ed} = 1.0 \times G_{tot}$
-""")
-
-# Beräkna lastkombinationerna
-M_Str = 1.35 * M_tot
-V_Str = 1.35 * Gk_tot
-M_Equ = 1.0 * M_tot + 1.5 * 0.5 * Gk_tot
-V_Equ = 1.0 * Gk_tot
-M_SLS = 1.0 * M_tot
-V_SLS = 1.0 * Gk_tot
-
-df_varden = pd.DataFrame({
-    "STR 6.10": [round(M_Str, 1), round(V_Str, 1)],
-    "EQU 6.10": [round(M_Equ, 1), round(V_Equ, 1)],
-    "SLS 6.14b": [round(M_SLS, 1), round(V_SLS, 1)],
-}, index=[r"$M_{Ed}$", r"$V_{Ed}$"])
-
-st.table(df_varden)
-
     st.table(df_moment.style.format("{:.1f}"))
 
 
