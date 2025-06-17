@@ -82,17 +82,13 @@ with col_in:
             unsafe_allow_html=True
         )
 
-    col_q1, col_zq1 = st.columns(2)
+    col_q1, col_q2, col_psi = st.columns(3)
     with col_q1:
         Qk_H1_str = st.text_input(r"Huvudlast horisontell $Q_{k,H1}$ (kN)", value="5.0")
-    with col_zq1:
-        z_Q1_str = st.text_input(r"Angreppsplan $z_{Q1}$ (m)", value="0.0")
-
-    col_q2, col_zq2 = st.columns(2)
     with col_q2:
         Qk_H2_str = st.text_input(r"Övrig last horisontell $Q_{k,H2}$ (kN)", value="0.0")
-    with col_zq2:
-        z_Q2_str = st.text_input(r"Angreppsplan $z_{Q2}$ (m)", value="0.0", key="z_Q2")
+    with col_psi:
+        psi_ovr = st.number_input("Gaffelfaktor $\psi_0$", min_value=0.0, max_value=1.0, value=1.0, step=0.05)
 
     Gk_ovr_str = st.text_input(r"Vertikal last $G_{k,\mathrm{övrigt}}$ (kN)", value="5.0")
 
@@ -103,9 +99,9 @@ with col_in:
         H_s = round(float(H_s_str), 1)
 
         Qk_H1 = float(Qk_H1_str)
-        z_Q1 = round(float(z_Q1_str), 1)
         Qk_H2 = float(Qk_H2_str)
-        z_Q2 = round(float(z_Q2_str), 1)
+        z_Q1 = round(float(st.text_input(r"Angreppsplan $z_{Q1}$ (m)", value="0.0")), 1)
+        z_Q2 = round(float(st.text_input(r"Angreppsplan $z_{Q2}$ (m)", value="0.0", key="z_Q2")), 1)
         Gk_ovr = float(Gk_ovr_str)
 
         if fundament_i_vatten:
@@ -117,8 +113,9 @@ with col_in:
         st.stop()
 
 with col_out:
-    st.header("Figur")
+    # (Behåll din befintliga figurkod som tidigare)
 
+    st.header("Figur")
     fig, ax = plt.subplots(figsize=(8, 8))
     max_diameter = max(D_b, D_s)
 
@@ -298,15 +295,14 @@ with col_res:
     )
 
     lastkombination_md = f"""
-    | Parameter                                | Lastkombination 3 (Jämvikt) | Lastkombination 4 (Geoteknisk) |
-    |----------------------------------------|-----------------------------|--------------------------------|
-    | Permanent last, ogynnsam                | $1.10 \\times \\gamma_d$     | $1.10 \\times \\gamma_d$ (lägst)|
-    | Permanent last, gynnsam                 | $0.90 \\times \\gamma_d$     | $1.00 \\times \\gamma_d$        |
-    | Variabel last, ogynnsam huvudlast      | $1.50 \\times \\gamma_d$     | $1.40 \\times \\gamma_d$        |
-    | Variabel last, ogynnsam övriga laster  | $1.50 \\times \\gamma_d$     | $1.40 \\times \\gamma_d$        |
-    | Variabel last, gynnsam                  | $0$                         | $0$                           |
-    | Vertikal last (total)                   | {1.1 * gamma_d * Gk_tot:.1f} kN | {max(1.1 * gamma_d * Gk_tot, Gk_tot):.1f} kN |
-    | Moment (total)                         | {0.9 * gamma_d * Gk_tot:.1f} kNm | {1.4 * M_tot:.1f} kNm          |
+    | Parameter                               | Lastkombination 3 (Jämvikt)        | Lastkombination 4 (Geoteknisk)        |
+    |---------------------------------------|-----------------------------------|---------------------------------------|
+    | Permanent last, ogynnsam               | $1.10$                            | $1.10 \\times \\gamma_d$ (lägst)       |
+    | Permanent last, gynnsam                | $0.90 \\times \\gamma_d$          | $1.00 \\times \\gamma_d$                |
+    | Variabel last, ogynnsam huvudlast     | $1.50 \\times \\gamma_d$          | $1.40 \\times \\gamma_d$                |
+    | Variabel last, ogynnsam övriga laster | $1.50 \\times \\gamma_d \\times \\psi_0$ | $1.40 \\times \\gamma_d \\times \\psi_0$ |
+    | Vertikal last (total)                  | {1.1 * Gk_tot:.1f} kN             | {max(1.1 * gamma_d * Gk_tot, Gk_tot):.1f} kN |
+    | Moment (total)                        | {0.9 * gamma_d * Gk_tot:.1f} kNm  | {1.4 * M_tot:.1f} kNm                   |
     """
 
     st.markdown(lastkombination_md)
