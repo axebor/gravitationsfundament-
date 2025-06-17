@@ -5,7 +5,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Gravitationsfundament", layout="wide")
 
-# CSS för lika breda inputfält + vertikala linjer mellan kolumner
+# CSS för lika breda inputfält + vertikala linjer mellan kolumner (ej indata-kolumn)
 st.markdown(
     """
     <style>
@@ -18,16 +18,13 @@ st.markdown(
     div[data-testid="stTextInput"][data-key="z_Q2"] > div > input {
         max-width: 150px;
     }
-    /* Vertikala linjer mellan kolumner */
-    [data-testid="stColumn"] {
-        border-left: 1px solid #cccccc;
-        padding-left: 15px;
+    /* Vertikala linjer mellan kolumner - endast mellan mitt och höger */
+    [data-testid="stColumns"] > div:nth-child(2) {
+        border-right: 1px solid #cccccc;
         padding-right: 15px;
     }
-    /* Ingen vänster kantlinje på första kolumnen */
-    [data-testid="stColumn"]:first-child {
-        border-left: none;
-        padding-left: 0;
+    [data-testid="stColumns"] > div:nth-child(3) {
+        padding-left: 15px;
     }
     </style>
     """,
@@ -39,7 +36,8 @@ pil_längd_extra_vert = 1.5
 zQ1_x_offset = 1.2  # flytt ut åt vänster för zQ1
 zQ2_x_offset = 0.9  # flytt ut åt vänster för zQ2
 
-col_in, col_out, col_res = st.columns([1, 1, 1])
+# Bytt plats på kolumnerna: indatavänster, resultat mitten, figur höger
+col_in, col_res, col_out = st.columns([1, 1, 1])
 
 with col_in:
     st.header("Indata")
@@ -70,7 +68,6 @@ with col_in:
 
     st.subheader("Laster")
 
-    # Säkerhetsfaktor-rad
     sk_col1, sk_col2 = st.columns([1, 1])
     with sk_col1:
         säkerhetsklass_val = st.selectbox(
@@ -119,6 +116,69 @@ with col_in:
     except ValueError:
         st.error("❌ Ange giltiga numeriska värden för geometri, vattennivå och laster.")
         st.stop()
+
+with col_res:
+    st.header("Resultat")
+
+    pi = np.pi
+
+    vol_bottenplatta = pi * (D_b / 2) ** 2 * H_b
+    vol_skaft = pi * (D_s / 2) ** 2 * H_s
+
+    if fundament_i_vatten and z_v is not None and z_v > 0:
+        under_vatten_botten = max(0, min(z_v, H_b)) * pi * (D_b / 2) ** 2
+        ovan_vatten_botten = vol_bottenplatta - under_vatten_botten
+
+        under_vatten_skaft = max(0, min(z_v - H_b, H_s)) * pi * (D_s / 2) ** 2
+        ovan_vatten_skaft = vol_skaft - under_vatten_skaft
+    else:
+        under_vatten_botten = 0
+        ovan_vatten_botten = vol_bottenplatta
+        under_vatten_skaft = 0
+        ovan_vatten_skaft = vol_skaft
+
+    vikt_ovan = (ovan_vatten_botten + ovan_vatten_skaft) * 25
+    vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
+    vikt_tot = vikt_ovan + vikt_under
+
+    # Vertikala laster från fundamentets delar
+    Gk_b = (ovan_vatten_botten * 25) + (under_vatten_botten * 15)
+    Gk_s = (ovan_vatten_skaft * 25) + (under_vatten_skaft * 15)
+    Gk_ovr = float(Gk_ovr_str)
+    Gk_tot = Gk_b + Gk_s + Gk_ovr
+
+    # Moment från horisontella laster (kraft * momentarm)
+    M_Q1 = Qk_H1 * z_Q1
+    M_Q2 = Qk_H2 * z_Q2
+    M_tot = M_Q1 + M_Q2
+
+    # Lastkombinationer med vald säkerhetsklass γd
+    VEd_ULS_STR = gamma_d * Gk_tot + 1.5 * M_tot
+    VEd_ULS_EQU = 0.9 * gamma_d * Gk_tot + 1.5 * M_tot
+    VEd_SLS = Gk_tot + M_tot
+
+    st.markdown("### Vertikala laster")
+
+    df_vertikala = pd.DataFrame({
+        "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
+    }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
+    st.table(df_vertikala.style.format("{:.1f}"))
+
+    st.markdown("### Moment vid fundamentets underkant")
+
+    df_moment = pd.DataFrame({
+        "Moment (kNm)": [M_Q1, M_Q2, M_tot]
+    }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
+    st.table(df_moment.style.format("{:.1f}"))
+
+    st.markdown("### Lastkombinationer enligt SS-EN 1990")
+
+    df_lastkomb = pd.DataFrame({
+        "ULS STR 6.10": [f"$V_{{Ed}} = {gamma_d:.2f} \cdot G_{{tot}} + 1.5 \cdot M_{{tot}}$", f"{VEd_ULS_STR:.1f}"],
+        "ULS EQU 6.10": [f"$V_{{Ed}} = 0.9 \cdot {gamma_d:.2f} \cdot G_{{tot}} + 1.5 \cdot M_{{tot}}$", f"{VEd_ULS_EQU:.1f}"],
+        "SLS 6.14b": [r"$V_{Ed} = G_{tot} + M_{tot}$", f"{VEd_SLS:.1f}"]
+    }, index=[r"$V_{Ed}$", "Värde (kN)"])
+    st.table(df_lastkomb)
 
 with col_out:
     st.header("Figur")
@@ -225,66 +285,3 @@ with col_out:
     ax.axis('off')
 
     st.pyplot(fig, use_container_width=True)
-
-with col_res:
-    st.header("Resultat")
-
-    pi = np.pi
-
-    vol_bottenplatta = pi * (D_b / 2) ** 2 * H_b
-    vol_skaft = pi * (D_s / 2) ** 2 * H_s
-
-    if fundament_i_vatten and z_v is not None and z_v > 0:
-        under_vatten_botten = max(0, min(z_v, H_b)) * pi * (D_b / 2) ** 2
-        ovan_vatten_botten = vol_bottenplatta - under_vatten_botten
-
-        under_vatten_skaft = max(0, min(z_v - H_b, H_s)) * pi * (D_s / 2) ** 2
-        ovan_vatten_skaft = vol_skaft - under_vatten_skaft
-    else:
-        under_vatten_botten = 0
-        ovan_vatten_botten = vol_bottenplatta
-        under_vatten_skaft = 0
-        ovan_vatten_skaft = vol_skaft
-
-    vikt_ovan = (ovan_vatten_botten + ovan_vatten_skaft) * 25
-    vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
-    vikt_tot = vikt_ovan + vikt_under
-
-    # Vertikala laster från fundamentets delar
-    Gk_b = (ovan_vatten_botten * 25) + (under_vatten_botten * 15)
-    Gk_s = (ovan_vatten_skaft * 25) + (under_vatten_skaft * 15)
-    Gk_ovr = float(Gk_ovr_str)
-    Gk_tot = Gk_b + Gk_s + Gk_ovr
-
-    # Moment från horisontella laster (kraft * momentarm)
-    M_Q1 = Qk_H1 * z_Q1
-    M_Q2 = Qk_H2 * z_Q2
-    M_tot = M_Q1 + M_Q2
-
-    # Lastkombinationer med vald säkerhetsklass γd
-    VEd_ULS_STR = gamma_d * Gk_tot + 1.5 * M_tot
-    VEd_ULS_EQU = 0.9 * gamma_d * Gk_tot + 1.5 * M_tot
-    VEd_SLS = Gk_tot + M_tot
-
-    st.markdown("### Vertikala laster")
-
-    df_vertikala = pd.DataFrame({
-        "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
-    }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
-    st.table(df_vertikala.style.format("{:.1f}"))
-
-    st.markdown("### Moment vid fundamentets underkant")
-
-    df_moment = pd.DataFrame({
-        "Moment (kNm)": [M_Q1, M_Q2, M_tot]
-    }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
-    st.table(df_moment.style.format("{:.1f}"))
-
-    st.markdown("### Lastkombinationer enligt SS-EN 1990")
-
-    df_lastkomb = pd.DataFrame({
-        "ULS STR 6.10": [f"$V_{{Ed}} = {gamma_d:.2f} \cdot G_{{tot}} + 1.5 \cdot M_{{tot}}$", f"{VEd_ULS_STR:.1f}"],
-        "ULS EQU 6.10": [f"$V_{{Ed}} = 0.9 \cdot {gamma_d:.2f} \cdot G_{{tot}} + 1.5 \cdot M_{{tot}}$", f"{VEd_ULS_EQU:.1f}"],
-        "SLS 6.14b": [r"$V_{Ed} = G_{tot} + M_{tot}$", f"{VEd_SLS:.1f}"]
-    }, index=[r"$V_{Ed}$", "Värde (kN)"])
-    st.table(df_lastkomb)
