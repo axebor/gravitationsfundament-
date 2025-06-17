@@ -96,8 +96,10 @@ with col_in:
 with col_out:
     st.header("Figur")
 
-    fig, ax = plt.subplots(figsize=(6, 6))
-    max_diameter = max(D_b, D_s)
+    # skapar 3 subkolumner inuti col_out
+    sub_l, sub_c, sub_r = st.columns([1,1,1])
+    with sub_c:
+        st.pyplot(fig, use_container_width=True)
 
     # Vattennivå
     if fundament_i_vatten and z_v is not None and z_v > 0:
