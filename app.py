@@ -100,6 +100,9 @@ with col_out:
     ax.plot([D_s/2, D_s/2], [h_b, h_b + h_s], 'k-')
     ax.plot([-D_s/2, D_s/2], [h_b + h_s, h_b + h_s], 'k-')
 
+    # Centrumlinje (streckad) från bottenplatta till toppen av skaft
+    ax.vlines(x=0, ymin=0, ymax=h_b + h_s, colors='red', linestyles='dotted', linewidth=1)
+
     # Måttpilar och etiketter - diametrar
     ax.annotate("", xy=(D_b/2, -0.5), xytext=(-D_b/2, -0.5),
                 arrowprops=dict(arrowstyle="<->"))
@@ -118,12 +121,13 @@ with col_out:
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s/2 + 0.6, h_b + h_s/2, r"$h_s$", va='center', fontsize=12)
 
-    # Punktlast F och måttsättning z_F
+    # Punktlast F och måttsättning z_F från bottenplatta (y=0)
     if F > 0:
-        ax.annotate("", xy=(-max_diameter/2 - 1, z_F), xytext=(-max_diameter/2 - 1.5, z_F),
+        # pilen startar lite till vänster utanför fundamentet och går till centrumlinjen (x=0)
+        ax.annotate("", xy=(0, z_F), xytext=(-max_diameter/2 - 1, z_F),
                     arrowprops=dict(arrowstyle="->", color='red', lw=2))
-        ax.text(-max_diameter/2 - 1.6, z_F, r"$z_{F}$", color='red', va='center', ha='right', fontsize=12)
-        ax.text(-max_diameter/2 - 0.9, z_F, r"$F$", color='red', va='center', ha='left', fontsize=14)
+        ax.text(-max_diameter/2 - 1.1, z_F, r"$z_{F}$", color='red', va='center', ha='right', fontsize=12)
+        ax.text(-max_diameter/2 - 0.4, z_F, r"$F$", color='red', va='center', ha='left', fontsize=14)
 
     ax.set_xlim(-max_diameter - 2, max_diameter + 2)
     ax.set_ylim(-1, max(h_b + h_s, z_niva if z_niva else 0, z_F) + 1)
