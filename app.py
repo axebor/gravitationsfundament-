@@ -290,8 +290,8 @@ with col_res:
     st.markdown(
         """
         Kombination av laster görs enligt SS-EN 1990.  
-        **Vertikal last (V):** kombineras med faktorer enligt ULS och SLS.  
-        **Moment (M):** kombineras separat enligt samma kombinationer.
+        **Permanent last:** inkluderar egenvikt och andra permanenta laster.  
+        **Variabel last:** inkluderar laster som kan variera, t.ex. vind, snö, trafik.  
         """
     )
 
@@ -300,10 +300,13 @@ with col_res:
     VEd_SLS = Gk_tot + M_tot
 
     lastkombination_md = f"""
-    |                         | ULS STR 6.10 | ULS EQU 6.10 | SLS 6.14b |
-    |-------------------------|--------------|--------------|-----------|
-    | $V_{{Ed}}$              | {VEd_ULS_STR:.1f}       | {VEd_ULS_EQU:.1f}       | {VEd_SLS:.1f}    |
-    | $M_{{Ed}}$              | {M_tot:.1f}       | {M_tot:.1f}       | {M_tot:.1f}    |
+    | Parameter                       | ULS STR 6.10 | ULS EQU 6.10 | SLS 6.14b  |
+    |--------------------------------|--------------|--------------|------------|
+    | Partialfaktor permanent last γ_G| 1.35         | 0.90         | 1.00       |
+    | Partialfaktor variabel last γ_Q | 1.50         | 1.50         | 1.00       |
+    | Vertikal last $V_{{Ed}}$         | {VEd_ULS_STR:.1f}   | {VEd_ULS_EQU:.1f}   | {VEd_SLS:.1f}  |
+    | Moment $M_{{Ed}}$                | {M_tot:.1f}        | {M_tot:.1f}        | {M_tot:.1f}   |
     """
 
     st.markdown(lastkombination_md)
+
