@@ -22,7 +22,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-pil_längd_extra = 3  # Ökad pil-längd
+pil_längd_extra = 3  # För horisontell pil FH
+pil_längd_extra_vert = 1.5  # För vertikal pil FV (kan justeras)
 
 col_in, col_out, col_res = st.columns([1, 1, 1])
 
@@ -60,6 +61,9 @@ with col_in:
     with col_zf:
         z_F_str = st.text_input(r"Angreppsplan $z_{F}$ (m)", value="0.0")
 
+    # Vertikal last FV
+    F_V_str = st.text_input(r"Vertikal punktlast $F_{V}$ (kN)", value="5.0")
+
     try:
         D_b = round(float(D_b_str), 1)
         H_b = round(float(H_b_str), 1)
@@ -67,6 +71,7 @@ with col_in:
         H_s = round(float(H_s_str), 1)
         F_H = float(F_H_str)
         z_F = round(float(z_F_str), 1)
+        F_V = float(F_V_str)
         if fundament_i_vatten:
             z_v = float(z_niva_str)
         else:
@@ -142,8 +147,18 @@ with col_out:
         )
         ax.text(-D_s / 2 - pil_längd_extra - 0.1, z_F / 2, r"$z_{F}$", va='center', fontsize=12, color='red')
 
+    # --- Vertikal punktlast F_V ---
+    if F_V > 0:
+        ax.annotate(
+            "",
+            xy=(0, 0),
+            xytext=(0, -pil_längd_extra_vert),
+            arrowprops=dict(arrowstyle='->', color='green', linewidth=3)
+        )
+        ax.text(0, -pil_längd_extra_vert - 0.3, r"$F_{V}$", fontsize=14, color='green', ha='center')
+
     ax.set_xlim(-max_diameter - pil_längd_extra - 1, max_diameter + 1.5)
-    ax.set_ylim(-1, max(H_b + H_s, z_v if z_v else 0, z_F) + 1)
+    ax.set_ylim(-pil_längd_extra_vert - 1, max(H_b + H_s, z_v if z_v else 0, z_F) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
 
