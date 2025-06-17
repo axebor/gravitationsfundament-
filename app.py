@@ -271,6 +271,14 @@ with col_res:
     M_Q2 = Qk_H2 * z_Q2
     M_tot = M_Q1 + M_Q2
 
+    # Debugutskrifter
+    st.write("Indata horisontella laster och momentarmar:")
+    st.write(f"Qk_H1 = {Qk_H1}, z_Q1 = {z_Q1}")
+    st.write(f"Qk_H2 = {Qk_H2}, z_Q2 = {z_Q2}")
+    st.write(f"M_Q1 = {M_Q1}, M_Q2 = {M_Q2}, M_tot = {M_tot}")
+    st.write(f"Gamma_d = {gamma_d}")
+    st.write(f"Gk_tot = {Gk_tot}")
+
     st.markdown("### Vertikala laster")
 
     df_vertikala = pd.DataFrame({
@@ -297,12 +305,12 @@ with col_res:
     , unsafe_allow_html=True
     )
 
-    # Lastkombination 3 (statisk jämvikt) enligt BFS tabell 3:2
+    # Lastkombination 3 (statisk jämvikt)
     VEd_LK3 = 1.1 * Gk_tot          # Permanent last, ogynnsam
-    MEd_LK3 = 0.9 * Gk_tot          # Permanent last, gynnsam (kan tolkas som moment vid jämvikt)
+    MEd_LK3 = 0.9 * Gk_tot          # Permanent last, gynnsam
 
-    # Lastkombination 4 (geotekniska laster) enligt BFS tabell 3:3
-    VEd_LK4 = max(1.1 * Gk_tot, Gk_tot)  # Permanent last enligt BFS, dock lägst Gk_tot
+    # Lastkombination 4 (geotekniska laster)
+    VEd_LK4 = max(1.1 * Gk_tot, Gk_tot)  # Permanent last, lägst Gk_tot
     MEd_LK4 = 1.4 * M_tot                  # Moment multiplicerat med partialfaktor
 
     lastkombination_md = f"""
