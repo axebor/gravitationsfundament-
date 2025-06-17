@@ -96,7 +96,16 @@ with col_out:
     st.header("Figur")
 
     fig, ax = plt.subplots(figsize=(6, 6))
-    max_d = max(D_b, D_s)
+    # ... alla dina plot- och annotate-anrop ...
+    ax.set_aspect("equal")
+    ax.axis("off")
+
+    # Istället för st.pyplot, gör så här:
+    import io
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", bbox_inches="tight")
+    buf.seek(0)
+    st.image(buf, use_column_width=True)
 
     # Vattennivå
     if fundament_i_vatten and z_v and z_v > 0:
