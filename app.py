@@ -250,3 +250,39 @@ with col_res:
         "Moment (kNm)": [M_Q1, M_Q2, M_tot]
     }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
     st.table(df_moment.style.format("{:.1f}"))
+
+st.markdown("### Lastkombinationer enligt SS-EN 1990")
+
+# Beräkna lastkombinationerna
+M_Str = 1.35 * M_tot
+V_Str = 1.35 * Gk_tot
+
+M_Equ = 1.0 * M_tot + 1.5 * 0.5 * Gk_tot  # Vanligtvis 0.5 som kombinationsfaktor för permanenta laster
+V_Equ = 1.0 * Gk_tot
+
+M_SLS = 1.0 * M_tot
+V_SLS = 1.0 * Gk_tot
+
+df_kombinationer = pd.DataFrame({
+    "STR 6.10": [f"${M_{str}} = 1.35 \\times M_{{tot}}$", f"$V_{{str}} = 1.35 \\times G_{{tot}}$"],
+    "": ["", ""],  # tom kolumn för snyggare mellanrum
+    "EQU 6.10": [f"${M_{equ}} = 1.0 \\times M_{{tot}} + 1.5 \\times 0.5 \\times G_{{tot}}$", f"$V_{{equ}} = 1.0 \\times G_{{tot}}$"],
+    "": ["", ""],
+    "SLS 6.14b": [f"${M_{sls}} = 1.0 \\times M_{{tot}}$", f"$V_{{sls}} = 1.0 \\times G_{{tot}}$"],
+}, index=[r"$M_{Ed}$", r"$V_{Ed}$"])
+
+# Men du vill ha värdena också, så lägg in värdena i nästa df
+df_varden = pd.DataFrame({
+    "STR 6.10": [round(M_Str, 1), round(V_Str, 1)],
+    "": ["", ""],
+    "EQU 6.10": [round(M_Equ, 1), round(V_Equ, 1)],
+    "": ["", ""],
+    "SLS 6.14b": [round(M_SLS, 1), round(V_SLS, 1)],
+}, index=[r"$M_{Ed}$", r"$V_{Ed}$"])
+
+# Nu visa båda, först formler, sen värden
+st.write("Formler:")
+st.table(df_kombinationer)
+
+st.write("Beräknade värden (kNm respektive kN):")
+st.table(df_varden)
