@@ -22,7 +22,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Alla kolumner lika breda
+# Variabel för pilens längd från fundamentets vänstra sida
+pil_längd_extra = 2  # kan ändras för att göra pilen längre eller kortare
+
 col_in, col_out, col_res = st.columns([1, 1, 1])
 
 with col_in:
@@ -42,7 +44,7 @@ with col_in:
         D_s_str = st.text_input(r"Diameter $D_{s}$ (m)", value="1.0")
     with col_s2:
         H_s_str = st.text_input(r"Höjd $H_{s}$ (m)", value="5.0")
-  
+
     col_chk, col_zv = st.columns(2)
     with col_chk:
         fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
@@ -51,7 +53,7 @@ with col_in:
             z_niva_str = st.text_input(r"$z_{v}$ (m) från underkant fundament", value="0.0", key="z_niva")
         else:
             z_niva_str = None
-        
+
     st.subheader("Laster")
     col_fh, col_zf = st.columns(2)
     with col_fh:
@@ -59,7 +61,6 @@ with col_in:
     with col_zf:
         z_F_str = st.text_input(r"Angreppsplan $z_{F}$ (m)", value="0.0")
 
-    # Konvertera till float med avrundning till 1 decimal
     try:
         D_b = round(float(D_b_str), 1)
         H_b = round(float(H_b_str), 1)
@@ -87,53 +88,61 @@ with col_out:
             x=[-max_diameter - 1, max_diameter + 1],
             y1=0, y2=z_v, color='lightblue', alpha=0.5)
         ax.hlines(y=z_v, xmin=-max_diameter - 1, xmax=max_diameter + 1,
-                  colors='blue', linestyles='--', linewidth=2, label='Vattenlinje')
+                  colors='blue', linestyles='--', linewidth=2)
 
-        # Måttpil och etikett för z_v
         ax.annotate("", xy=(max_diameter + 0.5, 0), xytext=(max_diameter + 0.5, z_v),
                     arrowprops=dict(arrowstyle="<->", color='blue'))
         ax.text(max_diameter + 0.7, z_v / 2, r"$z_{v}$", va='center', fontsize=12, color='blue')
 
     # Bottenplatta
-    ax.plot([-D_b/2, D_b/2], [0, 0], 'k-')
-    ax.plot([-D_b/2, -D_b/2], [0, H_b], 'k-')
-    ax.plot([D_b/2, D_b/2], [0, H_b], 'k-')
-    ax.plot([-D_b/2, D_b/2], [H_b, H_b], 'k-')
+    ax.plot([-D_b / 2, D_b / 2], [0, 0], 'k-')
+    ax.plot([-D_b / 2, -D_b / 2], [0, H_b], 'k-')
+    ax.plot([D_b / 2, D_b / 2], [0, H_b], 'k-')
+    ax.plot([-D_b / 2, D_b / 2], [H_b, H_b], 'k-')
 
     # Skaft
-    ax.plot([-D_s/2, D_s/2], [H_b, H_b], 'k-')
-    ax.plot([-D_s/2, -D_s/2], [H_b, H_b + H_s], 'k-')
-    ax.plot([D_s/2, D_s/2], [H_b, H_b + H_s], 'k-')
-    ax.plot([-D_s/2, D_s/2], [H_b + H_s, H_b + H_s], 'k-')
+    ax.plot([-D_s / 2, D_s / 2], [H_b, H_b], 'k-')
+    ax.plot([-D_s / 2, -D_s / 2], [H_b, H_b + H_s], 'k-')
+    ax.plot([D_s / 2, D_s / 2], [H_b, H_b + H_s], 'k-')
+    ax.plot([-D_s / 2, D_s / 2], [H_b + H_s, H_b + H_s], 'k-')
 
     # Måttpilar och etiketter - diametrar
-    ax.annotate("", xy=(D_b/2, -0.5), xytext=(-D_b/2, -0.5),
+    ax.annotate("", xy=(D_b / 2, -0.5), xytext=(-D_b / 2, -0.5),
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(0, -0.7, r"$D_b$", ha='center', va='top', fontsize=12)
 
-    ax.annotate("", xy=(D_s/2, H_b + H_s + 0.5), xytext=(-D_s/2, H_b + H_s + 0.5),
+    ax.annotate("", xy=(D_s / 2, H_b + H_s + 0.5), xytext=(-D_s / 2, H_b + H_s + 0.5),
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(0, H_b + H_s + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
 
     # Måttpilar och etiketter - höjder
-    ax.annotate("", xy=(D_b/2 + 0.5, 0), xytext=(D_b/2 + 0.5, H_b),
+    ax.annotate("", xy=(D_b / 2 + 0.5, 0), xytext=(D_b / 2 + 0.5, H_b),
                 arrowprops=dict(arrowstyle="<->"))
-    ax.text(D_b/2 + 0.6, H_b/2, r"$H_b$", va='center', fontsize=12)
+    ax.text(D_b / 2 + 0.6, H_b / 2, r"$H_b$", va='center', fontsize=12)
 
-    ax.annotate("", xy=(D_s/2 + 0.5, H_b), xytext=(D_s/2 + 0.5, H_b + H_s),
+    ax.annotate("", xy=(D_s / 2 + 0.5, H_b), xytext=(D_s / 2 + 0.5, H_b + H_s),
                 arrowprops=dict(arrowstyle="<->"))
-    ax.text(D_s/2 + 0.6, H_b + H_s/2, r"$H_s$", va='center', fontsize=12)
+    ax.text(D_s / 2 + 0.6, H_b + H_s / 2, r"$H_s$", va='center', fontsize=12)
 
-    # --- Horisontell punktlast FH ---
+    # --- Horisontell punktlast F_H ---
     ax.annotate(
         "",
         xy=(-D_s / 2, z_F),
-        xytext=(-max_diameter - 0, z_F),
-        arrowprops=dict(arrowstyle='->', color='red', linewidth=1.5)
+        xytext=(-D_s / 2 - pil_längd_extra, z_F),
+        arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
     )
-    ax.text(-max_diameter - 1, z_F + 0.1, r"$F_{H}$", fontsize=14, color='red', ha='center')
+    ax.text(-D_s / 2 - pil_längd_extra / 2, z_F + 0.1, r"$F_{H}$", fontsize=14, color='red', ha='center')
 
-    ax.set_xlim(-max_diameter - 3, max_diameter + 1.5)
+    # Måttlinje och text för z_F
+    ax.annotate(
+        "",
+        xy=(-D_s / 2 - pil_längd_extra - 0.3, 0),
+        xytext=(-D_s / 2 - pil_längd_extra - 0.3, z_F),
+        arrowprops=dict(arrowstyle="<->", color='red')
+    )
+    ax.text(-D_s / 2 - pil_längd_extra - 0.1, z_F / 2, r"$z_{F}$", va='center', fontsize=12, color='red')
+
+    ax.set_xlim(-max_diameter - pil_längd_extra - 1, max_diameter + 1.5)
     ax.set_ylim(-1, max(H_b + H_s, z_v if z_v else 0, z_F) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
