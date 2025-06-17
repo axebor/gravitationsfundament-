@@ -129,7 +129,7 @@ with col_out:
         "",
         xy=(-D_s / 2, z_F),
         xytext=(-max_diameter - 2, z_F),
-        arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
+        arrowprops=dict(arrowstyle='->', color='red', linewidth=2)
     )
     ax.text(-max_diameter - 1, z_F + 0.1, r"$F_{H}$", fontsize=14, color='red', ha='center')
 
