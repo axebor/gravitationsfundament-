@@ -34,7 +34,7 @@ with col_in:
     with col_b1:
         D_b_str = st.text_input(r"Diameter $D_{b}$ (m)", value="5.0")
     with col_b2:
-        H_b_str = st.text_input(r"Höjd "$H_{b}$ (m)", value="1.0")
+        H_b_str = st.text_input(r"Höjd $H_{b}$ (m)", value="1.0")
 
     st.markdown("**Skaft (centrerat ovanpå)**")
     col_s1, col_s2 = st.columns(2)
