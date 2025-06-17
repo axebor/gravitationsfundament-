@@ -36,7 +36,6 @@ pil_längd_extra_vert = 1.5
 zQ1_x_offset = 1.2  # flytt ut åt vänster för zQ1
 zQ2_x_offset = 0.9  # flytt ut åt vänster för zQ2
 
-# Kolumnordning: indatavänster, figur mitten, resultat höger
 col_in, col_out, col_res = st.columns([1, 1, 1])
 
 with col_in:
@@ -123,7 +122,6 @@ with col_out:
     fig, ax = plt.subplots(figsize=(8, 8))
     max_diameter = max(D_b, D_s)
 
-    # Vattennivå
     if fundament_i_vatten and z_v is not None and z_v > 0:
         ax.fill_between(
             x=[-max_diameter - 1, max_diameter + 1],
@@ -135,7 +133,6 @@ with col_out:
                     arrowprops=dict(arrowstyle="<->", color='blue'))
         ax.text(max_diameter + 0.7, z_v / 2, r"$z_{v}$", va='center', fontsize=12, color='blue')
 
-    # Fundamentets geometri
     ax.plot([-D_b / 2, D_b / 2], [0, 0], 'k-')
     ax.plot([-D_b / 2, -D_b / 2], [0, H_b], 'k-')
     ax.plot([D_b / 2, D_b / 2], [0, H_b], 'k-')
@@ -146,7 +143,6 @@ with col_out:
     ax.plot([D_s / 2, D_s / 2], [H_b, H_b + H_s], 'k-')
     ax.plot([-D_s / 2, D_s / 2], [H_b + H_s, H_b + H_s], 'k-')
 
-    # Måttlinjer - diametrar
     ax.annotate("", xy=(D_b / 2, -0.5), xytext=(-D_b / 2, -0.5),
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(0, -0.7, r"$D_b$", ha='center', va='top', fontsize=12)
@@ -155,7 +151,6 @@ with col_out:
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(0, H_b + H_s + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
 
-    # Måttlinjer - höjder
     ax.annotate("", xy=(D_b / 2 + 0.5, 0), xytext=(D_b / 2 + 0.5, H_b),
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_b / 2 + 0.6, H_b / 2, r"$H_b$", va='center', fontsize=12)
@@ -164,7 +159,6 @@ with col_out:
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s / 2 + 0.6, H_b + H_s / 2, r"$H_s$", va='center', fontsize=12)
 
-    # Horisontella laster Qk,H1 och Qk,H2 i rött, med större x-offset på zQ1 och zQ2
     if Qk_H1 > 0:
         ax.annotate(
             "",
@@ -203,7 +197,6 @@ with col_out:
         ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ2_x_offset, z_Q2 / 2,
                 r"$z_{Q2}$", va='center', fontsize=12, color='red')
 
-    # Vertikal last Gk,övrigt
     if Gk_ovr > 0:
         ax.annotate(
             "",
@@ -213,17 +206,13 @@ with col_out:
         )
         ax.text(0, pil_längd_extra_vert + 0.3, r"$G_{k,\mathrm{övrigt}}$", fontsize=14, color='red', ha='center')
 
-    # Här lägger vi till skrafferingarna
-    
-    # Markområde under bottenplattan
     ax.fill_between(
         x=[-max_diameter - 1, max_diameter + 1],
         y1=-pil_längd_extra_vert - 1,
         y2=0,
-        color='#d2b48c', alpha=0.5  # ljusbrun
+        color='#d2b48c', alpha=0.5
     )
     
-    # Bottenplatta skrafferad ljusgrå
     ax.fill_between(
         x=[-D_b/2, D_b/2],
         y1=0,
@@ -232,7 +221,6 @@ with col_out:
         alpha=0.8
     )
     
-    # Skaft skrafferad ljusgrå
     ax.fill_between(
         x=[-D_s/2, D_s/2],
         y1=H_b,
@@ -241,7 +229,6 @@ with col_out:
         alpha=0.8
     )
     
-    # Justera x-axelgränser symmetriskt för att centrera figuren
     max_offset = max(pil_längd_extra + max(zQ1_x_offset, zQ2_x_offset) + 1, 1.5)
     ax.set_xlim(-max_diameter - max_offset, max_diameter + max_offset)
 
@@ -275,13 +262,11 @@ with col_res:
     vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
     vikt_tot = vikt_ovan + vikt_under
 
-    # Vertikala laster från fundamentets delar
     Gk_b = (ovan_vatten_botten * 25) + (under_vatten_botten * 15)
     Gk_s = (ovan_vatten_skaft * 25) + (under_vatten_skaft * 15)
     Gk_ovr = float(Gk_ovr_str)
     Gk_tot = Gk_b + Gk_s + Gk_ovr
 
-    # Moment från horisontella laster (kraft * momentarm)
     M_Q1 = Qk_H1 * z_Q1
     M_Q2 = Qk_H2 * z_Q2
     M_tot = M_Q1 + M_Q2
@@ -304,30 +289,21 @@ with col_res:
 
     st.markdown(
         """
-        Kombination av laster görs enligt SS-EN 1990.<br>
-        <b>Vertikal last (V):</b> kombineras med faktorer enligt ULS och SLS.<br>
-        <b>Moment (M):</b> kombineras separat enligt samma kombinationer.
-        """,
-        unsafe_allow_html=True
+        Kombination av laster görs enligt SS-EN 1990.  
+        **Vertikal last (V):** kombineras med faktorer enligt ULS och SLS.  
+        **Moment (M):** kombineras separat enligt samma kombinationer.
+        """
     )
 
-    # Lastkombinationer med vald säkerhetsklass γd
     VEd_ULS_STR = gamma_d * Gk_tot + 1.5 * M_tot
     VEd_ULS_EQU = 0.9 * gamma_d * Gk_tot + 1.5 * M_tot
     VEd_SLS = Gk_tot + M_tot
 
-    # Skapa DataFrame med resultaten (siffrorna)
-    df_resultat = pd.DataFrame({
-        "ULS STR 6.10": [VEd_ULS_STR, M_tot],
-        "ULS EQU 6.10": [VEd_ULS_EQU, M_tot],
-        "SLS 6.14b": [VEd_SLS, M_tot]
-    }, index=["", ""])  # Index lämnas tomt och etiketter visas separat
+    lastkombination_md = f"""
+    |                         | ULS STR 6.10 | ULS EQU 6.10 | SLS 6.14b |
+    |-------------------------|--------------|--------------|-----------|
+    | $V_{{Ed}}$              | {VEd_ULS_STR:.1f}       | {VEd_ULS_EQU:.1f}       | {VEd_SLS:.1f}    |
+    | $M_{{Ed}}$              | {M_tot:.1f}       | {M_tot:.1f}       | {M_tot:.1f}    |
+    """
 
-    # Visa tabellen utan index
-    st.table(df_resultat.style.format("{:.1f}").hide(axis="index"))
-
-    # Visa LaTeX-etiketter separat till vänster i kolumnlayout
-    col1, col2 = st.columns([1, 9])
-    with col1:
-        st.markdown(r"$V_{Ed}$")
-        st.markdown(r"$M_{Ed}$")
+    st.markdown(lastkombination_md)
