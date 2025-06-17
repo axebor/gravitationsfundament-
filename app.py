@@ -17,6 +17,9 @@ st.markdown(
     div[data-testid="stTextInput"][data-key="z_niva"] > div > input {
         max-width: 150px;
     }
+    div[data-testid="stTextInput"][data-key="z_F"] > div > input {
+        max-width: 150px;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -51,9 +54,8 @@ with col_in:
         z_niva_str = None
 
     st.subheader("Laster")
-
-    F_str = st.text_input("Horisontell punktlast F (kN)", value="0.0")
-    z_F_str = st.text_input("Lastens angripspunkt z_F (m) från underkant bottenplatta", value="0.0")
+    F_str = st.text_input("Horisontell punktlast $F$ (kN)", value="0.0")
+    z_F_str = st.text_input("Lastens angreppspunkt $z_F$ (m)", value="0.0", key="z_F")
 
     # Konvertera till float med avrundning till 1 decimal
     try:
@@ -68,7 +70,7 @@ with col_in:
         else:
             z_niva = None
     except ValueError:
-        st.error("❌ Ange giltiga numeriska värden för geometri, vattennivå och laster.")
+        st.error("❌ Ange giltiga numeriska värden för geometri, laster och vattennivå.")
         st.stop()
 
 with col_out:
@@ -76,13 +78,12 @@ with col_out:
 
     fig, ax = plt.subplots(figsize=(6, 6))
 
-    max_diameter = max(D_b, D_s)
-
+    # Vattennivå och blå fyllning
     if fundament_i_vatten and z_niva is not None and z_niva > 0:
         ax.fill_between(
-            x=[-max_diameter - 1, max_diameter + 1],
+            x=[-max(D_b, D_s) - 1, max(D_b, D_s) + 1],
             y1=0, y2=z_niva, color='lightblue', alpha=0.5)
-        ax.hlines(y=z_niva, xmin=-max_diameter - 1, xmax=max_diameter + 1,
+        ax.hlines(y=z_niva, xmin=-max(D_b, D_s) - 1, xmax=max(D_b, D_s) + 1,
                   colors='blue', linestyles='--', linewidth=2, label='Vattenlinje')
 
     # Bottenplatta
@@ -96,9 +97,6 @@ with col_out:
     ax.plot([-D_s/2, -D_s/2], [h_b, h_b + h_s], 'k-')
     ax.plot([D_s/2, D_s/2], [h_b, h_b + h_s], 'k-')
     ax.plot([-D_s/2, D_s/2], [h_b + h_s, h_b + h_s], 'k-')
-
-    # Centrumlinje (punktstreckad)
-    ax.vlines(0, 0, h_b + h_s, colors='red', linestyles='dotted', linewidth=1)
 
     # Måttpilar och etiketter - diametrar
     ax.annotate("", xy=(D_b/2, -0.5), xytext=(-D_b/2, -0.5),
@@ -118,23 +116,49 @@ with col_out:
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s/2 + 0.6, h_b + h_s/2, r"$h_s$", va='center', fontsize=12)
 
-    # Måttpil och etikett för z_v (om vattennivå är aktiverad)
+    # Måttpilar och etiketter - vattennivå
     if fundament_i_vatten and z_niva is not None and z_niva > 0:
-        ax.annotate("", xy=(D_b/2 + 1.2, 0), xytext=(D_b/2 + 1.2, z_niva),
-                    arrowprops=dict(arrowstyle="<->", color='blue'))
-        ax.text(D_b/2 + 1.3, z_niva / 2, r"$z_v$", va='center', color='blue', fontsize=12)
+        ax.annotate("", xy=(D_b/2 + 1.0, 0), xytext=(D_b/2 + 1.0, z_niva),
+                    arrowprops=dict(arrowstyle="<->"))
+        ax.text(D_b/2 + 1.1, z_niva / 2, r"$Z_v$", va='center', fontsize=12)
 
-    # Punktlast F och måttsättning z_F från bottenplatta (y=0)
+    # Punktlast F
     if F > 0:
-        # Pilen (horisontell) till centrumlinjen
-        ax.annotate("", xy=(0, z_F), xytext=(-max_diameter / 2 - 1, z_F),
-                    arrowprops=dict(arrowstyle="->", color='red', lw=2))
-        # z_F måttsättning (justerad uppåt lite)
-        ax.text(-max_diameter / 2 - 1.1, z_F + 0.1, r"$z_{F}$", color='red', va='bottom', ha='right', fontsize=12)
-        # F text flyttad upp så den inte krockar med pilen
-        ax.text(-max_diameter / 2 - 0.4, z_F + 0.2, r"$F$", color='red', va='bottom', ha='left', fontsize=14)
+        # Pil från vänster till centrumlinje på nivå z_F
+        ax.annotate(
+            "",
+            xy=(0, z_F),
+            xytext=(-max(D_b, D_s) - 1, z_F),
+            arrowprops=dict(arrowstyle="->", color='black', linewidth=1.5),
+        )
+        # Text F lite uppåt och svart
+        ax.text(
+            -max(D_b, D_s) - 0.5, z_F + 0.1,
+            r"$F$",
+            color='black',
+            fontsize=14,
+            fontweight='bold',
+            ha='center',
+            va='bottom'
+        )
+        # Måttpil vertikal vid vänster kant
+        ax.annotate(
+            "",
+            xy=(-max(D_b, D_s) - 0.5, 0),
+            xytext=(-max(D_b, D_s) - 0.5, z_F),
+            arrowprops=dict(arrowstyle="<->", color='black', linewidth=1.5),
+        )
+        # Måtttext z_F svart, nedsänkt F
+        ax.text(
+            -max(D_b, D_s) - 0.6, z_F / 2,
+            r"$z_{F}$",
+            color='black',
+            fontsize=12,
+            ha='right',
+            va='center'
+        )
 
-    ax.set_xlim(-max_diameter - 1.5, max_diameter + 1.5)
+    ax.set_xlim(-max(D_b, D_s) - 2, max(D_b, D_s) + 1)
     ax.set_ylim(-1, max(h_b + h_s, z_niva if z_niva else 0, z_F) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
