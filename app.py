@@ -128,7 +128,7 @@ with col_out:
     ax.annotate(
         "",
         xy=(-D_s / 2, z_F),
-        xytext=(-max_diameter - 1, z_F),
+        xytext=(-max_diameter - 0, z_F),
         arrowprops=dict(arrowstyle='->', color='red', linewidth=1.5)
     )
     ax.text(-max_diameter - 1, z_F + 0.1, r"$F_{H}$", fontsize=14, color='red', ha='center')
