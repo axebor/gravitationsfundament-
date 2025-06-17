@@ -81,9 +81,7 @@ with col_out:
     fig, ax = plt.subplots(figsize=(6, 6))
 
     max_diameter = max(D_b, D_s)
-    fundament_h = H_b + H_s
 
-    # Vattennivå och vattenfärg
     if fundament_i_vatten and z_v is not None and z_v > 0:
         ax.fill_between(
             x=[-max_diameter - 1, max_diameter + 1],
@@ -104,49 +102,49 @@ with col_out:
 
     # Skaft
     ax.plot([-D_s/2, D_s/2], [H_b, H_b], 'k-')
-    ax.plot([-D_s/2, -D_s/2], [H_b, fundament_h], 'k-')
-    ax.plot([D_s/2, D_s/2], [H_b, fundament_h], 'k-')
-    ax.plot([-D_s/2, D_s/2], [fundament_h, fundament_h], 'k-')
+    ax.plot([-D_s/2, -D_s/2], [H_b, H_b + H_s], 'k-')
+    ax.plot([D_s/2, D_s/2], [H_b, H_b + H_s], 'k-')
+    ax.plot([-D_s/2, D_s/2], [H_b + H_s, H_b + H_s], 'k-')
 
     # Måttpilar och etiketter - diametrar
     ax.annotate("", xy=(D_b/2, -0.5), xytext=(-D_b/2, -0.5),
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(0, -0.7, r"$D_b$", ha='center', va='top', fontsize=12)
 
-    ax.annotate("", xy=(D_s/2, fundament_h + 0.5), xytext=(-D_s/2, fundament_h + 0.5),
+    ax.annotate("", xy=(D_s/2, H_b + H_s + 0.5), xytext=(-D_s/2, H_b + H_s + 0.5),
                 arrowprops=dict(arrowstyle="<->"))
-    ax.text(0, fundament_h + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
+    ax.text(0, H_b + H_s + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
 
     # Måttpilar och etiketter - höjder
     ax.annotate("", xy=(D_b/2 + 0.5, 0), xytext=(D_b/2 + 0.5, H_b),
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_b/2 + 0.6, H_b/2, r"$H_b$", va='center', fontsize=12)
 
-    ax.annotate("", xy=(D_s/2 + 0.5, H_b), xytext=(D_s/2 + 0.5, fundament_h),
+    ax.annotate("", xy=(D_s/2 + 0.5, H_b), xytext=(D_s/2 + 0.5, H_b + H_s),
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s/2 + 0.6, H_b + H_s/2, r"$H_s$", va='center', fontsize=12)
 
-    # Last F_H som röd horisontell pil från vänster mot fundamentets vänstra sida (-D_s/2)
+    # Last F_H: spegelvänd pil som pekar mot fundamentets vänstra sida
     ax.annotate(
         "",
-        xy=(-max_diameter - 2, z_F),      # pilens start långt till vänster
-        xytext=(-D_s / 2, z_F),           # pilens spets på fundamentets vänstra sida
-        arrowprops=dict(arrowstyle="-|>", color='red', linewidth=3)
+        xy=(-D_s / 2, z_F),            # pilspets vid vänstra sidan av fundamentet
+        xytext=(-max_diameter - 2, z_F),  # pilens startpunkt långt till vänster
+        arrowprops=dict(arrowstyle="|-|>", color='red', linewidth=3)
     )
-    # Placera texten F_H centrerat ovanför pilen
-    ax.text((-max_diameter - 2 + (-D_s / 2))/2, z_F + 0.15, r"$F_{H}$", color='red', fontsize=14, fontweight='bold', ha='center')
+    # Texten F_H ovanför pilen, centrerat
+    ax.text((-max_diameter - 2 + (-D_s / 2)) / 2, z_F + 0.15, r"$F_{H}$", color='red', fontsize=14, fontweight='bold', ha='center')
 
-    # Måttlinje och text för z_F
+    # Måttlinje och text för z_F bredvid måttet
     ax.annotate(
         "",
         xy=(-max_diameter - 2.5, 0),
         xytext=(-max_diameter - 2.5, z_F),
         arrowprops=dict(arrowstyle="<->", color='red')
     )
-    ax.text(-max_diameter - 2.8, z_F / 2, r"$z_{F}$", va='center', fontsize=12, color='red')
+    ax.text(-max_diameter - 2.3, z_F / 2, r"$z_{F}$", va='center', fontsize=12, color='red')
 
     ax.set_xlim(-max_diameter - 3, max_diameter + 1.5)
-    ax.set_ylim(-1, max(fundament_h, z_v if z_v else 0, z_F) + 1)
+    ax.set_ylim(-1, max(H_b + H_s, z_v if z_v else 0, z_F) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
 
