@@ -5,7 +5,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Gravitationsfundament", layout="wide")
 
-# CSS för lika breda inputfält
+# CSS för lika breda inputfält och vertikala linjer mellan kolumner
 st.markdown(
     """
     <style>
@@ -18,6 +18,15 @@ st.markdown(
     div[data-testid="stTextInput"][data-key="z_Q2"] > div > input {
         max-width: 150px;
     }
+    /* Vertikala linjer mellan kolumner */
+    .css-1lcbmhc.e1fqkh3o3 > div {
+        border-right: 1px solid #ddd;
+        padding-right: 1rem;
+    }
+    .css-1lcbmhc.e1fqkh3o3 > div:last-child {
+        border-right: none;
+        padding-right: 0;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -28,7 +37,7 @@ pil_längd_extra_vert = 1.5
 zQ1_x_offset = 1.2  # flytt ut åt vänster för zQ1
 zQ2_x_offset = 0.9  # flytt ut åt vänster för zQ2
 
-col_in, col_out, col_res = st.columns([1, 1, 1])
+col_in, col_res, col_out = st.columns([1, 1, 1])
 
 with col_in:
     st.header("Indata")
@@ -57,17 +66,27 @@ with col_in:
         else:
             z_niva_str = None
 
+    st.subheader("Säkerhetsfaktor")
+    col_f1, col_f2 = st.columns([1, 1])
+    with col_f1:
+        st.write("")  # tom för jämn radhöjd
+    with col_f2:
+        säkerhetsklass = st.selectbox("Välj säkerhetsklass", options=[1, 2, 3], index=1)
+    gamma_d_dict = {1: 0.83, 2: 0.91, 3: 1.00}
+    gamma_d = gamma_d_dict[säkerhetsklass]
+    st.write(f"γ_d = {gamma_d:.2f}")
+
     st.subheader("Laster")
 
     col_q1, col_zq1 = st.columns(2)
     with col_q1:
-        Qk_H1_str = st.text_input(r"Horisontell last $Q_{k,H1}$ (kN)", value="5.0")
+        Qk_H1_str = st.text_input(r"Huvud last $Q_{k,H1}$ (kN)", value="5.0")
     with col_zq1:
         z_Q1_str = st.text_input(r"Angreppsplan $z_{Q1}$ (m)", value="0.0")
 
     col_q2, col_zq2 = st.columns(2)
     with col_q2:
-        Qk_H2_str = st.text_input(r"Horisontell last $Q_{k,H2}$ (kN)", value="0.0")
+        Qk_H2_str = st.text_input(r"Övrig variabel last $Q_{k,H2}$ (kN)", value="0.0")
     with col_zq2:
         z_Q2_str = st.text_input(r"Angreppsplan $z_{Q2}$ (m)", value="0.0", key="z_Q2")
 
@@ -92,133 +111,6 @@ with col_in:
     except ValueError:
         st.error("❌ Ange giltiga numeriska värden för geometri, vattennivå och laster.")
         st.stop()
-
-with col_out:
-    st.header("Figur")
-
-    fig, ax = plt.subplots(figsize=(8, 8))
-    max_diameter = max(D_b, D_s)
-
-    # --- NYTT: Mark, ljusbrunt fält under bottenplattan ---
-    mark_ytan = -1.5  # höjd för markytan
-    ax.fill_between(
-        x=[-max_diameter - 2, max_diameter + 2],
-        y1=mark_ytan, y2=0,
-        color='#d2b48c', alpha=0.6, label='Mark'
-    )
-
-    # --- Vattennivå ---
-    if fundament_i_vatten and z_v is not None and z_v > 0:
-        vatten_y1 = max(mark_ytan, 0)
-        vatten_y2 = z_v
-        ax.fill_between(
-            x=[-max_diameter - 1, max_diameter + 1],
-            y1=vatten_y1, y2=vatten_y2,
-            color='lightblue', alpha=0.5, label='Vatten'
-        )
-        ax.hlines(y=z_v, xmin=-max_diameter - 1, xmax=max_diameter + 1,
-                  colors='blue', linestyles='--', linewidth=2)
-
-        ax.annotate("", xy=(max_diameter + 0.5, vatten_y1), xytext=(max_diameter + 0.5, vatten_y2),
-                    arrowprops=dict(arrowstyle="<->", color='blue'))
-        ax.text(max_diameter + 0.7, (vatten_y1 + vatten_y2) / 2, r"$z_{v}$", va='center', fontsize=12, color='blue')
-
-    # --- Bottenplatta: ljusgrå skraffering ---
-    bottenplatta_x = [-D_b / 2, D_b / 2, D_b / 2, -D_b / 2]
-    bottenplatta_y = [0, 0, H_b, H_b]
-    ax.fill(bottenplatta_x, bottenplatta_y, color='lightgrey', alpha=0.7, hatch='////', label='Bottenplatta')
-
-    # --- Skaft: ljusgrå skraffering ---
-    skaft_x = [-D_s / 2, D_s / 2, D_s / 2, -D_s / 2]
-    skaft_y = [H_b, H_b, H_b + H_s, H_b + H_s]
-    ax.fill(skaft_x, skaft_y, color='lightgrey', alpha=0.7, hatch='////')
-
-    # --- Konturer fundament ---
-    ax.plot([-D_b / 2, D_b / 2], [0, 0], 'k-')
-    ax.plot([-D_b / 2, -D_b / 2], [0, H_b], 'k-')
-    ax.plot([D_b / 2, D_b / 2], [0, H_b], 'k-')
-    ax.plot([-D_b / 2, D_b / 2], [H_b, H_b], 'k-')
-
-    ax.plot([-D_s / 2, D_s / 2], [H_b, H_b], 'k-')
-    ax.plot([-D_s / 2, -D_s / 2], [H_b, H_b + H_s], 'k-')
-    ax.plot([D_s / 2, D_s / 2], [H_b, H_b + H_s], 'k-')
-    ax.plot([-D_s / 2, D_s / 2], [H_b + H_s, H_b + H_s], 'k-')
-
-    # --- Måttlinjer - diametrar ---
-    ax.annotate("", xy=(D_b / 2, -0.5), xytext=(-D_b / 2, -0.5),
-                arrowprops=dict(arrowstyle="<->"))
-    ax.text(0, -0.7, r"$D_b$", ha='center', va='top', fontsize=12)
-
-    ax.annotate("", xy=(D_s / 2, H_b + H_s + 0.5), xytext=(-D_s / 2, H_b + H_s + 0.5),
-                arrowprops=dict(arrowstyle="<->"))
-    ax.text(0, H_b + H_s + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
-
-    # --- Måttlinjer - höjder ---
-    ax.annotate("", xy=(D_b / 2 + 0.5, 0), xytext=(D_b / 2 + 0.5, H_b),
-                arrowprops=dict(arrowstyle="<->"))
-    ax.text(D_b / 2 + 0.6, H_b / 2, r"$H_b$", va='center', fontsize=12)
-
-    ax.annotate("", xy=(D_s / 2 + 0.5, H_b), xytext=(D_s / 2 + 0.5, H_b + H_s),
-                arrowprops=dict(arrowstyle="<->"))
-    ax.text(D_s / 2 + 0.6, H_b + H_s / 2, r"$H_s$", va='center', fontsize=12)
-
-    # --- Horisontella laster Qk,H1 och Qk,H2 i rött, med större x-offset på zQ1 och zQ2 ---
-    if Qk_H1 > 0:
-        ax.annotate(
-            "",
-            xy=(-D_s / 2, z_Q1),
-            xytext=(-D_s / 2 - pil_längd_extra, z_Q1),
-            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
-        )
-        ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ1_x_offset, z_Q1 + 0.3,
-                r"$Q_{k,H1}$", fontsize=14, color='red', ha='center')
-
-        ax.annotate(
-            "",
-            xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, 0),
-            xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, z_Q1),
-            arrowprops=dict(arrowstyle="<->", color='red')
-        )
-        ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ1_x_offset, z_Q1 / 2,
-                r"$z_{Q1}$", va='center', fontsize=12, color='red')
-
-    if Qk_H2 > 0:
-        ax.annotate(
-            "",
-            xy=(-D_s / 2, z_Q2),
-            xytext=(-D_s / 2 - pil_längd_extra, z_Q2),
-            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
-        )
-        ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ2_x_offset, z_Q2 + 0.3,
-                r"$Q_{k,H2}$", fontsize=14, color='red', ha='center')
-
-        ax.annotate(
-            "",
-            xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, 0),
-            xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, z_Q2),
-            arrowprops=dict(arrowstyle="<->", color='red')
-        )
-        ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ2_x_offset, z_Q2 / 2,
-                r"$z_{Q2}$", va='center', fontsize=12, color='red')
-
-    # --- Vertikal last Gk,övrigt ---
-    if Gk_ovr > 0:
-        ax.annotate(
-            "",
-            xy=(0, 0),
-            xytext=(0, pil_längd_extra_vert),
-            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
-        )
-        ax.text(0, pil_längd_extra_vert + 0.3, r"$G_{k,\mathrm{övrigt}}$", fontsize=14, color='red', ha='center')
-
-    # --- Justera x-axelgränser symmetriskt för att centrera figuren ---
-    max_offset = max(pil_längd_extra + max(zQ1_x_offset, zQ2_x_offset) + 1, 1.5)
-    ax.set_xlim(-max_diameter - max_offset, max_diameter + max_offset)
-
-    ax.set_ylim(mark_ytan - 0.5, max(H_b + H_s, z_v if z_v else 0, z_Q1, z_Q2) + 1)
-    ax.set_aspect('equal')
-    ax.axis('off')
-    st.pyplot(fig, use_container_width=True)
 
 with col_res:
     st.header("Resultat")
@@ -268,3 +160,108 @@ with col_res:
         "Moment (kNm)": [M_Q1, M_Q2, M_tot]
     }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
     st.table(df_moment.style.format("{:.1f}"))
+
+with col_out:
+    st.header("Figur")
+
+    fig, ax = plt.subplots(figsize=(8, 8))
+    max_diameter = max(D_b, D_s)
+
+    # Vattennivå
+    if fundament_i_vatten and z_v is not None and z_v > 0:
+        ax.fill_between(
+            x=[-max_diameter - 1, max_diameter + 1],
+            y1=0, y2=z_v, color='lightblue', alpha=0.5)
+        ax.hlines(y=z_v, xmin=-max_diameter - 1, xmax=max_diameter + 1,
+                  colors='blue', linestyles='--', linewidth=2)
+
+        ax.annotate("", xy=(max_diameter + 0.5, 0), xytext=(max_diameter + 0.5, z_v),
+                    arrowprops=dict(arrowstyle="<->", color='blue'))
+        ax.text(max_diameter + 0.7, z_v / 2, r"$z_{v}$", va='center', fontsize=12, color='blue')
+
+    # Fundamentets geometri
+    ax.plot([-D_b / 2, D_b / 2], [0, 0], 'k-')
+    ax.plot([-D_b / 2, -D_b / 2], [0, H_b], 'k-')
+    ax.plot([D_b / 2, D_b / 2], [0, H_b], 'k-')
+    ax.plot([-D_b / 2, D_b / 2], [H_b, H_b], 'k-')
+
+    ax.plot([-D_s / 2, D_s / 2], [H_b, H_b], 'k-')
+    ax.plot([-D_s / 2, -D_s / 2], [H_b, H_b + H_s], 'k-')
+    ax.plot([D_s / 2, D_s / 2], [H_b, H_b + H_s], 'k-')
+    ax.plot([-D_s / 2, D_s / 2], [H_b + H_s, H_b + H_s], 'k-')
+
+    # Måttlinjer - diametrar
+    ax.annotate("", xy=(D_b / 2, -0.5), xytext=(-D_b / 2, -0.5),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(0, -0.7, r"$D_b$", ha='center', va='top', fontsize=12)
+
+    ax.annotate("", xy=(D_s / 2, H_b + H_s + 0.5), xytext=(-D_s / 2, H_b + H_s + 0.5),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(0, H_b + H_s + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
+
+    # Måttlinjer - höjder
+    ax.annotate("", xy=(D_b / 2 + 0.5, 0), xytext=(D_b / 2 + 0.5, H_b),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(D_b / 2 + 0.6, H_b / 2, r"$H_b$", va='center', fontsize=12)
+
+    ax.annotate("", xy=(D_s / 2 + 0.5, H_b), xytext=(D_s / 2 + 0.5, H_b + H_s),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(D_s / 2 + 0.6, H_b + H_s / 2, r"$H_s$", va='center', fontsize=12)
+
+    # Horisontella laster Qk,H1 och Qk,H2 i rött, med större x-offset på zQ1 och zQ2
+    if Qk_H1 > 0:
+        ax.annotate(
+            "",
+            xy=(-D_s / 2, z_Q1),
+            xytext=(-D_s / 2 - pil_längd_extra, z_Q1),
+            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
+        )
+        ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ1_x_offset, z_Q1 + 0.3,
+                r"$Q_{k,H1}$", fontsize=14, color='red', ha='center')
+
+        ax.annotate(
+            "",
+            xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, 0),
+            xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, z_Q1),
+            arrowprops=dict(arrowstyle="<->", color='red')
+        )
+        ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ1_x_offset, z_Q1 / 2,
+                r"$z_{Q1}$", va='center', fontsize=12, color='red')
+
+    if Qk_H2 > 0:
+        ax.annotate(
+            "",
+            xy=(-D_s / 2, z_Q2),
+            xytext=(-D_s / 2 - pil_längd_extra, z_Q2),
+            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
+        )
+        ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ2_x_offset, z_Q2 + 0.3,
+                r"$Q_{k,H2}$", fontsize=14, color='red', ha='center')
+
+        ax.annotate(
+            "",
+            xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, 0),
+            xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, z_Q2),
+            arrowprops=dict(arrowstyle="<->", color='red')
+        )
+        ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ2_x_offset, z_Q2 / 2,
+                r"$z_{Q2}$", va='center', fontsize=12, color='red')
+
+    # Vertikal last Gk,övrigt
+    if Gk_ovr > 0:
+        ax.annotate(
+            "",
+            xy=(0, 0),
+            xytext=(0, pil_längd_extra_vert),
+            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
+        )
+        ax.text(0, pil_längd_extra_vert + 0.3, r"$G_{k,\mathrm{övrigt}}$", fontsize=14, color='red', ha='center')
+
+    # Justera x-axelgränser symmetriskt för att centrera figuren
+    max_offset = max(pil_längd_extra + max(zQ1_x_offset, zQ2_x_offset) + 1, 1.5)
+    ax.set_xlim(-max_diameter - max_offset, max_diameter + max_offset)
+
+    ax.set_ylim(-pil_längd_extra_vert - 1, max(H_b + H_s, z_v if z_v else 0, z_Q1, z_Q2) + 1)
+    ax.set_aspect('equal')
+    ax.axis('off')
+    st.pyplot(fig, use_container_width=True)
