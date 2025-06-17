@@ -1,4 +1,4 @@
-import streamlit as st
+streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -220,6 +220,17 @@ with col_res:
     vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
     vikt_tot = vikt_ovan + vikt_under
 
+    # Vertikala laster från fundamentets delar
+    Gk_b = (ovan_vatten_botten * 25) + (under_vatten_botten * 15)
+    Gk_s = (ovan_vatten_skaft * 25) + (under_vatten_skaft * 15)
+    Gk_ovr = float(Gk_ovr_str)
+    Gk_tot = Gk_b + Gk_s + Gk_ovr
+
+    # Moment från horisontella laster (kraft * momentarm)
+    M_Q1 = Qk_H1 * z_Q1
+    M_Q2 = Qk_H2 * z_Q2
+    M_tot = M_Q1 + M_Q2
+
     st.markdown("### Volym")
 
     df_volymer = pd.DataFrame({
@@ -234,3 +245,17 @@ with col_res:
         "Vikt (kN)": [vikt_ovan, vikt_under, vikt_tot]
     }, index=["Över vatten", "Under vatten", "Total egenvikt (Gk, fund)"])
     st.table(df_vikter.style.format("{:.1f}"))
+
+    st.markdown("### Vertikala laster")
+
+    df_vertikala = pd.DataFrame({
+        "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
+    }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
+    st.table(df_vertikala.style.format("{:.1f}"))
+
+    st.markdown("### Moment vid fundamentets underkant")
+
+    df_moment = pd.DataFrame({
+        "Moment (kNm)": [M_Q1, M_Q2, M_tot]
+    }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
+    st.table(df_moment.style.format("{:.1f}"))
