@@ -22,8 +22,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Variabel för pilens längd från fundamentets vänstra sida
-pil_längd_extra = 2  # kan ändras för att göra pilen längre eller kortare
+pil_längd_extra = 3  # Ökad pil-längd
 
 col_in, col_out, col_res = st.columns([1, 1, 1])
 
@@ -131,7 +130,7 @@ with col_out:
         xytext=(-D_s / 2 - pil_längd_extra, z_F),
         arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
     )
-    ax.text(-D_s / 2 - pil_längd_extra / 2, z_F + 0.1, r"$F_{H}$", fontsize=14, color='red', ha='center')
+    ax.text(-D_s / 2 - pil_längd_extra / 2, z_F + 0.3, r"$F_{H}$", fontsize=14, color='red', ha='center')
 
     # Måttlinje och text för z_F
     ax.annotate(
