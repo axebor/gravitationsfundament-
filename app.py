@@ -285,27 +285,36 @@ with col_res:
     }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
     st.table(df_moment.style.format("{:.1f}"))
 
-    st.markdown("### Lastkombinationer enligt SS-EN 1990")
+    st.markdown("### Lastkombinationer enligt SS-EN 1990 & BFS 2024:6")
 
     st.markdown(
         """
-        Kombination av laster görs enligt SS-EN 1990.  
-        **Permanent last:** inkluderar egenvikt och andra permanenta laster.  
-        **Variabel last:** inkluderar laster som kan variera, t.ex. vind, snö, trafik.  
+        Kombination av laster görs enligt SS-EN 1990 samt de svenska reglerna i BFS 2024:6.<br>
+        I denna app används <b>Lastkombination 3</b> för kontroll av statisk jämvikt och <b>Lastkombination 4</b> för dimensionering av geotekniska laster.<br><br>
+        <b>Permanent last:</b> inkluderar egenvikt och andra permanenta laster.<br>
+        <b>Variabel last:</b> inkluderar laster som kan variera, t.ex. is och våg-last.<br>
         """
+    , unsafe_allow_html=True
     )
 
-    VEd_ULS_STR = gamma_d * Gk_tot + 1.5 * M_tot
-    VEd_ULS_EQU = 0.9 * gamma_d * Gk_tot + 1.5 * M_tot
-    VEd_SLS = Gk_tot + M_tot
+    # Lastkombination 3 (statisk jämvikt) enligt BFS tabell 3:2
+    VEd_LK3 = 1.1 * Gk_tot          # Permanent last, ogynnsam
+    MEd_LK3 = 0.9 * Gk_tot          # Permanent last, gynnsam (kan tolkas som moment vid jämvikt)
+
+    # Lastkombination 4 (geotekniska laster) enligt BFS tabell 3:3
+    VEd_LK4 = max(1.1 * Gk_tot, Gk_tot)  # Permanent last enligt BFS, dock lägst Gk_tot
+    MEd_LK4 = 1.4 * M_tot                  # Moment multiplicerat med partialfaktor
 
     lastkombination_md = f"""
-    | Parameter                       | ULS STR 6.10 | ULS EQU 6.10 | SLS 6.14b  |
-    |--------------------------------|--------------|--------------|------------|
-    | Partialfaktor perm. last $γ_{{G}}$| 1.35         | 0.90         | 1.00       |
-    | Partialfaktor vari. last $γ_{{Q}}$  | 1.50         | 1.50         | 1.00       |
-    | Vertikal last $V_{{Ed}}$         | {VEd_ULS_STR:.1f}   | {VEd_ULS_EQU:.1f}   | {VEd_SLS:.1f}  |
-    | Moment $M_{{Ed}}$                | {M_tot:.1f}        | {M_tot:.1f}        | {M_tot:.1f}   |
+    | Parameter                                | Lastkombination 3 (Jämvikt) | Lastkombination 4 (Geoteknisk) |
+    |----------------------------------------|-----------------------------|--------------------------------|
+    | Permanent last, ogynnsam                | 1.10 × {Gk_tot:.1f} kN      | 1.10 × {Gk_tot:.1f} kN (lägst) |
+    | Permanent last, gynnsam                 | 0.90 × {Gk_tot:.1f} kN      | {Gk_tot:.1f} kN                |
+    | Variabel last, ogynnsam huvudlast      | 1.50 × {Qk_H1:.1f} kN       | 1.40 × {Qk_H1:.1f} kN          |
+    | Variabel last, ogynnsam övriga laster  | 1.50 × {Qk_H2:.1f} kN       | 1.40 × {Qk_H2:.1f} kN          |
+    | Variabel last, gynnsam                  | 0                           | 0                              |
+    | Vertikal last (total)                   | {VEd_LK3:.1f} kN            | {VEd_LK4:.1f} kN               |
+    | Moment (total)                         | {MEd_LK3:.1f} kNm           | {MEd_LK4:.1f} kNm              |
     """
 
     st.markdown(lastkombination_md)
