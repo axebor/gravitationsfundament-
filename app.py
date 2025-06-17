@@ -166,13 +166,77 @@ with col_out:
     ax.plot([D_s / 2, D_s / 2], [H_b, H_b + H_s], 'k-')
     ax.plot([-D_s / 2, D_s / 2], [H_b + H_s, H_b + H_s], 'k-')
 
-    # Måttlinjer och pilar (samma som tidigare, röd text/pilar osv)
-    # ... (samma kod som du hade för annoteringar och pilar)
-    # Jag kan lägga in dem om du vill, men de är oförändrade.
+    # Måttlinjer - diametrar
+    ax.annotate("", xy=(D_b / 2, -0.5), xytext=(-D_b / 2, -0.5),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(0, -0.7, r"$D_b$", ha='center', va='top', fontsize=12)
 
-    # Justera axelgränser och inställningar
+    ax.annotate("", xy=(D_s / 2, H_b + H_s + 0.5), xytext=(-D_s / 2, H_b + H_s + 0.5),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(0, H_b + H_s + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
+
+    # Måttlinjer - höjder
+    ax.annotate("", xy=(D_b / 2 + 0.5, 0), xytext=(D_b / 2 + 0.5, H_b),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(D_b / 2 + 0.6, H_b / 2, r"$H_b$", va='center', fontsize=12)
+
+    ax.annotate("", xy=(D_s / 2 + 0.5, H_b), xytext=(D_s / 2 + 0.5, H_b + H_s),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(D_s / 2 + 0.6, H_b + H_s / 2, r"$H_s$", va='center', fontsize=12)
+
+    # Horisontella laster Qk,H1 och Qk,H2 i rött, med större x-offset på zQ1 och zQ2
+    if Qk_H1 > 0:
+        ax.annotate(
+            "",
+            xy=(-D_s / 2, z_Q1),
+            xytext=(-D_s / 2 - pil_längd_extra, z_Q1),
+            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
+        )
+        ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ1_x_offset, z_Q1 + 0.3,
+                r"$Q_{k,H1}$", fontsize=14, color='red', ha='center')
+
+        ax.annotate(
+            "",
+            xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, 0),
+            xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, z_Q1),
+            arrowprops=dict(arrowstyle="<->", color='red')
+        )
+        ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ1_x_offset, z_Q1 / 2,
+                r"$z_{Q1}$", va='center', fontsize=12, color='red')
+
+    if Qk_H2 > 0:
+        ax.annotate(
+            "",
+            xy=(-D_s / 2, z_Q2),
+            xytext=(-D_s / 2 - pil_längd_extra, z_Q2),
+            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
+        )
+        ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ2_x_offset, z_Q2 + 0.3,
+                r"$Q_{k,H2}$", fontsize=14, color='red', ha='center')
+
+        ax.annotate(
+            "",
+            xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, 0),
+            xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, z_Q2),
+            arrowprops=dict(arrowstyle="<->", color='red')
+        )
+        ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ2_x_offset, z_Q2 / 2,
+                r"$z_{Q2}$", va='center', fontsize=12, color='red')
+
+    # Vertikal last Gk,övrigt
+    if Gk_ovr > 0:
+        ax.annotate(
+            "",
+            xy=(0, 0),
+            xytext=(0, pil_längd_extra_vert),
+            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
+        )
+        ax.text(0, pil_längd_extra_vert + 0.3, r"$G_{k,\mathrm{övrigt}}$", fontsize=14, color='red', ha='center')
+
+    # Justera x-axelgränser symmetriskt för att centrera figuren
     max_offset = max(pil_längd_extra + max(zQ1_x_offset, zQ2_x_offset) + 1, 1.5)
     ax.set_xlim(-max_diameter - max_offset, max_diameter + max_offset)
+
     ax.set_ylim(-1.5, max(H_b + H_s, z_v if z_v else 0, z_Q1, z_Q2) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
