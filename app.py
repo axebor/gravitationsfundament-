@@ -249,9 +249,7 @@ with col_res:
     df_moment = pd.DataFrame({
         "Moment (kNm)": [M_Q1, M_Q2, M_tot]
     }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
-    st.table(df_moment.style.format("{:.1f}"))
-
-st.markdown("### Lastkombinationer enligt SS-EN 1990")
+   st.markdown("### Lastkombinationer enligt SS-EN 1990")
 
 st.markdown(r"""
 **STR 6.10**  
@@ -282,4 +280,7 @@ df_varden = pd.DataFrame({
 }, index=[r"$M_{Ed}$", r"$V_{Ed}$"])
 
 st.table(df_varden)
+
+    st.table(df_moment.style.format("{:.1f}"))
+
 
