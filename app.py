@@ -126,25 +126,25 @@ with col_out:
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s/2 + 0.6, H_b + H_s/2, r"$H_s$", va='center', fontsize=12)
 
-    # Last F_H som röd horisontell pil till höger på fundamentet
+    # Last F_H som röd horisontell pil från vänster till fundamentets vänstra sida (vid -D_s/2)
     ax.annotate(
-        "", 
-        xy=(max_diameter / 2 + 0.8, z_F), 
-        xytext=(max_diameter / 2 + 2, z_F),
-        arrowprops=dict(arrowstyle="<|-|>", color='red', linewidth=3)
+        "",
+        xy=(-D_s / 2, z_F),                 # pilens spets på fundamentets vänstra sida
+        xytext=(-max_diameter - 2, z_F),   # pilens start långt till vänster om fundamentet
+        arrowprops=dict(arrowstyle="<|-", color='red', linewidth=3)
     )
-    ax.text(max_diameter / 2 + 1.4, z_F + 0.1, r"$F_{H}$", color='red', fontsize=14, fontweight='bold')
+    ax.text(-D_s / 2 - 0.6, z_F + 0.1, r"$F_{H}$", color='red', fontsize=14, fontweight='bold')
 
     # Måttlinje och text för z_F
     ax.annotate(
-        "", 
-        xy=(max_diameter / 2 + 2.5, 0), 
-        xytext=(max_diameter / 2 + 2.5, z_F),
+        "",
+        xy=(-max_diameter - 2.5, 0),
+        xytext=(-max_diameter - 2.5, z_F),
         arrowprops=dict(arrowstyle="<->", color='red')
     )
-    ax.text(max_diameter / 2 + 2.7, z_F / 2, r"$z_{F}$", va='center', fontsize=12, color='red')
+    ax.text(-max_diameter - 2.8, z_F / 2, r"$z_{F}$", va='center', fontsize=12, color='red')
 
-    ax.set_xlim(-max_diameter - 1, max_diameter + 3.5)
+    ax.set_xlim(-max_diameter - 3, max_diameter + 1.5)
     ax.set_ylim(-1, max(fundament_h, z_v if z_v else 0, z_F) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
