@@ -58,10 +58,10 @@ with col_in:
 
     col_chk, col_zv = st.columns(2)
     with col_chk:
-        fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
+        fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=True)
     with col_zv:
         if fundament_i_vatten:
-            z_niva_str = st.text_input(r"$z_{v}$ (m) från underkant fundament", value="0.0", key="z_niva")
+            z_niva_str = st.text_input(r"$z_{v}$ (m) från underkant fundament", value="3.0", key="z_niva")
         else:
             z_niva_str = None
 
@@ -85,7 +85,7 @@ with col_in:
     # Horisontella laster och lastkombinationsfaktor med angreppsplan på samma rad
     col_q1, col_psi, col_zq1 = st.columns([1, 1, 1])
     with col_q1:
-        Qk_H1_str = st.text_input(r"Huvudlast horisontell $Q_{k,H1}$ (kN)", value="5.0")
+        Qk_H1_str = st.text_input(r"Huvudlast horisontell $Q_{k,H1}$ (kN)", value="0.0")
     with col_psi:
         st.markdown("")  # Ingen lastkombinationsfaktor för huvudlast
     with col_zq1:
@@ -99,7 +99,7 @@ with col_in:
     with col_zq2:
         z_Q2_str = st.text_input(r"Angreppsplan $z_{Q2}$ (m)", value="0.0", key="z_Q2")
 
-    Gk_ovr_str = st.text_input(r"Vertikal last $G_{k,\mathrm{övrigt}}$ (kN)", value="5.0")
+    Gk_ovr_str = st.text_input(r"Vertikal last $G_{k,\mathrm{övrigt}}$ (kN)", value="0.0")
 
     try:
         D_b = round(float(D_b_str), 1)
