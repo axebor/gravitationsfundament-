@@ -57,12 +57,12 @@ with col_in:
     st.subheader("Laster")
     col_fh, col_zf = st.columns(2)
     with col_fh:
-        F_H_str = st.text_input(r"Horisontell punktlast $F_{H}$ (kN)", value="5.0")
+        F_H_str = st.text_input(r"Horisontell punktlast $F_{H}$ (kN)", value="0.0")
     with col_zf:
         z_F_str = st.text_input(r"Angreppsplan $z_{F}$ (m)", value="0.0")
 
     # Vertikal last FV
-    F_V_str = st.text_input(r"Vertikal punktlast $F_{V}$ (kN)", value="5.0")
+    F_V_str = st.text_input(r"Vertikal, permanent, punktlast $F_{V}$ (kN)", value="0.0")
 
     try:
         D_b = round(float(D_b_str), 1)
