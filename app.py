@@ -96,7 +96,7 @@ with col_in:
 with col_out:
     st.header("Figur")
 
-    fig, ax = plt.subplots(figsize=(6, 6))
+    fig, ax = plt.subplots(figsize=(8, 8))
     max_diameter = max(D_b, D_s)
 
     # Vattennivå
