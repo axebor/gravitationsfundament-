@@ -247,79 +247,40 @@ with col_out:
 with col_res:
     st.header("Resultat")
 
-    pi = np.pi
-
-    vol_bottenplatta = pi * (D_b / 2) ** 2 * H_b
-    vol_skaft = pi * (D_s / 2) ** 2 * H_s
-
-    if fundament_i_vatten and z_v is not None and z_v > 0:
-        under_vatten_botten = max(0, min(z_v, H_b)) * pi * (D_b / 2) ** 2
-        ovan_vatten_botten = vol_bottenplatta - under_vatten_botten
-
-        under_vatten_skaft = max(0, min(z_v - H_b, H_s)) * pi * (D_s / 2) ** 2
-        ovan_vatten_skaft = vol_skaft - under_vatten_skaft
-    else:
-        under_vatten_botten = 0
-        ovan_vatten_botten = vol_bottenplatta
-        under_vatten_skaft = 0
-        ovan_vatten_skaft = vol_skaft
-
-    vikt_ovan = (ovan_vatten_botten + ovan_vatten_skaft) * 25
-    vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
-    vikt_tot = vikt_ovan + vikt_under
-
-    # Vertikala laster från fundamentets delar
-    Gk_b = (ovan_vatten_botten * 25) + (under_vatten_botten * 15)
-    Gk_s = (ovan_vatten_skaft * 25) + (under_vatten_skaft * 15)
-    Gk_ovr = float(Gk_ovr_str)
-    Gk_tot = Gk_b + Gk_s + Gk_ovr
-
-    # Moment från horisontella laster (kraft * momentarm)
-    M_Q1 = Qk_H1 * z_Q1
-    M_Q2 = Qk_H2 * z_Q2
-    M_tot = M_Q1 + M_Q2
-
-    # Lastkombinationer med vald säkerhetsklass γd
-    VEd_ULS_STR = gamma_d * Gk_tot + 1.5 * M_tot
-    VEd_ULS_EQU = 0.9 * gamma_d * Gk_tot + 1.5 * M_tot
-    VEd_SLS = Gk_tot + M_tot
+    # ... (tidigare kod med beräkningar)
 
     st.markdown("### Vertikala laster")
-
     df_vertikala = pd.DataFrame({
         "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
     }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
     st.table(df_vertikala.style.format("{:.1f}"))
 
     st.markdown("### Moment vid fundamentets underkant")
-
     df_moment = pd.DataFrame({
         "Moment (kNm)": [M_Q1, M_Q2, M_tot]
     }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
     st.table(df_moment.style.format("{:.1f}"))
 
-st.markdown("### Lastkombinationer enligt SS-EN 1990")
+    # Här lägger du in den nya beskrivningen och tabellen för lastkombinationer:
+    st.markdown("### Lastkombinationer enligt SS-EN 1990")
 
-st.markdown(
-    """
-    Lastkombinationerna beräknas enligt följande principer:
-    - **ULS STR 6.10:** \( V_{Ed} = \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot} \)
-    - **ULS EQU 6.10:** \( V_{Ed} = 0.9 \cdot \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot} \) (Permanent last antas gynnsam)
-    - **SLS 6.14b:** \( V_{Ed} = G_{tot} + M_{tot} \)
+    st.markdown(
+        """
+        Lastkombinationerna beräknas enligt följande principer:
+        - **ULS STR 6.10:** \( V_{Ed} = \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot} \)
+        - **ULS EQU 6.10:** \( V_{Ed} = 0.9 \cdot \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot} \) (Permanent last antas gynnsam)
+        - **SLS 6.14b:** \( V_{Ed} = G_{tot} + M_{tot} \)
 
-    Där \( \gamma_d \) är säkerhetsfaktorn vald ovan, \( G_{tot} \) total vertikal last och \( M_{tot} \) total moment.
-    """
-)
+        Där \( \gamma_d \) är säkerhetsfaktorn vald ovan, \( G_{tot} \) total vertikal last och \( M_{tot} \) total moment.
+        """
+    )
 
-df_lastkomb = pd.DataFrame({
-    "ULS STR 6.10": [f"{VEd_ULS_STR:.1f}", ""],
-    "ULS EQU 6.10": [f"{VEd_ULS_EQU:.1f}", ""],
-    "SLS 6.14b": [f"{VEd_SLS:.1f}", ""]
-}, index=["VEd (kN)", ""])
+    df_lastkomb = pd.DataFrame({
+        "ULS STR 6.10": [f"{VEd_ULS_STR:.1f}", ""],
+        "ULS EQU 6.10": [f"{VEd_ULS_EQU:.1f}", ""],
+        "SLS 6.14b": [f"{VEd_SLS:.1f}", ""]
+    }, index=["VEd (kN)", ""])
 
-# Lägg till MEd-rad under
-df_lastkomb.loc["MEd (kNm)"] = [f"{M_tot:.1f}"]*3
+    df_lastkomb.loc["MEd (kNm)"] = [f"{M_tot:.1f}"]*3
 
-st.table(df_lastkomb)
-
-
+    st.table(df_lastkomb)
