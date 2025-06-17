@@ -65,8 +65,8 @@ with col_in:
         H_b = round(float(H_b_str), 1)
         D_s = round(float(D_s_str), 1)
         H_s = round(float(H_s_str), 1)
-        F_H = round(float(F_H_str), 1)
-        z_F = round(float(z_F_str), 1)
+        F_H = float(F_H_str)
+        z_F = float(z_F_str)
         if fundament_i_vatten:
             z_v = float(z_niva_str)
         else:
@@ -124,24 +124,27 @@ with col_out:
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s/2 + 0.6, H_b + H_s/2, r"$H_s$", va='center', fontsize=12)
 
-    # Last F_H: spegelvänd pil som pekar mot fundamentets vänstra sida
+    # Last F_H som pil (CurveB, spegelvänd, röd)
     ax.annotate(
         "",
-        xy=(-D_s / 2, z_F),            # pilspets vid vänstra sidan av fundamentet
-        xytext=(-max_diameter - 2, z_F),  # pilens startpunkt långt till vänster
-        arrowprops=dict(arrowstyle="|-|>", color='red', linewidth=3)
+        xy=(-D_s / 2, z_F),
+        xytext=(-max_diameter - 2, z_F),
+        arrowprops=dict(
+            arrowstyle='CurveB',
+            color='red',
+            linewidth=3,
+            head_length=0.4,
+            head_width=0.2,
+            widthA=1.0,
+            widthB=1.0,
+            lengthA=0.2,
+            lengthB=0.2,
+            angleA=0,
+            angleB=0
+        )
     )
-    # Texten F_H ovanför pilen, centrerat
-    ax.text((-max_diameter - 2 + (-D_s / 2)) / 2, z_F + 0.15, r"$F_{H}$", color='red', fontsize=14, fontweight='bold', ha='center')
-
-    # Måttlinje och text för z_F bredvid måttet
-    ax.annotate(
-        "",
-        xy=(-max_diameter - 2.5, 0),
-        xytext=(-max_diameter - 2.5, z_F),
-        arrowprops=dict(arrowstyle="<->", color='red')
-    )
-    ax.text(-max_diameter - 2.3, z_F / 2, r"$z_{F}$", va='center', fontsize=12, color='red')
+    # Text ovanför pilen (i mitten)
+    ax.text(-max_diameter - 1, z_F + 0.1, r"$F_{H}$", fontsize=14, color='red', ha='center')
 
     ax.set_xlim(-max_diameter - 3, max_diameter + 1.5)
     ax.set_ylim(-1, max(H_b + H_s, z_v if z_v else 0, z_F) + 1)
