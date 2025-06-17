@@ -122,23 +122,30 @@ with col_out:
     fig, ax = plt.subplots(figsize=(8, 8))
     max_diameter = max(D_b, D_s)
 
-    # Markområde under bottenplattan (ljusbrunt)
+    # Markområde under bottenplattan (ljusbrunt), mellan y=-1 och y=0
     ax.fill_between(
         x=[-max_diameter - 1, max_diameter + 1],
         y1=-1, y2=0,
         color='burlywood', alpha=0.5
     )
 
-    # Vattennivå - ljusblå utan överlappning med mark eller platta
+    # Vattennivå - ljusblå från y=0 upp till z_v, om z_v > 0
     if fundament_i_vatten and z_v is not None and z_v > 0:
         ax.fill_between(
             x=[-max_diameter - 1, max_diameter + 1],
-            y1=0, y2=z_v, color='lightblue', alpha=0.5)
-        ax.hlines(y=z_v, xmin=-max_diameter - 1, xmax=max_diameter + 1,
-                  colors='blue', linestyles='--', linewidth=2)
-
-        ax.annotate("", xy=(max_diameter + 0.5, 0), xytext=(max_diameter + 0.5, z_v),
-                    arrowprops=dict(arrowstyle="<->", color='blue'))
+            y1=0, y2=z_v,
+            color='lightblue', alpha=0.5
+        )
+        ax.hlines(
+            y=z_v,
+            xmin=-max_diameter - 1,
+            xmax=max_diameter + 1,
+            colors='blue', linestyles='--', linewidth=2
+        )
+        ax.annotate(
+            "", xy=(max_diameter + 0.5, 0), xytext=(max_diameter + 0.5, z_v),
+            arrowprops=dict(arrowstyle="<->", color='blue')
+        )
         ax.text(max_diameter + 0.7, z_v / 2, r"$z_{v}$", va='center', fontsize=12, color='blue')
 
     # Bottenplatta - gråskraffering
@@ -154,7 +161,7 @@ with col_out:
         color='lightgrey', alpha=0.5, hatch='////'
     )
 
-    # Fundamentets geometri - kanter i svart
+    # Fundamentets geometri - konturer
     ax.plot([-D_b / 2, D_b / 2], [0, 0], 'k-')
     ax.plot([-D_b / 2, -D_b / 2], [0, H_b], 'k-')
     ax.plot([D_b / 2, D_b / 2], [0, H_b], 'k-')
@@ -165,74 +172,51 @@ with col_out:
     ax.plot([D_s / 2, D_s / 2], [H_b, H_b + H_s], 'k-')
     ax.plot([-D_s / 2, D_s / 2], [H_b + H_s, H_b + H_s], 'k-')
 
-    # Måttlinjer - diametrar
-    ax.annotate("", xy=(D_b / 2, -0.5), xytext=(-D_b / 2, -0.5),
-                arrowprops=dict(arrowstyle="<->"))
+    # Måttlinjer och etiketter (diametrar och höjder)
+    ax.annotate("", xy=(D_b / 2, -0.5), xytext=(-D_b / 2, -0.5), arrowprops=dict(arrowstyle="<->"))
     ax.text(0, -0.7, r"$D_b$", ha='center', va='top', fontsize=12)
 
-    ax.annotate("", xy=(D_s / 2, H_b + H_s + 0.5), xytext=(-D_s / 2, H_b + H_s + 0.5),
-                arrowprops=dict(arrowstyle="<->"))
+    ax.annotate("", xy=(D_s / 2, H_b + H_s + 0.5), xytext=(-D_s / 2, H_b + H_s + 0.5), arrowprops=dict(arrowstyle="<->"))
     ax.text(0, H_b + H_s + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
 
-    # Måttlinjer - höjder
-    ax.annotate("", xy=(D_b / 2 + 0.5, 0), xytext=(D_b / 2 + 0.5, H_b),
-                arrowprops=dict(arrowstyle="<->"))
+    ax.annotate("", xy=(D_b / 2 + 0.5, 0), xytext=(D_b / 2 + 0.5, H_b), arrowprops=dict(arrowstyle="<->"))
     ax.text(D_b / 2 + 0.6, H_b / 2, r"$H_b$", va='center', fontsize=12)
 
-    ax.annotate("", xy=(D_s / 2 + 0.5, H_b), xytext=(D_s / 2 + 0.5, H_b + H_s),
-                arrowprops=dict(arrowstyle="<->"))
+    ax.annotate("", xy=(D_s / 2 + 0.5, H_b), xytext=(D_s / 2 + 0.5, H_b + H_s), arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s / 2 + 0.6, H_b + H_s / 2, r"$H_s$", va='center', fontsize=12)
 
-    # Horisontella laster Qk,H1 och Qk,H2 i rött, med större x-offset på zQ1 och zQ2
+    # Horisontella laster Qk,H1 och Qk,H2 (röda pilar och etiketter)
     if Qk_H1 > 0:
-        ax.annotate(
-            "",
-            xy=(-D_s / 2, z_Q1),
-            xytext=(-D_s / 2 - pil_längd_extra, z_Q1),
-            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
-        )
+        ax.annotate("", xy=(-D_s / 2, z_Q1), xytext=(-D_s / 2 - pil_längd_extra, z_Q1),
+                    arrowprops=dict(arrowstyle='->', color='red', linewidth=3))
         ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ1_x_offset, z_Q1 + 0.3,
                 r"$Q_{k,H1}$", fontsize=14, color='red', ha='center')
 
-        ax.annotate(
-            "",
-            xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, 0),
-            xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, z_Q1),
-            arrowprops=dict(arrowstyle="<->", color='red')
-        )
+        ax.annotate("", xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, 0),
+                    xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, z_Q1),
+                    arrowprops=dict(arrowstyle="<->", color='red'))
         ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ1_x_offset, z_Q1 / 2,
                 r"$z_{Q1}$", va='center', fontsize=12, color='red')
 
     if Qk_H2 > 0:
-        ax.annotate(
-            "",
-            xy=(-D_s / 2, z_Q2),
-            xytext=(-D_s / 2 - pil_längd_extra, z_Q2),
-            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
-        )
+        ax.annotate("", xy=(-D_s / 2, z_Q2), xytext=(-D_s / 2 - pil_längd_extra, z_Q2),
+                    arrowprops=dict(arrowstyle='->', color='red', linewidth=3))
         ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ2_x_offset, z_Q2 + 0.3,
                 r"$Q_{k,H2}$", fontsize=14, color='red', ha='center')
 
-        ax.annotate(
-            "",
-            xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, 0),
-            xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, z_Q2),
-            arrowprops=dict(arrowstyle="<->", color='red')
-        )
+        ax.annotate("", xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, 0),
+                    xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, z_Q2),
+                    arrowprops=dict(arrowstyle="<->", color='red'))
         ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ2_x_offset, z_Q2 / 2,
                 r"$z_{Q2}$", va='center', fontsize=12, color='red')
 
-    # Vertikal last Gk,övrigt
+    # Vertikal last Gk,övrigt (röd pil och etikett)
     if Gk_ovr > 0:
-        ax.annotate(
-            "",
-            xy=(0, 0),
-            xytext=(0, pil_längd_extra_vert),
-            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
-        )
+        ax.annotate("", xy=(0, 0), xytext=(0, pil_längd_extra_vert),
+                    arrowprops=dict(arrowstyle='->', color='red', linewidth=3))
         ax.text(0, pil_längd_extra_vert + 0.3, r"$G_{k,\mathrm{övrigt}}$", fontsize=14, color='red', ha='center')
 
-    # Justera x-axelgränser symmetriskt för att centrera figuren
+    # Justera x- och y-axelgränser symmetriskt för att centrera figuren
     max_offset = max(pil_längd_extra + max(zQ1_x_offset, zQ2_x_offset) + 1, 1.5)
     ax.set_xlim(-max_diameter - max_offset, max_diameter + max_offset)
 
