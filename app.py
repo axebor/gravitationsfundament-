@@ -116,7 +116,6 @@ with col_in:
     except ValueError:
         st.error("❌ Ange giltiga numeriska värden för geometri, vattennivå och laster.")
         st.stop()
-
 with col_out:
     st.header("Figur")
 
