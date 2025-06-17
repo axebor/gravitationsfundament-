@@ -298,12 +298,28 @@ with col_res:
     }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
     st.table(df_moment.style.format("{:.1f}"))
 
-    st.markdown("### Lastkombinationer enligt SS-EN 1990")
+st.markdown("### Lastkombinationer enligt SS-EN 1990")
 
-    df_lastkomb = pd.DataFrame({
-        "ULS STR 6.10": [f"$V_{{Ed}} = {gamma_d:.2f} \cdot G_{{tot}} + 1.5 \cdot M_{{tot}}$", f"{VEd_ULS_STR:.1f}"],
-        "ULS EQU 6.10": [f"$V_{{Ed}} = 0.9 \cdot {gamma_d:.2f} \cdot G_{{tot}} + 1.5 \cdot M_{{tot}}$", f"{VEd_ULS_EQU:.1f}"],
-        "SLS 6.14b": [r"$V_{Ed} = G_{tot} + M_{tot}$", f"{VEd_SLS:.1f}"]
-    }, index=[r"$V_{Ed}$", "Värde (kN)"])
-    st.table(df_lastkomb)
+st.markdown(
+    """
+    Lastkombinationerna beräknas enligt följande principer:
+    - **ULS STR 6.10:** \( V_{Ed} = \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot} \)
+    - **ULS EQU 6.10:** \( V_{Ed} = 0.9 \cdot \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot} \) (Permanent last antas gynnsam)
+    - **SLS 6.14b:** \( V_{Ed} = G_{tot} + M_{tot} \)
+
+    Där \( \gamma_d \) är säkerhetsfaktorn vald ovan, \( G_{tot} \) total vertikal last och \( M_{tot} \) total moment.
+    """
+)
+
+df_lastkomb = pd.DataFrame({
+    "ULS STR 6.10": [f"{VEd_ULS_STR:.1f}", ""],
+    "ULS EQU 6.10": [f"{VEd_ULS_EQU:.1f}", ""],
+    "SLS 6.14b": [f"{VEd_SLS:.1f}", ""]
+}, index=["VEd (kN)", ""])
+
+# Lägg till MEd-rad under
+df_lastkomb.loc["MEd (kNm)"] = [f"{M_tot:.1f}"]*3
+
+st.table(df_lastkomb)
+
 
