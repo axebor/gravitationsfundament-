@@ -271,14 +271,6 @@ with col_res:
     M_Q2 = Qk_H2 * z_Q2
     M_tot = M_Q1 + M_Q2
 
-    # Debugutskrifter
-    st.write("Indata horisontella laster och momentarmar:")
-    st.write(f"Qk_H1 = {Qk_H1}, z_Q1 = {z_Q1}")
-    st.write(f"Qk_H2 = {Qk_H2}, z_Q2 = {z_Q2}")
-    st.write(f"M_Q1 = {M_Q1}, M_Q2 = {M_Q2}, M_tot = {M_tot}")
-    st.write(f"Gamma_d = {gamma_d}")
-    st.write(f"Gk_tot = {Gk_tot}")
-
     st.markdown("### Vertikala laster")
 
     df_vertikala = pd.DataFrame({
@@ -305,24 +297,21 @@ with col_res:
     , unsafe_allow_html=True
     )
 
-    # Lastkombination 3 (statisk jämvikt)
-    VEd_LK3 = 1.1 * Gk_tot          # Permanent last, ogynnsam
-    MEd_LK3 = 0.9 * Gk_tot          # Permanent last, gynnsam
-
-    # Lastkombination 4 (geotekniska laster)
-    VEd_LK4 = max(1.1 * Gk_tot, Gk_tot)  # Permanent last, lägst Gk_tot
-    MEd_LK4 = 1.4 * M_tot                  # Moment multiplicerat med partialfaktor
+    # Partialfaktorer med latex-symboler
+    gamma_G = r"$\gamma_G$"
+    gamma_d_val = gamma_d  # säkerhetsklassfaktorn
 
     lastkombination_md = f"""
-    | Parameter                                | Lastkombination 3 (Jämvikt) | Lastkombination 4 (Geoteknisk) |
-    |----------------------------------------|-----------------------------|--------------------------------|
-    | Permanent last, ogynnsam                | 1.10 × {Gk_tot:.1f} kN      | 1.10 × {Gk_tot:.1f} kN (lägst) |
-    | Permanent last, gynnsam                 | 0.90 × {Gk_tot:.1f} kN      | {Gk_tot:.1f} kN                |
-    | Variabel last, ogynnsam huvudlast      | 1.50 × {Qk_H1:.1f} kN       | 1.40 × {Qk_H1:.1f} kN          |
-    | Variabel last, ogynnsam övriga laster  | 1.50 × {Qk_H2:.1f} kN       | 1.40 × {Qk_H2:.1f} kN          |
-    | Variabel last, gynnsam                  | 0                           | 0                              |
-    | Vertikal last (total)                   | {VEd_LK3:.1f} kN            | {VEd_LK4:.1f} kN               |
-    | Moment (total)                         | {MEd_LK3:.1f} kNm           | {MEd_LK4:.1f} kNm              |
+    | Parameter                                | Lastkombination 3 (Jämvikt)    | Lastkombination 4 (Geoteknisk)  |
+    |----------------------------------------|--------------------------------|---------------------------------|
+    | Permanent last, ogynnsam                | 1.10 × {gamma_G} × {gamma_d_val:.2f} | 1.10 × {gamma_G} × {gamma_d_val:.2f} (lägst) |
+    | Permanent last, gynnsam                 | 0.90 × {gamma_G}               | 1.00 × {gamma_G}                |
+    | Variabel last, ogynnsam huvudlast      | 1.50 × {gamma_G}               | 1.40 × {gamma_G}                |
+    | Variabel last, ogynnsam övriga laster  | 1.50 × {gamma_G}               | 1.40 × {gamma_G}                |
+    | Variabel last, gynnsam                  | 0                              | 0                               |
+    | Vertikal last (total)                   | {1.1 * gamma_d_val * Gk_tot:.1f} kN | {max(1.1 * gamma_d_val * Gk_tot, Gk_tot):.1f} kN  |
+    | Moment (total)                         | {0.9 * gamma_d_val * Gk_tot:.1f} kNm | {1.4 * M_tot:.1f} kNm           |
     """
 
     st.markdown(lastkombination_md)
+
