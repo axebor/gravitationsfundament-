@@ -179,7 +179,7 @@ with col_out:
     ax.axis("off")
 
     # Alternativ 2: vänsterjusterad inom figurfältet
-    sub_l, sub_r = st.columns([1, 2])
+    sub_l, sub_r = st.columns([2, 1])
     with sub_l:
         st.pyplot(fig, use_container_width=True)
 
