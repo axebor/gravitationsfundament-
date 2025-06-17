@@ -151,11 +151,11 @@ with col_out:
     if F_V > 0:
         ax.annotate(
             "",
-            xy=(0, 0),
-            xytext=(0, -pil_längd_extra_vert),
-            arrowprops=dict(arrowstyle='->', color='green', linewidth=3)
+            xy=(0, 0),                   # Pilspets vid underkant fundament (y=0)
+            xytext=(0, pil_längd_extra_vert),  # Pilens startpunkt ovanför
+            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
         )
-        ax.text(0, -pil_längd_extra_vert - 0.3, r"$F_{V}$", fontsize=14, color='green', ha='center')
+        ax.text(0, pil_längd_extra_vert + 0.3, r"$F_{V}$", fontsize=14, color='red', ha='center')
 
     ax.set_xlim(-max_diameter - pil_längd_extra - 1, max_diameter + 1.5)
     ax.set_ylim(-pil_längd_extra_vert - 1, max(H_b + H_s, z_v if z_v else 0, z_F) + 1)
