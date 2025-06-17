@@ -316,32 +316,18 @@ with col_res:
     VEd_ULS_EQU = 0.9 * gamma_d * Gk_tot + 1.5 * M_tot
     VEd_SLS = Gk_tot + M_tot
 
-    # Tabell med MEd och VEd på separata rader, med LaTeX-rendering via HTML
-    html_table = f"""
-    <table>
-      <thead>
-        <tr>
-          <th></th>
-          <th>ULS STR 6.10</th>
-          <th>ULS EQU 6.10</th>
-          <th>SLS 6.14b</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="text-align:center;">$V_{{Ed}}$</td>
-          <td style="text-align:center;">{VEd_ULS_STR:.1f}</td>
-          <td style="text-align:center;">{VEd_ULS_EQU:.1f}</td>
-          <td style="text-align:center;">{VEd_SLS:.1f}</td>
-        </tr>
-        <tr>
-          <td style="text-align:center;">$M_{{Ed}}$</td>
-          <td style="text-align:center;">{M_tot:.1f}</td>
-          <td style="text-align:center;">{M_tot:.1f}</td>
-          <td style="text-align:center;">{M_tot:.1f}</td>
-        </tr>
-      </tbody>
-    </table>
-    """
+    # Skapa DataFrame med resultaten (siffrorna)
+    df_resultat = pd.DataFrame({
+        "ULS STR 6.10": [VEd_ULS_STR, M_tot],
+        "ULS EQU 6.10": [VEd_ULS_EQU, M_tot],
+        "SLS 6.14b": [VEd_SLS, M_tot]
+    }, index=["", ""])  # Index lämnas tomt och etiketter visas separat
 
-    st.markdown(html_table, unsafe_allow_html=True)
+    # Visa tabellen utan index
+    st.table(df_resultat.style.format("{:.1f}").hide(axis="index"))
+
+    # Visa LaTeX-etiketter separat till vänster i kolumnlayout
+    col1, col2 = st.columns([1, 9])
+    with col1:
+        st.markdown(r"$V_{Ed}$")
+        st.markdown(r"$M_{Ed}$")
