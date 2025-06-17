@@ -213,38 +213,39 @@ with col_out:
         )
         ax.text(0, pil_längd_extra_vert + 0.3, r"$G_{k,\mathrm{övrigt}}$", fontsize=14, color='red', ha='center')
 
-    # Lägg till grå skraffering för bottenplatta
-    ax.fill_between(
-        x=[-D_b / 2, D_b / 2],
-        y1=0, y2=H_b,
-        color='lightgrey',
-        alpha=0.5,
-        hatch='///'
-    )
-
-    # Lägg till grå skraffering för skaft
-    ax.fill_between(
-        x=[-D_s / 2, D_s / 2],
-        y1=H_b, y2=H_b + H_s,
-        color='lightgrey',
-        alpha=0.5,
-        hatch='///'
-    )
-
-    # Lägg till ljusbrun mark under bottenplatta
+    # Här lägger vi till skrafferingarna
+    
+    # Markområde under bottenplattan
     ax.fill_between(
         x=[-max_diameter - 1, max_diameter + 1],
-        y1=-1.5, y2=0,
-        color='#deb887',  # ljusbrun färg
-        alpha=0.7,
-        hatch='\\\\\\'
+        y1=-pil_längd_extra_vert - 1,
+        y2=0,
+        color='#d2b48c', alpha=0.5  # ljusbrun
     )
-
+    
+    # Bottenplatta skrafferad ljusgrå
+    ax.fill_between(
+        x=[-D_b/2, D_b/2],
+        y1=0,
+        y2=H_b,
+        color='lightgrey',
+        alpha=0.8
+    )
+    
+    # Skaft skrafferad ljusgrå
+    ax.fill_between(
+        x=[-D_s/2, D_s/2],
+        y1=H_b,
+        y2=H_b + H_s,
+        color='lightgrey',
+        alpha=0.8
+    )
+    
     # Justera x-axelgränser symmetriskt för att centrera figuren
     max_offset = max(pil_längd_extra + max(zQ1_x_offset, zQ2_x_offset) + 1, 1.5)
     ax.set_xlim(-max_diameter - max_offset, max_diameter + max_offset)
 
-    ax.set_ylim(-1.7, max(H_b + H_s, z_v if z_v else 0, z_Q1, z_Q2) + 1)
+    ax.set_ylim(-pil_längd_extra_vert - 1, max(H_b + H_s, z_v if z_v else 0, z_Q1, z_Q2) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
 
@@ -285,58 +286,62 @@ with col_res:
     M_Q2 = Qk_H2 * z_Q2
     M_tot = M_Q1 + M_Q2
 
-    # Lastkombinationer med vald säkerhetsklass γd
-    VEd_ULS_STR = gamma_d * Gk_tot + 1.5 * M_tot
-    VEd_ULS_EQU = 0.9 * gamma_d * Gk_tot + 1.5 * M_tot
-    VEd_SLS = Gk_tot + M_tot
-
     st.markdown("### Vertikala laster")
 
     df_vertikala = pd.DataFrame({
-        r"$G_{k,b}$ (Bottenplatta)": [Gk_b],
-        r"$G_{k,s}$ (Skaft)": [Gk_s],
-        r"$G_{k,\mathrm{övrigt}}$": [Gk_ovr],
-        r"$G_{k,\mathrm{tot}}$": [Gk_tot]
-    }).T
-    df_vertikala.columns = ["Värde (kN)"]
+        "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
+    }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
     st.table(df_vertikala.style.format("{:.1f}"))
 
     st.markdown("### Moment vid fundamentets underkant")
 
     df_moment = pd.DataFrame({
-        r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$": [M_Q1],
-        r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$": [M_Q2],
-        r"$M_{\mathrm{tot}}$": [M_tot]
-    }).T
-    df_moment.columns = ["Moment (kNm)"]
+        "Moment (kNm)": [M_Q1, M_Q2, M_tot]
+    }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
     st.table(df_moment.style.format("{:.1f}"))
 
     st.markdown("### Lastkombinationer enligt SS-EN 1990")
 
     st.markdown(
         """
-        **Vertikala laster kombineras enligt:**
-
-        \[
-        V_{Ed} = 
-        \begin{cases}
-        \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot} & \text{ULS STR 6.10}\\
-        0.9 \cdot \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot} & \text{ULS EQU 6.10}\\
-        G_{tot} + M_{tot} & \text{SLS 6.14b}
-        \end{cases}
-        \]
-
-        **Moment kombineras enligt:**
-
-        \[
-        M_{Ed} = M_{tot}
-        \]
-        """
+        Kombination av laster görs enligt SS-EN 1990.<br>
+        <b>Vertikal last (V):</b> kombineras med faktorer enligt ULS och SLS.<br>
+        <b>Moment (M):</b> kombineras separat enligt samma kombinationer.
+        """,
+        unsafe_allow_html=True
     )
 
-    df_lastkomb = pd.DataFrame({
-        "ULS STR 6.10": [VEd_ULS_STR, M_tot],
-        "ULS EQU 6.10": [VEd_ULS_EQU, M_tot],
-        "SLS 6.14b": [VEd_SLS, M_tot]
-    }, index=[r"$V_{Ed}$", r"$M_{Ed}$"])
-    st.table(df_lastkomb.style.format("{:.1f}"))
+    # Lastkombinationer med vald säkerhetsklass γd
+    VEd_ULS_STR = gamma_d * Gk_tot + 1.5 * M_tot
+    VEd_ULS_EQU = 0.9 * gamma_d * Gk_tot + 1.5 * M_tot
+    VEd_SLS = Gk_tot + M_tot
+
+    # Tabell med MEd och VEd på separata rader, med LaTeX-rendering via HTML
+    html_table = f"""
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>ULS STR 6.10</th>
+          <th>ULS EQU 6.10</th>
+          <th>SLS 6.14b</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align:center;">$V_{{Ed}}$</td>
+          <td style="text-align:center;">{VEd_ULS_STR:.1f}</td>
+          <td style="text-align:center;">{VEd_ULS_EQU:.1f}</td>
+          <td style="text-align:center;">{VEd_SLS:.1f}</td>
+        </tr>
+        <tr>
+          <td style="text-align:center;">$M_{{Ed}}$</td>
+          <td style="text-align:center;">{M_tot:.1f}</td>
+          <td style="text-align:center;">{M_tot:.1f}</td>
+          <td style="text-align:center;">{M_tot:.1f}</td>
+        </tr>
+      </tbody>
+    </table>
+    """
+
+    st.markdown(html_table, unsafe_allow_html=True)
