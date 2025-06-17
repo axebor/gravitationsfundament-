@@ -14,8 +14,7 @@ st.markdown(
         width: 100%;
         box-sizing: border-box;
     }
-    div[data-testid="stTextInput"][data-key="z_niva"] > div > input,
-    div[data-testid="stTextInput"][data-key="z_F"] > div > input {
+    div[data-testid="stTextInput"][data-key="z_niva"] > div > input {
         max-width: 150px;
     }
     </style>
@@ -47,13 +46,13 @@ with col_in:
     fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
 
     if fundament_i_vatten:
-        z_niva_str = st.text_input("Z$_{v}$ (m) från underkant fundament", value="0.0", key="z_niva")
+        z_niva_str = st.text_input("Z_v (m) från underkant fundament", value="0.0", key="z_niva")
     else:
         z_niva_str = None
 
     st.subheader("Laster")
-    F_str = st.text_input("Horisontell punktlast $F$ (kN)", value="0.0")
-    z_F_str = st.text_input("Lastens angripspunkt $z_{F}$ (m)", value="0.0", key="z_F")
+    F_str = st.text_input("Horisontell punktlast F (kN)", value="0.0")
+    z_F_str = st.text_input("Lastens angripspunkt z_F (m) från underkant bottenplatta", value="0.0")
 
     # Konvertera till float med avrundning till 1 decimal
     try:
@@ -86,48 +85,47 @@ with col_out:
         ax.hlines(y=z_niva, xmin=-max_diameter - 1, xmax=max_diameter + 1,
                   colors='blue', linestyles='--', linewidth=2, label='Vattenlinje')
         # z_v måttsättning
-        ax.text(max_diameter + 0.6, z_niva/2, r"$z_{v}$", va='center', fontsize=12)
+        ax.text(max_diameter + 0.8, z_niva / 2, r"$z_{v}$", va='center', fontsize=12)
 
     # Bottenplatta
-    ax.plot([-D_b/2, D_b/2], [0, 0], 'k-')
-    ax.plot([-D_b/2, -D_b/2], [0, h_b], 'k-')
-    ax.plot([D_b/2, D_b/2], [0, h_b], 'k-')
-    ax.plot([-D_b/2, D_b/2], [h_b, h_b], 'k-')
+    ax.plot([-D_b / 2, D_b / 2], [0, 0], 'k-')
+    ax.plot([-D_b / 2, -D_b / 2], [0, h_b], 'k-')
+    ax.plot([D_b / 2, D_b / 2], [0, h_b], 'k-')
+    ax.plot([-D_b / 2, D_b / 2], [h_b, h_b], 'k-')
 
     # Skaft
-    ax.plot([-D_s/2, D_s/2], [h_b, h_b], 'k-')
-    ax.plot([-D_s/2, -D_s/2], [h_b, h_b + h_s], 'k-')
-    ax.plot([D_s/2, D_s/2], [h_b, h_b + h_s], 'k-')
-    ax.plot([-D_s/2, D_s/2], [h_b + h_s, h_b + h_s], 'k-')
+    ax.plot([-D_s / 2, D_s / 2], [h_b, h_b], 'k-')
+    ax.plot([-D_s / 2, -D_s / 2], [h_b, h_b + h_s], 'k-')
+    ax.plot([D_s / 2, D_s / 2], [h_b, h_b + h_s], 'k-')
+    ax.plot([-D_s / 2, D_s / 2], [h_b + h_s, h_b + h_s], 'k-')
 
     # Centrumlinje (streckad) från bottenplatta till toppen av skaft
     ax.vlines(x=0, ymin=0, ymax=h_b + h_s, colors='red', linestyles='dotted', linewidth=1)
 
     # Måttpilar och etiketter - diametrar
-    ax.annotate("", xy=(D_b/2, -0.5), xytext=(-D_b/2, -0.5),
+    ax.annotate("", xy=(D_b / 2, -0.5), xytext=(-D_b / 2, -0.5),
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(0, -0.7, r"$D_b$", ha='center', va='top', fontsize=12)
 
-    ax.annotate("", xy=(D_s/2, h_b + h_s + 0.5), xytext=(-D_s/2, h_b + h_s + 0.5),
+    ax.annotate("", xy=(D_s / 2, h_b + h_s + 0.5), xytext=(-D_s / 2, h_b + h_s + 0.5),
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(0, h_b + h_s + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
 
     # Måttpilar och etiketter - höjder
-    ax.annotate("", xy=(D_b/2 + 0.5, 0), xytext=(D_b/2 + 0.5, h_b),
+    ax.annotate("", xy=(D_b / 2 + 0.5, 0), xytext=(D_b / 2 + 0.5, h_b),
                 arrowprops=dict(arrowstyle="<->"))
-    ax.text(D_b/2 + 0.6, h_b/2, r"$h_b$", va='center', fontsize=12)
+    ax.text(D_b / 2 + 0.6, h_b / 2, r"$h_b$", va='center', fontsize=12)
 
-    ax.annotate("", xy=(D_s/2 + 0.5, h_b), xytext=(D_s/2 + 0.5, h_b + h_s),
+    ax.annotate("", xy=(D_s / 2 + 0.5, h_b), xytext=(D_s / 2 + 0.5, h_b + h_s),
                 arrowprops=dict(arrowstyle="<->"))
-    ax.text(D_s/2 + 0.6, h_b + h_s/2, r"$h_s$", va='center', fontsize=12)
+    ax.text(D_s / 2 + 0.6, h_b + h_s / 2, r"$h_s$", va='center', fontsize=12)
 
     # Punktlast F och måttsättning z_F från bottenplatta (y=0)
     if F > 0:
-        # pilen startar lite till vänster utanför fundamentet och går till centrumlinjen (x=0)
-        ax.annotate("", xy=(0, z_F), xytext=(-max_diameter/2 - 1, z_F),
+        ax.annotate("", xy=(0, z_F), xytext=(-max_diameter / 2 - 1, z_F),
                     arrowprops=dict(arrowstyle="->", color='red', lw=2))
-        ax.text(-max_diameter/2 - 1.1, z_F, r"$z_{F}$", color='red', va='center', ha='right', fontsize=12)
-        ax.text(-max_diameter/2 - 0.4, z_F, r"$F$", color='red', va='center', ha='left', fontsize=14)
+        ax.text(-max_diameter / 2 - 1.1, z_F, r"$z_{F}$", color='red', va='center', ha='right', fontsize=12)
+        ax.text(-max_diameter / 2 - 0.4, z_F, r"$F$", color='red', va='center', ha='left', fontsize=14)
 
     ax.set_xlim(-max_diameter - 2, max_diameter + 2)
     ax.set_ylim(-1, max(h_b + h_s, z_niva if z_niva else 0, z_F) + 1)
@@ -164,16 +162,16 @@ with col_res:
     vikt_tot = vikt_ovan + vikt_under
 
     # Tabell med volymer
-    st.subheader("Volym")
     df_volymer = pd.DataFrame({
         "Över vatten (m³)": [round(ovan_vatten_botten, 1), round(ovan_vatten_skaft, 1)],
         "Under vatten (m³)": [round(under_vatten_botten, 1), round(under_vatten_skaft, 1)]
     }, index=["Bottenplatta", "Skaft"])
+    st.subheader("Volym")
     st.table(df_volymer)
 
     # Tabell med vikter
-    st.subheader("Egenvikt")
     df_vikter = pd.DataFrame({
         "Vikt (kN)": [round(vikt_ovan, 1), round(vikt_under, 1), round(vikt_tot, 1)]
     }, index=["Över vatten", "Under vatten", "Total egenvikt (Gk, fund)"])
+    st.subheader("Egenvikt")
     st.table(df_vikter)
