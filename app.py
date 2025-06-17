@@ -51,9 +51,11 @@ with col_in:
         z_niva_str = None
         
     st.subheader("Laster")
-
-    F_H_str = st.text_input(r"Horisontell punktlast $F_{H}$ (kN)", value="5.0")
-    z_F_str = st.text_input(r"Angreppsplan $z_{F}$ (m)", value="0.0")
+    col_fh, col_zf = st.columns(2)
+    with col_fh:
+        F_H_str = st.text_input(r"Horisontell punktlast $F_{H}$ (kN)", value="5.0")
+    with col_zf:
+        z_F_str = st.text_input(r"Angreppsplan $z_{F}$ (m)", value="0.0")
 
     # Konvertera till float med avrundning till 1 decimal
     try:
