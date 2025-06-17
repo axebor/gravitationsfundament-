@@ -297,39 +297,16 @@ with col_res:
     , unsafe_allow_html=True
     )
 
-    # Partialfaktor-symbol för visning
-    gamma_d_latex = r"\gamma_d"
-
-    # Lastkombination 3 faktorer med multiplicering med gamma_d
-    partial_perm_ogynnsam_3 = 1.10 * gamma_d
-    partial_perm_gynnsam_3 = 0.90 * gamma_d
-    partial_var_huvud_3 = 1.50 * gamma_d
-    partial_var_ovr_3 = 1.50 * gamma_d
-    partial_var_gynnsam_3 = 0
-
-    # Lastkombination 4 faktorer med multiplicering med gamma_d
-    partial_perm_ogynnsam_4 = 1.10 * gamma_d
-    partial_perm_gynnsam_4 = 1.00 * gamma_d
-    partial_var_huvud_4 = 1.40 * gamma_d
-    partial_var_ovr_4 = 1.40 * gamma_d
-    partial_var_gynnsam_4 = 0
-
-    VEd_LK3 = partial_perm_ogynnsam_3 * Gk_tot
-    MEd_LK3 = partial_perm_gynnsam_3 * Gk_tot
-
-    VEd_LK4 = max(partial_perm_ogynnsam_4 * Gk_tot, Gk_tot)
-    MEd_LK4 = 1.4 * M_tot
-
     lastkombination_md = f"""
-    | Parameter                                | Lastkombination 3 (Jämvikt)        | Lastkombination 4 (Geoteknisk)      |
-    |----------------------------------------|-----------------------------------|------------------------------------|
-    | Permanent last, ogynnsam                | 1.10 × {gamma_d_latex} = {partial_perm_ogynnsam_3:.2f}      | 1.10 × {gamma_d_latex} = {partial_perm_ogynnsam_4:.2f} (lägst)  |
-    | Permanent last, gynnsam                 | 0.90 × {gamma_d_latex} = {partial_perm_gynnsam_3:.2f}      | 1.00 × {gamma_d_latex} = {partial_perm_gynnsam_4:.2f}           |
-    | Variabel last, ogynnsam huvudlast      | 1.50 × {gamma_d_latex} = {partial_var_huvud_3:.2f}          | 1.40 × {gamma_d_latex} = {partial_var_huvud_4:.2f}              |
-    | Variabel last, ogynnsam övriga laster  | 1.50 × {gamma_d_latex} = {partial_var_ovr_3:.2f}            | 1.40 × {gamma_d_latex} = {partial_var_ovr_4:.2f}                |
-    | Variabel last, gynnsam                  | 0                                 | 0                                  |
-    | Vertikal last (total)                   | {VEd_LK3:.1f} kN                  | {VEd_LK4:.1f} kN                   |
-    | Moment (total)                         | {MEd_LK3:.1f} kNm                 | {MEd_LK4:.1f} kNm                  |
+    | Parameter                                | Lastkombination 3 (Jämvikt) | Lastkombination 4 (Geoteknisk) |
+    |----------------------------------------|-----------------------------|--------------------------------|
+    | Permanent last, ogynnsam                | $1.10 \\times \\gamma_d$     | $1.10 \\times \\gamma_d$ (lägst)|
+    | Permanent last, gynnsam                 | $0.90 \\times \\gamma_d$     | $1.00 \\times \\gamma_d$        |
+    | Variabel last, ogynnsam huvudlast      | $1.50 \\times \\gamma_d$     | $1.40 \\times \\gamma_d$        |
+    | Variabel last, ogynnsam övriga laster  | $1.50 \\times \\gamma_d$     | $1.40 \\times \\gamma_d$        |
+    | Variabel last, gynnsam                  | $0$                         | $0$                           |
+    | Vertikal last (total)                   | {1.1 * gamma_d * Gk_tot:.1f} kN | {max(1.1 * gamma_d * Gk_tot, Gk_tot):.1f} kN |
+    | Moment (total)                         | {0.9 * gamma_d * Gk_tot:.1f} kNm | {1.4 * M_tot:.1f} kNm          |
     """
 
     st.markdown(lastkombination_md)
