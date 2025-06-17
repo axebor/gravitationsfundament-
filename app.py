@@ -117,6 +117,9 @@ with col_in:
 with col_res:
     st.header("Resultat")
 
+    # Börja med en div med padding via markdown och unsafe_allow_html
+    st.markdown('<div style="padding-left: 40px; padding-right: 40px;">', unsafe_allow_html=True)
+
     pi = np.pi
 
     vol_bottenplatta = pi * (D_b / 2) ** 2 * H_b
@@ -176,6 +179,9 @@ with col_res:
         "SLS 6.14b": [r"$V_{Ed} = G_{tot} + M_{tot}$", f"{VEd_SLS:.1f}"]
     }, index=[r"$V_{Ed}$", "Värde (kN)"])
     st.table(df_lastkomb)
+
+    # Stäng div:en
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with col_out:
     st.header("Figur")
