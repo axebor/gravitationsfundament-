@@ -196,6 +196,10 @@ with col_out:
     ax.set_ylim(-pil_längd_extra_vert - 1, max(H_b + H_s, z_v if z_v else 0, z_Q1, z_Q2) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
+
+    # Justera subplot marginaler för bättre centrering utan att minska figurens storlek
+    fig.subplots_adjust(left=0.15, right=0.85)
+
     st.pyplot(fig, use_container_width=True)
 
 with col_res:
