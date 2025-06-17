@@ -274,7 +274,6 @@ with col_res:
 
     M_Q1 = Qk_H1 * z_Q1
     M_Q2 = Qk_H2 * z_Q2
-    M_tot = M_Q1 + M_Q2
 
     st.markdown("### Vertikala laster")
 
@@ -286,7 +285,7 @@ with col_res:
     st.markdown("### Moment vid fundamentets underkant")
 
     df_moment = pd.DataFrame({
-        "Moment (kNm)": [M_Q1, M_Q2, M_tot]
+        "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
     }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
     st.table(df_moment.style.format("{:.1f}"))
 
@@ -304,11 +303,11 @@ with col_res:
 
     # Beräkning av VEd och MEd för Lastkombination 3 och 4
 
-    VEd_LK3 = 0.9 * Gk_tot
+    VEd_LK3 = 0.9 * Gk_tot  # gynnsam vertikal last utan gamma_d
     VEd_LK4 = max(1.1 * gamma_d * Gk_tot, Gk_tot)
 
     MEd_LK3 = gamma_d * (1.5 * M_Q1 + 1.5 * psi_ovr * M_Q2)
-    MEd_LK4 = 1.4 * M_tot
+    MEd_LK4 = gamma_d * (1.4 * M_Q1 + 1.4 * psi_ovr * M_Q2)
 
     lastkombination_md = f"""
     | Parameter                               | Lastkombination 3 (Jämvikt)         | Lastkombination 4 (Geoteknisk)       |
@@ -317,9 +316,12 @@ with col_res:
     | Permanent last, gynnsam                | $0.90$                             | $1.00$                              |
     | Variabel last, ogynnsam huvudlast     | $1.50 \\times \\gamma_d$           | $1.40 \\times \\gamma_d$              |
     | Variabel last, ogynnsam övriga laster | $1.50 \\times \\gamma_d \\times \\psi_0$ | $1.40 \\times \\gamma_d \\times \\psi_0$ |
-    | $V_{{Ed}}$              | {VEd_LK3:.1f} kN                   | {VEd_LK4:.1f} kN                     |
-    | $M_{{Ed}}$                              | {MEd_LK3:.1f} kNm                  | {MEd_LK4:.1f} kNm                    |
+    | $V_{Ed}$                              | {VEd_LK3:.1f} kN                   | {VEd_LK4:.1f} kN                     |
+    | $M_{Ed}$                              | {MEd_LK3:.1f} kNm                  | {MEd_LK4:.1f} kNm                    |
     """
+
+    st.markdown(lastkombination_md)
+
 
     st.markdown(lastkombination_md)
 
