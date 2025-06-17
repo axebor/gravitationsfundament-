@@ -59,20 +59,21 @@ with col_in:
 
     st.subheader("Laster")
 
-    # Rad med 3 kolumner för säkerhetsklass och γ_d
-    sk_col1, sk_col2, sk_col3 = st.columns([1,1,1])
+    # Ändrad säkerhetsfaktor-rad med 2 kolumner och justerad placering av gamma_d
+    sk_col1, sk_col2 = st.columns([1,1])
     with sk_col1:
-        st.markdown("**Säkerhetsklass**")
-    with sk_col2:
         säkerhetsklass_val = st.selectbox(
             "Välj säkerhetsklass",
             options=["1", "2", "3"],
             index=2
         )
-    with sk_col3:
+    with sk_col2:
         gamma_d_dict = {"1": 0.83, "2": 0.91, "3": 1.00}
         gamma_d = gamma_d_dict[säkerhetsklass_val]
-        st.markdown(f"γ<sub>d</sub> = **{gamma_d:.2f}**", unsafe_allow_html=True)
+        st.markdown(
+            f'<div style="padding-top: 24px;">γ<sub>d</sub> = <b>{gamma_d:.2f}</b></div>',
+            unsafe_allow_html=True
+        )
 
     col_q1, col_zq1 = st.columns(2)
     with col_q1:
