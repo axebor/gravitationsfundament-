@@ -49,6 +49,11 @@ with col_in:
         z_niva_str = st.text_input(r"$z_{v}$ (m) från underkant fundament", value="0.0", key="z_niva")
     else:
         z_niva_str = None
+        
+    st.subheader("Laster")
+
+    F_H_str = st.text_input(r"Horisontell punktlast $F_{H}$ (kN)", value="5.0")
+    z_F_str = st.text_input(r"Angreppsplan $z_{F}$ (m)", value="0.0")
 
     # Konvertera till float med avrundning till 1 decimal
     try:
