@@ -5,7 +5,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Gravitationsfundament", layout="wide")
 
-# CSS för lika breda inputfält
+# CSS för lika breda inputfält + vertikala linjer mellan kolumner
 st.markdown(
     """
     <style>
@@ -17,6 +17,17 @@ st.markdown(
     div[data-testid="stTextInput"][data-key="z_niva"] > div > input,
     div[data-testid="stTextInput"][data-key="z_Q2"] > div > input {
         max-width: 150px;
+    }
+    /* Vertikala linjer mellan kolumner */
+    [data-testid="stColumn"] {
+        border-left: 1px solid #cccccc;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    /* Ingen vänster kantlinje på första kolumnen */
+    [data-testid="stColumn"]:first-child {
+        border-left: none;
+        padding-left: 0;
     }
     </style>
     """,
@@ -59,8 +70,8 @@ with col_in:
 
     st.subheader("Laster")
 
-    # Ändrad säkerhetsfaktor-rad med 2 kolumner och justerad placering av gamma_d
-    sk_col1, sk_col2 = st.columns([1,1])
+    # Säkerhetsfaktor-rad
+    sk_col1, sk_col2 = st.columns([1, 1])
     with sk_col1:
         säkerhetsklass_val = st.selectbox(
             "Välj säkerhetsklass",
