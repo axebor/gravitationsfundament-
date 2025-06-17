@@ -102,7 +102,7 @@ with col_out:
     st.header("Figur")
 
     # Rita figuren
-    fig, ax = plt.subplots(figsize=(7, 7))
+    fig, ax = plt.subplots(figsize=(10, 10))
     max_d = max(D_b, D_s)
 
     # Vattennivå
@@ -179,7 +179,7 @@ with col_out:
     ax.axis("off")
 
     # Alternativ 2: vänsterjusterad inom figurfältet
-    sub_l, sub_r = st.columns([2, 1])
+    sub_l, sub_r = st.columns([4, 1])
     with sub_l:
         st.pyplot(fig, use_container_width=True)
 
