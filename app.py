@@ -131,7 +131,7 @@ with col_out:
         "",
         xy=(-max_diameter - 2, z_F),      # pilens start långt till vänster
         xytext=(-D_s / 2, z_F),           # pilens spets på fundamentets vänstra sida
-        arrowprops=dict(arrowstyle="|-|>", color='red', linewidth=3)
+        arrowprops=dict(arrowstyle="-|>", color='red', linewidth=3)
     )
     # Placera texten F_H centrerat ovanför pilen
     ax.text((-max_diameter - 2 + (-D_s / 2))/2, z_F + 0.15, r"$F_{H}$", color='red', fontsize=14, fontweight='bold', ha='center')
