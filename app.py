@@ -194,7 +194,7 @@ with col_out:
     ax.set_aspect('equal')
     ax.axis('off')
 
-    st.pyplot(fig)
+    st.pyplot(fig, use_container_width=True)
 
 with col_res:
     st.header("Resultat")
