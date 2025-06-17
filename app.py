@@ -96,8 +96,7 @@ with col_in:
 with col_out:
     st.header("Figur")
 
-    # Ändrad figsize till (9,9) för mer bredd och höjd
-    fig, ax = plt.subplots(figsize=(9, 9))
+    fig, ax = plt.subplots(figsize=(6, 6))
     max_diameter = max(D_b, D_s)
 
     # Vattennivå
@@ -195,8 +194,9 @@ with col_out:
     ax.set_aspect('equal')
     ax.axis('off')
 
-    # Viktigt: use_container_width och bbox_inches för att fylla kolumnen
-    st.pyplot(fig, use_container_width=True, bbox_inches='tight', pad_inches=0.1)
+    # Lägg till justeringar för centrerad figur i kolumnen utan att ändra kolumnbredd
+    fig.subplots_adjust(left=0.15, right=0.85)  # justerar marginalerna
+    st.pyplot(fig, use_container_width=True)
 
 with col_res:
     st.header("Resultat")
@@ -232,21 +232,6 @@ with col_res:
     M_Q1 = Qk_H1 * z_Q1
     M_Q2 = Qk_H2 * z_Q2
     M_tot = M_Q1 + M_Q2
-
-    st.markdown("### Volym")
-
-    df_volymer = pd.DataFrame({
-        "Över vatten (m³)": [ovan_vatten_botten, ovan_vatten_skaft],
-        "Under vatten (m³)": [under_vatten_botten, under_vatten_skaft]
-    }, index=["Bottenplatta", "Skaft"])
-    st.table(df_volymer.style.format("{:.1f}"))
-
-    st.markdown("### Egenvikt")
-
-    df_vikter = pd.DataFrame({
-        "Vikt (kN)": [vikt_ovan, vikt_under, vikt_tot]
-    }, index=["Över vatten", "Under vatten", "Total egenvikt (Gk, fund)"])
-    st.table(df_vikter.style.format("{:.1f}"))
 
     st.markdown("### Vertikala laster")
 
