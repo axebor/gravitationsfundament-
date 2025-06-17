@@ -296,7 +296,7 @@ with col_res:
         """
         Kombination av laster görs enligt SS-EN 1990 samt de svenska reglerna i BFS 2024:6.<br>
         I denna app används <b>Lastkombination 3</b> för kontroll av statisk jämvikt och <b>Lastkombination 4</b> för dimensionering av geotekniska laster.<br><br>
-        <b>Permanent last:</b> inkluderar egenvikt och andra permanenta laster.<br>
+        <b>Permanent last:</b> inkluderar egenvikt och andra permanenta laster. test<br>
         <b>Variabel last:</b> inkluderar laster som kan variera, t.ex. is och våg-last.<br>
         """
     , unsafe_allow_html=True
