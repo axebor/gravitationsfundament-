@@ -23,61 +23,56 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# parametrar för pilar och offset
 pil_längd_extra = 3
 pil_längd_extra_vert = 1.5
-zQ1_x_offset = 1.2
-zQ2_x_offset = 0.9
+zQ1_x_offset = 1.2  # flytt ut åt vänster för zQ1
+zQ2_x_offset = 0.9  # flytt ut åt vänster för zQ2
 
-# Huvudkolumner: indata, figur, resultat
 col_in, col_out, col_res = st.columns([1, 1, 1])
 
-# ───────────────
-# INDATA
-# ───────────────
 with col_in:
     st.header("Indata")
     st.subheader("Geometri")
 
     st.markdown("**Bottenplatta**")
-    c1, c2 = st.columns(2)
-    with c1:
-        D_b_str = st.text_input(r"Diameter $D_{b}$ (m)", "5.0")
-    with c2:
-        H_b_str = st.text_input(r"Höjd $H_{b}$ (m)", "1.0")
+    col_b1, col_b2 = st.columns(2)
+    with col_b1:
+        D_b_str = st.text_input(r"Diameter $D_{b}$ (m)", value="5.0")
+    with col_b2:
+        H_b_str = st.text_input(r"Höjd $H_{b}$ (m)", value="1.0")
 
     st.markdown("**Skaft**")
-    c3, c4 = st.columns(2)
-    with c3:
-        D_s_str = st.text_input(r"Diameter $D_{s}$ (m)", "1.0")
-    with c4:
-        H_s_str = st.text_input(r"Höjd $H_{s}$ (m)", "5.0")
+    col_s1, col_s2 = st.columns(2)
+    with col_s1:
+        D_s_str = st.text_input(r"Diameter $D_{s}$ (m)", value="1.0")
+    with col_s2:
+        H_s_str = st.text_input(r"Höjd $H_{s}$ (m)", value="5.0")
 
-    chk, zvcol = st.columns(2)
-    with chk:
-        fundament_i_vatten = st.checkbox("Fundament delvis i vatten", False)
-    with zvcol:
+    col_chk, col_zv = st.columns(2)
+    with col_chk:
+        fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
+    with col_zv:
         if fundament_i_vatten:
-            z_niva_str = st.text_input(r"$z_{v}$ (m) från underkant fundament", "0.0", key="z_niva")
+            z_niva_str = st.text_input(r"$z_{v}$ (m) från underkant fundament", value="0.0", key="z_niva")
         else:
             z_niva_str = None
 
     st.subheader("Laster")
-    c5, c6 = st.columns(2)
-    with c5:
-        Qk_H1_str = st.text_input(r"Horisontell last $Q_{k,H1}$ (kN)", "5.0")
-    with c6:
-        z_Q1_str = st.text_input(r"Angreppsplan $z_{Q1}$ (m)", "0.0")
 
-    c7, c8 = st.columns(2)
-    with c7:
-        Qk_H2_str = st.text_input(r"Horisontell last $Q_{k,H2}$ (kN)", "0.0")
-    with c8:
-        z_Q2_str = st.text_input(r"Angreppsplan $z_{Q2}$ (m)", "0.0", key="z_Q2")
+    col_q1, col_zq1 = st.columns(2)
+    with col_q1:
+        Qk_H1_str = st.text_input(r"Horisontell last $Q_{k,H1}$ (kN)", value="5.0")
+    with col_zq1:
+        z_Q1_str = st.text_input(r"Angreppsplan $z_{Q1}$ (m)", value="0.0")
 
-    Gk_ovr_str = st.text_input(r"Vertikal last $G_{k,\mathrm{övrigt}}$ (kN)", "5.0")
+    col_q2, col_zq2 = st.columns(2)
+    with col_q2:
+        Qk_H2_str = st.text_input(r"Horisontell last $Q_{k,H2}$ (kN)", value="0.0")
+    with col_zq2:
+        z_Q2_str = st.text_input(r"Angreppsplan $z_{Q2}$ (m)", value="0.0", key="z_Q2")
 
-    # Konvertera indata
+    Gk_ovr_str = st.text_input(r"Vertikal last $G_{k,\mathrm{övrigt}}$ (kN)", value="5.0")
+
     try:
         D_b = round(float(D_b_str), 1)
         H_b = round(float(H_b_str), 1)
@@ -90,136 +85,152 @@ with col_in:
         z_Q2 = round(float(z_Q2_str), 1)
         Gk_ovr = float(Gk_ovr_str)
 
-        z_v = float(z_niva_str) if fundament_i_vatten else None
+        if fundament_i_vatten:
+            z_v = float(z_niva_str)
+        else:
+            z_v = None
     except ValueError:
-        st.error("❌ Ogiltiga värden i indata.")
+        st.error("❌ Ange giltiga numeriska värden för geometri, vattennivå och laster.")
         st.stop()
 
-# ───────────────
-# FIGUR
-# ───────────────
 with col_out:
     st.header("Figur")
 
-    # Rita figuren
-    fig, ax = plt.subplots(figsize=(10, 10))
-    max_d = max(D_b, D_s)
+    fig, ax = plt.subplots(figsize=(6, 6))
+    max_diameter = max(D_b, D_s)
 
     # Vattennivå
-    if fundament_i_vatten and z_v and z_v > 0:
-        ax.fill_between([-max_d - 1, max_d + 1], 0, z_v, color="lightblue", alpha=0.5)
-        ax.hlines(z_v, -max_d - 1, max_d + 1, colors="blue", linestyles="--", linewidth=2)
-        ax.annotate("", xy=(max_d + 0.5, 0), xytext=(max_d + 0.5, z_v),
-                    arrowprops=dict(arrowstyle="<->", color="blue"))
-        ax.text(max_d + 0.7, z_v / 2, r"$z_{v}$", va="center", color="blue")
+    if fundament_i_vatten and z_v is not None and z_v > 0:
+        ax.fill_between(
+            x=[-max_diameter - 1, max_diameter + 1],
+            y1=0, y2=z_v, color='lightblue', alpha=0.5)
+        ax.hlines(y=z_v, xmin=-max_diameter - 1, xmax=max_diameter + 1,
+                  colors='blue', linestyles='--', linewidth=2)
 
-    # Bottenplatta
-    ax.plot([-D_b/2, D_b/2], [0, 0], "k-")
-    ax.plot([-D_b/2, -D_b/2], [0, H_b], "k-")
-    ax.plot([ D_b/2,  D_b/2], [0, H_b], "k-")
-    ax.plot([-D_b/2,  D_b/2], [H_b, H_b], "k-")
+        ax.annotate("", xy=(max_diameter + 0.5, 0), xytext=(max_diameter + 0.5, z_v),
+                    arrowprops=dict(arrowstyle="<->", color='blue'))
+        ax.text(max_diameter + 0.7, z_v / 2, r"$z_{v}$", va='center', fontsize=12, color='blue')
 
-    # Skaft
-    ax.plot([-D_s/2, D_s/2], [H_b, H_b], "k-")
-    ax.plot([-D_s/2, -D_s/2], [H_b, H_b + H_s], "k-")
-    ax.plot([ D_s/2,  D_s/2], [H_b, H_b + H_s], "k-")
-    ax.plot([-D_s/2, D_s/2], [H_b + H_s, H_b + H_s], "k-")
+    # Fundamentets geometri
+    ax.plot([-D_b / 2, D_b / 2], [0, 0], 'k-')
+    ax.plot([-D_b / 2, -D_b / 2], [0, H_b], 'k-')
+    ax.plot([D_b / 2, D_b / 2], [0, H_b], 'k-')
+    ax.plot([-D_b / 2, D_b / 2], [H_b, H_b], 'k-')
 
-    # Diametrar
-    ax.annotate("", xy=(D_b/2, -0.5), xytext=(-D_b/2, -0.5),
+    ax.plot([-D_s / 2, D_s / 2], [H_b, H_b], 'k-')
+    ax.plot([-D_s / 2, -D_s / 2], [H_b, H_b + H_s], 'k-')
+    ax.plot([D_s / 2, D_s / 2], [H_b, H_b + H_s], 'k-')
+    ax.plot([-D_s / 2, D_s / 2], [H_b + H_s, H_b + H_s], 'k-')
+
+    # Måttlinjer - diametrar
+    ax.annotate("", xy=(D_b / 2, -0.5), xytext=(-D_b / 2, -0.5),
                 arrowprops=dict(arrowstyle="<->"))
-    ax.text(0, -0.7, r"$D_b$", ha="center", va="top", fontsize=12)
+    ax.text(0, -0.7, r"$D_b$", ha='center', va='top', fontsize=12)
 
-    ax.annotate("", xy=(D_s/2, H_b + H_s + 0.5), xytext=(-D_s/2, H_b + H_s + 0.5),
+    ax.annotate("", xy=(D_s / 2, H_b + H_s + 0.5), xytext=(-D_s / 2, H_b + H_s + 0.5),
                 arrowprops=dict(arrowstyle="<->"))
-    ax.text(0, H_b + H_s + 0.7, r"$D_s$", ha="center", va="bottom", fontsize=12)
+    ax.text(0, H_b + H_s + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
 
-    # Höjder
-    ax.annotate("", xy=(D_b/2 + 0.5, 0), xytext=(D_b/2 + 0.5, H_b),
+    # Måttlinjer - höjder
+    ax.annotate("", xy=(D_b / 2 + 0.5, 0), xytext=(D_b / 2 + 0.5, H_b),
                 arrowprops=dict(arrowstyle="<->"))
-    ax.text(D_b/2 + 0.6, H_b/2, r"$H_b$", va="center", fontsize=12)
+    ax.text(D_b / 2 + 0.6, H_b / 2, r"$H_b$", va='center', fontsize=12)
 
-    ax.annotate("", xy=(D_s/2 + 0.5, H_b), xytext=(D_s/2 + 0.5, H_b + H_s),
+    ax.annotate("", xy=(D_s / 2 + 0.5, H_b), xytext=(D_s / 2 + 0.5, H_b + H_s),
                 arrowprops=dict(arrowstyle="<->"))
-    ax.text(D_s/2 + 0.6, H_b + H_s/2, r"$H_s$", va="center", fontsize=12)
+    ax.text(D_s / 2 + 0.6, H_b + H_s / 2, r"$H_s$", va='center', fontsize=12)
 
-    # Horisontella laster Qk,H1 och Qk,H2
+    # Horisontella laster Qk,H1 och Qk,H2 i rött, med större x-offset på zQ1 och zQ2
     if Qk_H1 > 0:
-        ax.annotate("", xy=(-D_s/2, z_Q1), xytext=(-D_s/2 - pil_längd_extra, z_Q1),
-                    arrowprops=dict(arrowstyle="->", color="red", linewidth=3))
-        ax.text(-D_s/2 - pil_längd_extra/2 - zQ1_x_offset, z_Q1 + 0.3,
-                r"$Q_{k,H1}$", color="red", ha="center")
-        ax.annotate("", xy=(-D_s/2 - pil_längd_extra - 0.3 - zQ1_x_offset, 0),
-                    xytext=(-D_s/2 - pil_längd_extra - 0.3 - zQ1_x_offset, z_Q1),
-                    arrowprops=dict(arrowstyle="<->", color="red"))
-        ax.text(-D_s/2 - pil_längd_extra - 0.1 - zQ1_x_offset, z_Q1/2,
-                r"$z_{Q1}$", va="center", color="red")
+        ax.annotate(
+            "",
+            xy=(-D_s / 2, z_Q1),
+            xytext=(-D_s / 2 - pil_längd_extra, z_Q1),
+            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
+        )
+        ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ1_x_offset, z_Q1 + 0.3,
+                r"$Q_{k,H1}$", fontsize=14, color='red', ha='center')
+
+        ax.annotate(
+            "",
+            xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, 0),
+            xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, z_Q1),
+            arrowprops=dict(arrowstyle="<->", color='red')
+        )
+        ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ1_x_offset, z_Q1 / 2,
+                r"$z_{Q1}$", va='center', fontsize=12, color='red')
 
     if Qk_H2 > 0:
-        ax.annotate("", xy=(-D_s/2, z_Q2), xytext=(-D_s/2 - pil_längd_extra, z_Q2),
-                    arrowprops=dict(arrowstyle="->", color="red", linewidth=3))
-        ax.text(-D_s/2 - pil_längd_extra/2 - zQ2_x_offset, z_Q2 + 0.3,
-                r"$Q_{k,H2}$", color="red", ha="center")
-        ax.annotate("", xy=(-D_s/2 - pil_längd_extra - 0.3 - zQ2_x_offset, 0),
-                    xytext=(-D_s/2 - pil_längd_extra - 0.3 - zQ2_x_offset, z_Q2),
-                    arrowprops=dict(arrowstyle="<->", color="red"))
-        ax.text(-D_s/2 - pil_längd_extra - 0.1 - zQ2_x_offset, z_Q2/2,
-                r"$z_{Q2}$", va="center", color="red")
+        ax.annotate(
+            "",
+            xy=(-D_s / 2, z_Q2),
+            xytext=(-D_s / 2 - pil_längd_extra, z_Q2),
+            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
+        )
+        ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ2_x_offset, z_Q2 + 0.3,
+                r"$Q_{k,H2}$", fontsize=14, color='red', ha='center')
+
+        ax.annotate(
+            "",
+            xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, 0),
+            xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, z_Q2),
+            arrowprops=dict(arrowstyle="<->", color='red')
+        )
+        ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ2_x_offset, z_Q2 / 2,
+                r"$z_{Q2}$", va='center', fontsize=12, color='red')
 
     # Vertikal last Gk,övrigt
     if Gk_ovr > 0:
-        ax.annotate("", xy=(0, 0), xytext=(0, pil_längd_extra_vert),
-                    arrowprops=dict(arrowstyle="->", color="red", linewidth=3))
-        ax.text(0, pil_längd_extra_vert + 0.3,
-                r"$G_{k,\mathrm{övrigt}}$", color="red", ha="center")
+        ax.annotate(
+            "",
+            xy=(0, 0),
+            xytext=(0, pil_längd_extra_vert),
+            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
+        )
+        ax.text(0, pil_längd_extra_vert + 0.3, r"$G_{k,\mathrm{övrigt}}$", fontsize=14, color='red', ha='center')
 
-    ax.set_xlim(-max_d - pil_längd_extra - 1 - max(zQ1_x_offset, zQ2_x_offset), max_d + 1.5)
-    ax.set_ylim(-pil_längd_extra_vert - 1, max(H_b + H_s, z_v or 0, z_Q1, z_Q2) + 1)
-    ax.set_aspect("equal")
-    ax.axis("off")
+    ax.set_xlim(-max_diameter - pil_längd_extra - 1 - max(zQ1_x_offset, zQ2_x_offset), max_diameter + 1.5)
+    ax.set_ylim(-pil_längd_extra_vert - 1, max(H_b + H_s, z_v if z_v else 0, z_Q1, z_Q2) + 1)
+    ax.set_aspect('equal')
+    ax.axis('off')
 
-# ───────────────
-# RESULTAT
-# ───────────────
+    st.pyplot(fig)
+
 with col_res:
     st.header("Resultat")
 
     pi = np.pi
-    vikt_ovan = lambda vol: vol * 25
-    vikt_under = lambda vol: vol * 15
 
-    # Volymer
-    vol_b = pi * (D_b / 2) ** 2 * H_b
-    vol_s = pi * (D_s / 2) ** 2 * H_s
+    vol_bottenplatta = pi * (D_b / 2) ** 2 * H_b
+    vol_skaft = pi * (D_s / 2) ** 2 * H_s
 
-    # Volymer över/under vatten
-    if fundament_i_vatten and z_v and z_v > 0:
-        vol_b_u = max(0, min(z_v, H_b)) * np.pi * (D_b / 2) ** 2
-        vol_b_o = vol_b - vol_b_u
-        vol_s_u = max(0, min(z_v - H_b, H_s)) * np.pi * (D_s / 2) ** 2
-        vol_s_o = vol_s - vol_s_u
+    if fundament_i_vatten and z_v is not None and z_v > 0:
+        under_vatten_botten = max(0, min(z_v, H_b)) * pi * (D_b / 2) ** 2
+        ovan_vatten_botten = vol_bottenplatta - under_vatten_botten
+
+        under_vatten_skaft = max(0, min(z_v - H_b, H_s)) * pi * (D_s / 2) ** 2
+        ovan_vatten_skaft = vol_skaft - under_vatten_skaft
     else:
-        vol_b_o, vol_b_u = vol_b, 0
-        vol_s_o, vol_s_u = vol_s, 0
+        under_vatten_botten = 0
+        ovan_vatten_botten = vol_bottenplatta
+        under_vatten_skaft = 0
+        ovan_vatten_skaft = vol_skaft
 
-    # Egenvikter
-    Gk_b = vikt_ovan(vol_b_o) + vikt_under(vol_b_u)
-    Gk_s = vikt_ovan(vol_s_o) + vikt_under(vol_s_u)
-    Gk_tot = Gk_b + Gk_s + Gk_ovr
+    vikt_ovan = (ovan_vatten_botten + ovan_vatten_skaft) * 25
+    vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
+    vikt_tot = vikt_ovan + vikt_under
 
-    # Moment
-    M_Q1 = Qk_H1 * z_Q1
-    M_Q2 = Qk_H2 * z_Q2
+    st.markdown("### Volym")
 
-    # Visa resultat
-    st.markdown("### Vertikala laster")
-    df_vert = pd.DataFrame({
-        "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
-    }, index=[r"$G_{k,b}$", r"$G_{k,s}$", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
-    st.table(df_vert.style.format("{:.1f}"))
+    df_volymer = pd.DataFrame({
+        "Över vatten (m³)": [ovan_vatten_botten, ovan_vatten_skaft],
+        "Under vatten (m³)": [under_vatten_botten, under_vatten_skaft]
+    }, index=["Bottenplatta", "Skaft"])
+    st.table(df_volymer.style.format("{:.1f}"))
 
-    st.markdown("### Horisontella moment i bottenplattan")
-    df_mom = pd.DataFrame({
-        "Moment (kNm)": [M_Q1, M_Q2]
-    }, index=[r"$M_{Q1}$", r"$M_{Q2}$"])
-    st.table(df_mom.style.format("{:.1f}"))
+    st.markdown("### Egenvikt")
+
+    df_vikter = pd.DataFrame({
+        "Vikt (kN)": [vikt_ovan, vikt_under, vikt_tot]
+    }, index=["Över vatten", "Under vatten", "Total egenvikt (Gk, fund)"])
+    st.table(df_vikter.style.format("{:.1f}"))
