@@ -124,22 +124,23 @@ with col_out:
     ax.text(D_s / 2 + 0.6, H_b + H_s / 2, r"$H_s$", va='center', fontsize=12)
 
     # --- Horisontell punktlast F_H ---
-    ax.annotate(
-        "",
-        xy=(-D_s / 2, z_F),
-        xytext=(-D_s / 2 - pil_längd_extra, z_F),
-        arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
-    )
-    ax.text(-D_s / 2 - pil_längd_extra / 2, z_F + 0.3, r"$F_{H}$", fontsize=14, color='red', ha='center')
+    if F_H > 0:
+        ax.annotate(
+            "",
+            xy=(-D_s / 2, z_F),
+            xytext=(-D_s / 2 - pil_längd_extra, z_F),
+            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
+        )
+        ax.text(-D_s / 2 - pil_längd_extra / 2, z_F + 0.3, r"$F_{H}$", fontsize=14, color='red', ha='center')
 
-    # Måttlinje och text för z_F
-    ax.annotate(
-        "",
-        xy=(-D_s / 2 - pil_längd_extra - 0.3, 0),
-        xytext=(-D_s / 2 - pil_längd_extra - 0.3, z_F),
-        arrowprops=dict(arrowstyle="<->", color='red')
-    )
-    ax.text(-D_s / 2 - pil_längd_extra - 0.1, z_F / 2, r"$z_{F}$", va='center', fontsize=12, color='red')
+        # Måttlinje och text för z_F
+        ax.annotate(
+            "",
+            xy=(-D_s / 2 - pil_längd_extra - 0.3, 0),
+            xytext=(-D_s / 2 - pil_längd_extra - 0.3, z_F),
+            arrowprops=dict(arrowstyle="<->", color='red')
+        )
+        ax.text(-D_s / 2 - pil_längd_extra - 0.1, z_F / 2, r"$z_{F}$", va='center', fontsize=12, color='red')
 
     ax.set_xlim(-max_diameter - pil_längd_extra - 1, max_diameter + 1.5)
     ax.set_ylim(-1, max(H_b + H_s, z_v if z_v else 0, z_F) + 1)
