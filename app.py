@@ -178,11 +178,6 @@ with col_out:
     ax.set_aspect("equal")
     ax.axis("off")
 
-    # Alternativ 2: vänsterjusterad inom figurfältet
-    sub_l, sub_r = st.columns([4, 1])
-    with sub_l:
-        st.pyplot(fig, use_container_width=True)
-
 # ───────────────
 # RESULTAT
 # ───────────────
