@@ -61,15 +61,15 @@ with col_in:
 
     col_q1, col_zq1 = st.columns(2)
     with col_q1:
-        Qk_H1_str = st.text_input(r"Horisontell last $Q_{k,H1}$ (kN)", value="5.0")
+        Qk_H1_str = st.text_input(r"Huvudlast horisontell $Q_{k,h}$ (kN)", value="5.0")
     with col_zq1:
-        z_Q1_str = st.text_input(r"Angreppsplan $z_{Q1}$ (m)", value="0.0")
+        z_Q1_str = st.text_input(r"Angreppsplan $z_{Qh}$ (m)", value="0.0")
 
     col_q2, col_zq2 = st.columns(2)
     with col_q2:
-        Qk_H2_str = st.text_input(r"Horisontell last $Q_{k,H2}$ (kN)", value="0.0")
+        Qk_H2_str = st.text_input(r"Övrig variabel last horisontell $Q_{k,v}$ (kN)", value="0.0")
     with col_zq2:
-        z_Q2_str = st.text_input(r"Angreppsplan $z_{Q2}$ (m)", value="0.0", key="z_Q2")
+        z_Q2_str = st.text_input(r"Angreppsplan $z_{Qv}$ (m)", value="0.0", key="z_Q2")
 
     Gk_ovr_str = st.text_input(r"Vertikal last $G_{k,\mathrm{övrigt}}$ (kN)", value="5.0")
 
@@ -140,7 +140,7 @@ with col_out:
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s / 2 + 0.6, H_b + H_s / 2, r"$H_s$", va='center', fontsize=12)
 
-    # Horisontella laster Qk,H1 och Qk,H2 i rött, med större x-offset på zQ1 och zQ2
+    # Horisontella laster Qk,h och Qk,v i rött, med större x-offset på zQh och zQv
     if Qk_H1 > 0:
         ax.annotate(
             "",
@@ -149,7 +149,7 @@ with col_out:
             arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
         )
         ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ1_x_offset, z_Q1 + 0.3,
-                r"$Q_{k,H1}$", fontsize=14, color='red', ha='center')
+                r"$Q_{k,h}$", fontsize=14, color='red', ha='center')
 
         ax.annotate(
             "",
@@ -158,7 +158,7 @@ with col_out:
             arrowprops=dict(arrowstyle="<->", color='red')
         )
         ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ1_x_offset, z_Q1 / 2,
-                r"$z_{Q1}$", va='center', fontsize=12, color='red')
+                r"$z_{Qh}$", va='center', fontsize=12, color='red')
 
     if Qk_H2 > 0:
         ax.annotate(
@@ -168,7 +168,7 @@ with col_out:
             arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
         )
         ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ2_x_offset, z_Q2 + 0.3,
-                r"$Q_{k,H2}$", fontsize=14, color='red', ha='center')
+                r"$Q_{k,v}$", fontsize=14, color='red', ha='center')
 
         ax.annotate(
             "",
@@ -177,7 +177,7 @@ with col_out:
             arrowprops=dict(arrowstyle="<->", color='red')
         )
         ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ2_x_offset, z_Q2 / 2,
-                r"$z_{Q2}$", va='center', fontsize=12, color='red')
+                r"$z_{Qv}$", va='center', fontsize=12, color='red')
 
     # Vertikal last Gk,övrigt
     if Gk_ovr > 0:
@@ -229,9 +229,9 @@ with col_res:
     Gk_tot = Gk_b + Gk_s + Gk_ovr
 
     # Moment från horisontella laster (kraft * momentarm)
-    M_Q1 = Qk_H1 * z_Q1
-    M_Q2 = Qk_H2 * z_Q2
-    M_tot = M_Q1 + M_Q2
+    M_h = Qk_H1 * z_Q1  # Moment från huvudlast
+    M_v = Qk_H2 * z_Q2  # Moment från övrig variabel last
+    M_tot = M_h + M_v  # Total moment
 
     st.markdown("### Vertikala laster")
 
@@ -243,38 +243,25 @@ with col_res:
     st.markdown("### Moment vid fundamentets underkant")
 
     df_moment = pd.DataFrame({
-        "Moment (kNm)": [M_Q1, M_Q2, M_tot]
-    }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
+        "Moment (kNm)": [M_h, M_v, M_tot]
+    }, index=[r"$M_{Qh} = Q_{k,h} \cdot z_{Qh}$", r"$M_{Qv} = Q_{k,v} \cdot z_{Qv}$", r"$M_{\mathrm{tot}}$"])
     st.table(df_moment.style.format("{:.1f}"))
 
-    # --- Lastkombinationer enligt SS-EN 1990 ---
-    st.markdown("### Lastkombinationer enligt SS-EN 1990")
-
-    st.markdown(r"""
-    **STR 6.10**  
-    $M_{Ed} = 1.35 \times M_{tot}$  
-    $V_{Ed} = 1.35 \times G_{tot}$  
-
-    **EQU 6.10**  
-    $M_{Ed} = 1.0 \times M_{tot} + 1.5 \times 0.5 \times G_{tot}$  
-    $V_{Ed} = 1.0 \times G_{tot}$  
-
-    **SLS 6.14b**  
-    $M_{Ed} = 1.0 \times M_{tot}$  
-    $V_{Ed} = 1.0 \times G_{tot}$
-    """)
-
+    # Lastkombinationer enligt SS-EN 1990
     M_Str = 1.35 * M_tot
     V_Str = 1.35 * Gk_tot
-    M_Equ = 1.0 * M_tot + 1.5 * 0.5 * Gk_tot
+
+    M_Equ = 1.0 * M_h + 1.5 * M_v + 1.0 * Gk_tot * 0.5
     V_Equ = 1.0 * Gk_tot
+
     M_SLS = 1.0 * M_tot
     V_SLS = 1.0 * Gk_tot
 
-    df_varden = pd.DataFrame({
+    st.markdown("### Lastkombinationer enligt SS-EN 1990")
+
+    df_kombinationer = pd.DataFrame({
         "STR 6.10": [round(M_Str, 1), round(V_Str, 1)],
         "EQU 6.10": [round(M_Equ, 1), round(V_Equ, 1)],
         "SLS 6.14b": [round(M_SLS, 1), round(V_SLS, 1)],
-    }, index=[r"$M_{Ed}$", r"$V_{Ed}$"])
-
-    st.table(df_varden)
+    }, index=[r"$M_{Ed}$ (moment)", r"$V_{Ed}$ (vertikal last)"])
+    st.table(df_kombinationer)
