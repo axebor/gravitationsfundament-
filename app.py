@@ -315,19 +315,28 @@ with col_res:
 
     st.markdown(
         """
-        **Laster kombineras enligt SS-EN 1990:**
+        **Vertikala laster kombineras enligt:**
 
-        - **ULS STR 6.10:** $V_{Ed} = \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot}$
-        - **ULS EQU 6.10:** $V_{Ed} = 0.9 \cdot \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot}$
-        - **SLS 6.14b:** $V_{Ed} = G_{tot} + M_{tot}$
+        \[
+        V_{Ed} = 
+        \begin{cases}
+        \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot} & \text{ULS STR 6.10}\\
+        0.9 \cdot \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot} & \text{ULS EQU 6.10}\\
+        G_{tot} + M_{tot} & \text{SLS 6.14b}
+        \end{cases}
+        \]
+
+        **Moment kombineras enligt:**
+
+        \[
+        M_{Ed} = M_{tot}
+        \]
         """
     )
 
     df_lastkomb = pd.DataFrame({
-        "ULS STR 6.10": [VEd_ULS_STR],
-        "ULS EQU 6.10": [VEd_ULS_EQU],
-        "SLS 6.14b": [VEd_SLS],
-        r"$M_{Ed}$": [M_tot]
-    })
-    df_lastkomb.index = ["Värde (kN)"]
+        "ULS STR 6.10": [VEd_ULS_STR, M_tot],
+        "ULS EQU 6.10": [VEd_ULS_EQU, M_tot],
+        "SLS 6.14b": [VEd_SLS, M_tot]
+    }, index=[r"$V_{Ed}$", r"$M_{Ed}$"])
     st.table(df_lastkomb.style.format("{:.1f}"))
