@@ -196,7 +196,6 @@ with col_out:
     ax.set_ylim(-pil_längd_extra_vert - 1, max(H_b + H_s, z_v if z_v else 0, z_Q1, z_Q2) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
-    fig.subplots_adjust(left=0.02, right=0.98, top=0.98, bottom=0.02)
     st.pyplot(fig, use_container_width=True)
 
 with col_res:
