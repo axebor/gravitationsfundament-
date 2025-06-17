@@ -302,8 +302,8 @@ with col_res:
     lastkombination_md = f"""
     | Parameter                       | ULS STR 6.10 | ULS EQU 6.10 | SLS 6.14b  |
     |--------------------------------|--------------|--------------|------------|
-    | Partialfaktor permanent last γ_G| 1.35         | 0.90         | 1.00       |
-    | Partialfaktor variabel last $γ_{{Q}}$  | 1.50         | 1.50         | 1.00       |
+    | Partialfaktor perm. last $γ_{{G}}$| 1.35         | 0.90         | 1.00       |
+    | Partialfaktor vari. last $γ_{{Q}}$  | 1.50         | 1.50         | 1.00       |
     | Vertikal last $V_{{Ed}}$         | {VEd_ULS_STR:.1f}   | {VEd_ULS_EQU:.1f}   | {VEd_SLS:.1f}  |
     | Moment $M_{{Ed}}$                | {M_tot:.1f}        | {M_tot:.1f}        | {M_tot:.1f}   |
     """
