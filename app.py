@@ -33,8 +33,8 @@ st.markdown(
 
 pil_längd_extra = 2
 pil_längd_extra_vert = 1.5
-zQ1_x_offset = 1.2  # flytt ut åt vänster för zQ1
-zQ2_x_offset = 0.9  # flytt ut åt vänster för zQ2
+zQ1_x_offset = 1.2
+zQ2_x_offset = 0.9
 
 col_in, col_out, col_res = st.columns([1, 1, 1])
 
@@ -82,13 +82,22 @@ with col_in:
             unsafe_allow_html=True
         )
 
-    col_q1, col_q2, col_psi = st.columns(3)
+    # Horisontella laster och lastkombinationsfaktor med angreppsplan på samma rad
+    col_q1, col_psi, col_zq1 = st.columns([1, 1, 1])
     with col_q1:
         Qk_H1_str = st.text_input(r"Huvudlast horisontell $Q_{k,H1}$ (kN)", value="5.0")
+    with col_psi:
+        st.markdown("")  # Ingen lastkombinationsfaktor för huvudlast
+    with col_zq1:
+        z_Q1_str = st.text_input(r"Angreppsplan $z_{Q1}$ (m)", value="0.0")
+
+    col_q2, col_psi2, col_zq2 = st.columns([1, 1, 1])
     with col_q2:
         Qk_H2_str = st.text_input(r"Övrig last horisontell $Q_{k,H2}$ (kN)", value="0.0")
-    with col_psi:
-        psi_ovr = st.number_input("Gaffelfaktor $\psi_0$", min_value=0.0, max_value=1.0, value=1.0, step=0.05)
+    with col_psi2:
+        psi_ovr = st.number_input("Lastkombinationsfaktor $\psi_0$", min_value=0.0, max_value=1.0, value=1.0, step=0.05)
+    with col_zq2:
+        z_Q2_str = st.text_input(r"Angreppsplan $z_{Q2}$ (m)", value="0.0", key="z_Q2")
 
     Gk_ovr_str = st.text_input(r"Vertikal last $G_{k,\mathrm{övrigt}}$ (kN)", value="5.0")
 
@@ -100,8 +109,8 @@ with col_in:
 
         Qk_H1 = float(Qk_H1_str)
         Qk_H2 = float(Qk_H2_str)
-        z_Q1 = round(float(st.text_input(r"Angreppsplan $z_{Q1}$ (m)", value="0.0")), 1)
-        z_Q2 = round(float(st.text_input(r"Angreppsplan $z_{Q2}$ (m)", value="0.0", key="z_Q2")), 1)
+        z_Q1 = round(float(z_Q1_str), 1)
+        z_Q2 = round(float(z_Q2_str), 1)
         Gk_ovr = float(Gk_ovr_str)
 
         if fundament_i_vatten:
@@ -113,9 +122,8 @@ with col_in:
         st.stop()
 
 with col_out:
-    # (Behåll din befintliga figurkod som tidigare)
-
     st.header("Figur")
+
     fig, ax = plt.subplots(figsize=(8, 8))
     max_diameter = max(D_b, D_s)
 
