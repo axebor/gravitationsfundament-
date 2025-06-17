@@ -14,7 +14,8 @@ st.markdown(
         width: 100%;
         box-sizing: border-box;
     }
-    div[data-testid="stTextInput"][data-key="z_niva"] > div > input {
+    div[data-testid="stTextInput"][data-key="z_niva"] > div > input,
+    div[data-testid="stTextInput"][data-key="z_F"] > div > input {
         max-width: 150px;
     }
     </style>
@@ -46,9 +47,13 @@ with col_in:
     fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
 
     if fundament_i_vatten:
-        z_niva_str = st.text_input("Z$_v$ (m) från underkant fundament", value="0.0", key="z_niva")
+        z_niva_str = st.text_input(" $z_v$ (m) från underkant fundament", value="0.0", key="z_niva")
     else:
         z_niva_str = None
+
+    st.subheader("Laster")
+    F_str = st.text_input("Horisontell punktlast $F$ (kN)", value="0.0")
+    z_F_str = st.text_input("Lastens angreppspunkt $z_F$ (m)", value="0.0", key="z_F")
 
     # Konvertera till float med avrundning till 1 decimal
     try:
@@ -56,12 +61,14 @@ with col_in:
         H_b = round(float(h_b_str), 1)
         D_s = round(float(D_s_str), 1)
         h_s = round(float(h_s_str), 1)
+        F = round(float(F_str), 1)
+        z_F = round(float(z_F_str), 1)
         if fundament_i_vatten:
             z_v = float(z_niva_str)
         else:
             z_v = None
     except ValueError:
-        st.error("❌ Ange giltiga numeriska värden för geometri och vattennivå.")
+        st.error("❌ Ange giltiga numeriska värden för geometri, vattennivå och laster.")
         st.stop()
 
 with col_out:
@@ -69,17 +76,17 @@ with col_out:
 
     fig, ax = plt.subplots(figsize=(6, 6))
 
+    max_diameter = max(D_b, D_s)
+
+    # Vattenområde och vattenlinje
     if fundament_i_vatten and z_v is not None and z_v > 0:
         ax.fill_between(
-            x=[-max(D_b, D_s) - 1, max(D_b, D_s) + 1],
+            x=[-max_diameter - 1, max_diameter + 1],
             y1=0, y2=z_v, color='lightblue', alpha=0.5)
-        ax.hlines(y=z_v, xmin=-max(D_b, D_s) - 1, xmax=max(D_b, D_s) + 1,
+        ax.hlines(y=z_v, xmin=-max_diameter - 1, xmax=max_diameter + 1,
                   colors='blue', linestyles='--', linewidth=2, label='Vattenlinje')
-
-        # Måttpil och etikett för zv
-        ax.annotate("", xy=(max(D_b, D_s)+0.5, 0), xytext=(max(D_b, D_s)+0.5, z_v),
-                    arrowprops=dict(arrowstyle="<->"))
-        ax.text(max(D_b, D_s)+0.6, z_v/2, r"$z_v$", va='center', fontsize=12)
+        # z_v måttsättning
+        ax.text(max_diameter + 0.8, z_v/2, r"$z_v$", va='center', fontsize=12)
 
     # Bottenplatta
     ax.plot([-D_b/2, D_b/2], [0, 0], 'k-')
@@ -92,6 +99,9 @@ with col_out:
     ax.plot([-D_s/2, -D_s/2], [H_b, H_b + h_s], 'k-')
     ax.plot([D_s/2, D_s/2], [H_b, H_b + h_s], 'k-')
     ax.plot([-D_s/2, D_s/2], [H_b + h_s, H_b + h_s], 'k-')
+
+    # Centrumlinje (streckad) från bottenplatta till toppen av skaft
+    ax.vlines(x=0, ymin=0, ymax=H_b + h_s, colors='red', linestyles='dotted', linewidth=1)
 
     # Måttpilar och etiketter - diametrar
     ax.annotate("", xy=(D_b/2, -0.5), xytext=(-D_b/2, -0.5),
@@ -111,8 +121,15 @@ with col_out:
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s/2 + 0.6, H_b + h_s/2, r"$h_s$", va='center', fontsize=12)
 
-    ax.set_xlim(-max(D_b, D_s) - 1, max(D_b, D_s) + 1)
-    ax.set_ylim(-1, max(H_b + h_s, z_v if z_v else 0) + 1)
+    # Punktlast F och måttsättning z_F från bottenplatta (y=0)
+    if F > 0:
+        ax.annotate("", xy=(0, z_F), xytext=(-max_diameter/2 - 1, z_F),
+                    arrowprops=dict(arrowstyle="->", color='black', lw=2))
+        ax.text(-max_diameter/2 - 1.1, z_F + 0.1, r"$z_{F}$", color='black', va='bottom', ha='right', fontsize=12)
+        ax.text(-max_diameter/2 - 0.4, z_F + 0.2, r"$F$", color='black', va='bottom', ha='left', fontsize=14)
+
+    ax.set_xlim(-max_diameter - 2, max_diameter + 2)
+    ax.set_ylim(-1, max(H_b + h_s, z_v if z_v else 0, z_F) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
 
@@ -146,16 +163,7 @@ with col_res:
     vikt_tot = vikt_ovan + vikt_under
 
     # Tabell med volymer
+    st.subheader("Volym")
     df_volymer = pd.DataFrame({
         "Över vatten (m³)": [round(ovan_vatten_botten, 1), round(ovan_vatten_skaft, 1)],
-        "Under vatten (m³)": [round(under_vatten_botten, 1), round(under_vatten_skaft, 1)]
-    }, index=["Bottenplatta", "Skaft"])
-    st.subheader("Volym")
-    st.table(df_volymer)
-
-    # Tabell med vikter
-    df_vikter = pd.DataFrame({
-        "Vikt (kN)": [round(vikt_ovan, 1), round(vikt_under, 1), round(vikt_tot, 1)]
-    }, index=["Över vatten", "Under vatten", "Total egenvikt (Gk, fund)"])
-    st.subheader("Egenvikt fundament")
-    st.table(df_vikter)
+        "Under vatten (m³)": [round(under_vatten_botten, 1), round(under_vatten_skaft, 
