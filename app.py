@@ -302,16 +302,25 @@ with col_res:
     , unsafe_allow_html=True
     )
 
+    # Beräkning av VEd och MEd för Lastkombination 3 och 4
+
+    VEd_LK3 = 0.9 * Gk_tot
+    VEd_LK4 = max(1.1 * gamma_d * Gk_tot, Gk_tot)
+
+    MEd_LK3 = gamma_d * (1.5 * M_Q1 + 1.5 * psi_ovr * M_Q2)
+    MEd_LK4 = 1.4 * M_tot
+
     lastkombination_md = f"""
-    | Parameter                               | Lastkombination 3 (Jämvikt)       | Lastkombination 4 (Geoteknisk)       |
-    |---------------------------------------|----------------------------------|--------------------------------------|
-    | Permanent last, ogynnsam               | $1.10$                           | $1.10 \\times \\gamma_d$              |
-    | Permanent last, gynnsam                | $0.90$                           | $1.00$                              |
-    | Variabel last, ogynnsam huvudlast     | $1.50 \\times \\gamma_d$         | $1.40 \\times \\gamma_d$              |
+    | Parameter                               | Lastkombination 3 (Jämvikt)         | Lastkombination 4 (Geoteknisk)       |
+    |---------------------------------------|------------------------------------|--------------------------------------|
+    | Permanent last, ogynnsam               | $1.10$                             | $1.10 \\times \\gamma_d$              |
+    | Permanent last, gynnsam                | $0.90$                             | $1.00$                              |
+    | Variabel last, ogynnsam huvudlast     | $1.50 \\times \\gamma_d$           | $1.40 \\times \\gamma_d$              |
     | Variabel last, ogynnsam övriga laster | $1.50 \\times \\gamma_d \\times \\psi_0$ | $1.40 \\times \\gamma_d \\times \\psi_0$ |
-    | $V_{{Ed}}$                              | {0.9 * Gk_tot:.1f} kN            | {max(1.1 * gamma_d * Gk_tot, Gk_tot):.1f} kN |
-    | $M_{{Ed}}$                              | {0.9 * Gk_tot:.1f} kNm           | {1.4 * M_tot:.1f} kNm                |
+    | $\\left(V_{Ed}\\right)$               | {VEd_LK3:.1f} kN                   | {VEd_LK4:.1f} kN                     |
+    | $\\left(M_{Ed}\\right)$               | {MEd_LK3:.1f} kNm                  | {MEd_LK4:.1f} kNm                    |
     """
 
     st.markdown(lastkombination_md)
+
 
