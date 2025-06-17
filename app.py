@@ -42,13 +42,15 @@ with col_in:
         D_s_str = st.text_input(r"Diameter $D_{s}$ (m)", value="1.0")
     with col_s2:
         H_s_str = st.text_input(r"Höjd $H_{s}$ (m)", value="5.0")
-
-    fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
-
-    if fundament_i_vatten:
-        z_niva_str = st.text_input(r"$z_{v}$ (m) från underkant fundament", value="0.0", key="z_niva")
-    else:
-        z_niva_str = None
+  
+    col_chk, col_zv = st.columns([1, 2])
+    with col_chk:
+        fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
+    with col_zv:
+        if fundament_i_vatten:
+            z_niva_str = st.text_input(r"$z_{v}$ (m) från underkant fundament", value="0.0", key="z_niva")
+        else:
+            z_niva_str = None
         
     st.subheader("Laster")
     col_fh, col_zf = st.columns(2)
