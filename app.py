@@ -126,14 +126,15 @@ with col_out:
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s/2 + 0.6, H_b + H_s/2, r"$H_s$", va='center', fontsize=12)
 
-    # Last F_H som röd horisontell pil från vänster till fundamentets vänstra sida (vid -D_s/2)
+    # Last F_H som röd horisontell pil från vänster mot fundamentets vänstra sida (-D_s/2)
     ax.annotate(
         "",
-        xy=(-D_s / 2, z_F),                 # pilens spets på fundamentets vänstra sida
-        xytext=(-max_diameter - 2, z_F),   # pilens start långt till vänster om fundamentet
-        arrowprops=dict(arrowstyle="<|-", color='red', linewidth=3)
+        xy=(-max_diameter - 2, z_F),      # pilens start långt till vänster
+        xytext=(-D_s / 2, z_F),           # pilens spets på fundamentets vänstra sida
+        arrowprops=dict(arrowstyle="|-|>", color='red', linewidth=3)
     )
-    ax.text(-D_s / 2 - 0.6, z_F + 0.1, r"$F_{H}$", color='red', fontsize=14, fontweight='bold')
+    # Placera texten F_H centrerat ovanför pilen
+    ax.text((-max_diameter - 2 + (-D_s / 2))/2, z_F + 0.15, r"$F_{H}$", color='red', fontsize=14, fontweight='bold', ha='center')
 
     # Måttlinje och text för z_F
     ax.annotate(
