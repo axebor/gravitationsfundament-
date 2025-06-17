@@ -25,8 +25,8 @@ st.markdown(
 
 pil_längd_extra = 2
 pil_längd_extra_vert = 1.5
-zQ1_x_offset = 1.8  # flytt ut åt vänster för zQ1
-zQ2_x_offset = 1.3  # flytt ut åt vänster för zQ2
+zQ1_x_offset = 1.2  # flytt ut åt vänster för zQ1
+zQ2_x_offset = 0.9  # flytt ut åt vänster för zQ2
 
 col_in, col_out, col_res = st.columns([1, 1, 1])
 
@@ -96,7 +96,7 @@ with col_in:
 with col_out:
     st.header("Figur")
 
-    fig, ax = plt.subplots(figsize=(7, 7))
+    fig, ax = plt.subplots(figsize=(6, 6))
     max_diameter = max(D_b, D_s)
 
     # Vattennivå
@@ -189,11 +189,14 @@ with col_out:
         )
         ax.text(0, pil_längd_extra_vert + 0.3, r"$G_{k,\mathrm{övrigt}}$", fontsize=14, color='red', ha='center')
 
-    ax.set_xlim(-max_diameter - pil_längd_extra - 1 - max(zQ1_x_offset, zQ2_x_offset), max_diameter + 1.5)
+    # Justera x-axelgränser symmetriskt för att centrera figuren
+    max_offset = max(pil_längd_extra + max(zQ1_x_offset, zQ2_x_offset) + 1, 1.5)
+    ax.set_xlim(-max_diameter - max_offset, max_diameter + max_offset)
+
     ax.set_ylim(-pil_längd_extra_vert - 1, max(H_b + H_s, z_v if z_v else 0, z_Q1, z_Q2) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
-    fig.subplots_adjust(left=0.01) 
+
     st.pyplot(fig, use_container_width=True)
 
 with col_res:
