@@ -65,12 +65,14 @@ with col_in:
         H_b = round(float(H_b_str), 1)
         D_s = round(float(D_s_str), 1)
         H_s = round(float(H_s_str), 1)
+        F_H = round(float(F_H_str), 1)
+        z_F = round(float(z_F_str), 1)
         if fundament_i_vatten:
             z_v = float(z_niva_str)
         else:
             z_v = None
     except ValueError:
-        st.error("❌ Ange giltiga numeriska värden för geometri och vattennivå.")
+        st.error("❌ Ange giltiga numeriska värden för geometri, vattennivå och laster.")
         st.stop()
 
 with col_out:
@@ -79,7 +81,9 @@ with col_out:
     fig, ax = plt.subplots(figsize=(6, 6))
 
     max_diameter = max(D_b, D_s)
+    fundament_h = H_b + H_s
 
+    # Vattennivå och vattenfärg
     if fundament_i_vatten and z_v is not None and z_v > 0:
         ax.fill_between(
             x=[-max_diameter - 1, max_diameter + 1],
@@ -100,30 +104,48 @@ with col_out:
 
     # Skaft
     ax.plot([-D_s/2, D_s/2], [H_b, H_b], 'k-')
-    ax.plot([-D_s/2, -D_s/2], [H_b, H_b + H_s], 'k-')
-    ax.plot([D_s/2, D_s/2], [H_b, H_b + H_s], 'k-')
-    ax.plot([-D_s/2, D_s/2], [H_b + H_s, H_b + H_s], 'k-')
+    ax.plot([-D_s/2, -D_s/2], [H_b, fundament_h], 'k-')
+    ax.plot([D_s/2, D_s/2], [H_b, fundament_h], 'k-')
+    ax.plot([-D_s/2, D_s/2], [fundament_h, fundament_h], 'k-')
 
     # Måttpilar och etiketter - diametrar
     ax.annotate("", xy=(D_b/2, -0.5), xytext=(-D_b/2, -0.5),
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(0, -0.7, r"$D_b$", ha='center', va='top', fontsize=12)
 
-    ax.annotate("", xy=(D_s/2, H_b + H_s + 0.5), xytext=(-D_s/2, H_b + H_s + 0.5),
+    ax.annotate("", xy=(D_s/2, fundament_h + 0.5), xytext=(-D_s/2, fundament_h + 0.5),
                 arrowprops=dict(arrowstyle="<->"))
-    ax.text(0, H_b + H_s + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
+    ax.text(0, fundament_h + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
 
     # Måttpilar och etiketter - höjder
     ax.annotate("", xy=(D_b/2 + 0.5, 0), xytext=(D_b/2 + 0.5, H_b),
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_b/2 + 0.6, H_b/2, r"$H_b$", va='center', fontsize=12)
 
-    ax.annotate("", xy=(D_s/2 + 0.5, H_b), xytext=(D_s/2 + 0.5, H_b + H_s),
+    ax.annotate("", xy=(D_s/2 + 0.5, H_b), xytext=(D_s/2 + 0.5, fundament_h),
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s/2 + 0.6, H_b + H_s/2, r"$H_s$", va='center', fontsize=12)
 
-    ax.set_xlim(-max_diameter - 1, max_diameter + 1.5)
-    ax.set_ylim(-1, max(H_b + H_s, z_v if z_v else 0) + 1)
+    # Last F_H som röd horisontell pil till höger på fundamentet
+    ax.annotate(
+        "", 
+        xy=(max_diameter / 2 + 0.8, z_F), 
+        xytext=(max_diameter / 2 + 2, z_F),
+        arrowprops=dict(arrowstyle="<|-|>", color='red', linewidth=3)
+    )
+    ax.text(max_diameter / 2 + 1.4, z_F + 0.1, r"$F_{H}$", color='red', fontsize=14, fontweight='bold')
+
+    # Måttlinje och text för z_F
+    ax.annotate(
+        "", 
+        xy=(max_diameter / 2 + 2.5, 0), 
+        xytext=(max_diameter / 2 + 2.5, z_F),
+        arrowprops=dict(arrowstyle="<->", color='red')
+    )
+    ax.text(max_diameter / 2 + 2.7, z_F / 2, r"$z_{F}$", va='center', fontsize=12, color='red')
+
+    ax.set_xlim(-max_diameter - 1, max_diameter + 3.5)
+    ax.set_ylim(-1, max(fundament_h, z_v if z_v else 0, z_F) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
 
