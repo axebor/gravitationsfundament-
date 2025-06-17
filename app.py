@@ -5,7 +5,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Gravitationsfundament", layout="wide")
 
-# CSS för lika breda inputfält + vertikala linjer mellan kolumner (ej indata-kolumn)
+# CSS för lika breda inputfält + ökad padding i mittenkolumn (resultat)
 st.markdown(
     """
     <style>
@@ -18,13 +18,10 @@ st.markdown(
     div[data-testid="stTextInput"][data-key="z_Q2"] > div > input {
         max-width: 150px;
     }
-    /* Vertikala linjer mellan kolumner - endast mellan mitt och höger */
+    /* Ökad padding i mittenkolumnen */
     [data-testid="stColumns"] > div:nth-child(2) {
-        border-right: 1px solid #cccccc;
-        padding-right: 15px;
-    }
-    [data-testid="stColumns"] > div:nth-child(3) {
-        padding-left: 15px;
+        padding-left: 40px;
+        padding-right: 40px;
     }
     </style>
     """,
