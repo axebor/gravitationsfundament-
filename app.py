@@ -258,10 +258,29 @@ with col_res:
     V_SLS = 1.0 * Gk_tot
 
     st.markdown("### Lastkombinationer enligt SS-EN 1990")
+    st.markdown(
+        """
+        Lastkombinationerna är enligt Eurokod SS-EN 1990 med:
+        - **STR 6.10**: ULS styrande lastkombination (sträng säkerhetsfaktor).
+        - **EQU 6.10**: Alternativ ULS där permanent last betraktas som gynnsam (faktor 0,9).
+        - **SLS 6.14b**: Serviceability limit state för lastkombination utan säkerhetsfaktor.
+        """
+    )
+
+    M_Str = 1.35 * M_tot
+    V_Str = 1.35 * Gk_tot
+
+    M_Equ = 1.0 * M_h + 1.5 * M_v + 0.9 * Gk_tot
+    V_Equ = 1.0 * Gk_tot
+
+    M_SLS = 1.0 * M_tot
+    V_SLS = 1.0 * Gk_tot
 
     df_kombinationer = pd.DataFrame({
         "STR 6.10": [round(M_Str, 1), round(V_Str, 1)],
         "EQU 6.10": [round(M_Equ, 1), round(V_Equ, 1)],
         "SLS 6.14b": [round(M_SLS, 1), round(V_SLS, 1)],
     }, index=[r"$M_{Ed}$ (moment)", r"$V_{Ed}$ (vertikal last)"])
+    st.table(df_kombinationer)
+
     st.table(df_kombinationer)
