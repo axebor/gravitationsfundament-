@@ -66,7 +66,7 @@ with col_in:
         D_s = round(float(D_s_str), 1)
         H_s = round(float(H_s_str), 1)
         F_H = float(F_H_str)
-        z_F = float(z_F_str)
+        z_F = round(float(z_F_str), 1)
         if fundament_i_vatten:
             z_v = float(z_niva_str)
         else:
@@ -124,26 +124,13 @@ with col_out:
                 arrowprops=dict(arrowstyle="<->"))
     ax.text(D_s/2 + 0.6, H_b + H_s/2, r"$H_s$", va='center', fontsize=12)
 
-    # Last F_H som pil (CurveB, spegelvänd, röd)
+    # --- Horisontell punktlast FH ---
     ax.annotate(
         "",
         xy=(-D_s / 2, z_F),
         xytext=(-max_diameter - 2, z_F),
-        arrowprops=dict(
-            arrowstyle='CurveB',
-            color='red',
-            linewidth=3,
-            head_length=0.4,
-            head_width=0.2,
-            widthA=1.0,
-            widthB=1.0,
-            lengthA=0.2,
-            lengthB=0.2,
-            angleA=0,
-            angleB=0
-        )
+        arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
     )
-    # Text ovanför pilen (i mitten)
     ax.text(-max_diameter - 1, z_F + 0.1, r"$F_{H}$", fontsize=14, color='red', ha='center')
 
     ax.set_xlim(-max_diameter - 3, max_diameter + 1.5)
