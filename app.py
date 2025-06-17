@@ -43,7 +43,7 @@ with col_in:
     with col_s2:
         H_s_str = st.text_input(r"Höjd $H_{s}$ (m)", value="5.0")
   
-    col_chk, col_zv = st.columns([1, 2])
+    col_chk, col_zv = st.columns(2)
     with col_chk:
         fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
     with col_zv:
