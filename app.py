@@ -102,7 +102,7 @@ with col_out:
     st.header("Figur")
 
     # Rita figuren
-    fig, ax = plt.subplots(figsize=(6, 6))
+    fig, ax = plt.subplots(figsize=(7, 7))
     max_d = max(D_b, D_s)
 
     # Vattennivå
