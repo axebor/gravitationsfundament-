@@ -296,7 +296,7 @@ with col_res:
         """
         Kombination av laster görs enligt SS-EN 1990 samt de svenska reglerna i BFS 2024:6.<br>
         I denna app används <b>Lastkombination 3</b> för kontroll av statisk jämvikt och <b>Lastkombination 4</b> för dimensionering av geotekniska laster.<br><br>
-        <b>Permanent last:</b> inkluderar egenvikt och andra permanenta laster. test<br>
+        <b>Permanent last:</b> inkluderar egenvikt och andra permanenta laster.<br>
         <b>Variabel last:</b> inkluderar laster som kan variera, t.ex. is och våg-last.<br>
         """
     , unsafe_allow_html=True
@@ -309,8 +309,9 @@ with col_res:
     | Permanent last, gynnsam                | $0.90$                           | $1.00$                              |
     | Variabel last, ogynnsam huvudlast     | $1.50 \\times \\gamma_d$         | $1.40 \\times \\gamma_d$              |
     | Variabel last, ogynnsam övriga laster | $1.50 \\times \\gamma_d \\times \\psi_0$ | $1.40 \\times \\gamma_d \\times \\psi_0$ |
-    | Vertikal last (total)                  | {1.1 * Gk_tot:.1f} kN            | {max(1.1 * gamma_d * Gk_tot, Gk_tot):.1f} kN |
-    | Moment (total)                        | {0.9 * Gk_tot:.1f} kNm           | {1.4 * M_tot:.1f} kNm                |
+    | $V_{Ed}$                              | {0.9 * Gk_tot:.1f} kN            | {max(1.1 * gamma_d * Gk_tot, Gk_tot):.1f} kN |
+    | $M_{Ed}$                              | {0.9 * Gk_tot:.1f} kNm           | {1.4 * M_tot:.1f} kNm                |
     """
 
     st.markdown(lastkombination_md)
+
