@@ -20,8 +20,8 @@ st.markdown(
     }
     /* Ökad padding i mittenkolumnen */
     [data-testid="stColumns"] > div:nth-child(2) {
-        padding-left: 40px;
-        padding-right: 40px;
+        padding-left: 100px;
+        padding-right: 100px;
     }
     </style>
     """,
