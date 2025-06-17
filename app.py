@@ -36,8 +36,8 @@ pil_längd_extra_vert = 1.5
 zQ1_x_offset = 1.2  # flytt ut åt vänster för zQ1
 zQ2_x_offset = 0.9  # flytt ut åt vänster för zQ2
 
-# Återställt kolumnordning: indatavänster, figur mitten, resultat höger
-col_in, col_out, col_res = st.columns([1, 1, 1])
+# Kolumnordning: indatavänster, resultat mitten, figur höger
+col_in, col_res, col_out = st.columns([1, 1, 1])
 
 with col_in:
     st.header("Indata")
@@ -116,26 +116,95 @@ with col_in:
     except ValueError:
         st.error("❌ Ange giltiga numeriska värden för geometri, vattennivå och laster.")
         st.stop()
+
+with col_res:
+    st.header("Resultat")
+
+    pi = np.pi
+
+    vol_bottenplatta = pi * (D_b / 2) ** 2 * H_b
+    vol_skaft = pi * (D_s / 2) ** 2 * H_s
+
+    if fundament_i_vatten and z_v is not None and z_v > 0:
+        under_vatten_botten = max(0, min(z_v, H_b)) * pi * (D_b / 2) ** 2
+        ovan_vatten_botten = vol_bottenplatta - under_vatten_botten
+
+        under_vatten_skaft = max(0, min(z_v - H_b, H_s)) * pi * (D_s / 2) ** 2
+        ovan_vatten_skaft = vol_skaft - under_vatten_skaft
+    else:
+        under_vatten_botten = 0
+        ovan_vatten_botten = vol_bottenplatta
+        under_vatten_skaft = 0
+        ovan_vatten_skaft = vol_skaft
+
+    vikt_ovan = (ovan_vatten_botten + ovan_vatten_skaft) * 25
+    vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
+    vikt_tot = vikt_ovan + vikt_under
+
+    # Vertikala laster från fundamentets delar
+    Gk_b = (ovan_vatten_botten * 25) + (under_vatten_botten * 15)
+    Gk_s = (ovan_vatten_skaft * 25) + (under_vatten_skaft * 15)
+    Gk_ovr = float(Gk_ovr_str)
+    Gk_tot = Gk_b + Gk_s + Gk_ovr
+
+    # Moment från horisontella laster (kraft * momentarm)
+    M_Q1 = Qk_H1 * z_Q1
+    M_Q2 = Qk_H2 * z_Q2
+    M_tot = M_Q1 + M_Q2
+
+    # Lastkombinationer med vald säkerhetsklass γd
+    VEd_ULS_STR = gamma_d * Gk_tot + 1.5 * M_tot
+    VEd_ULS_EQU = 0.9 * gamma_d * Gk_tot + 1.5 * M_tot
+    VEd_SLS = Gk_tot + M_tot
+
+    st.markdown("### Vertikala laster")
+
+    df_vertikala = pd.DataFrame({
+        "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
+    }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
+    st.table(df_vertikala.style.format("{:.1f}"))
+
+    st.markdown("### Moment vid fundamentets underkant")
+
+    df_moment = pd.DataFrame({
+        "Moment (kNm)": [M_Q1, M_Q2, M_tot]
+    }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
+    st.table(df_moment.style.format("{:.1f}"))
+
+    st.markdown("### Lastkombinationer enligt SS-EN 1990")
+
+    st.markdown(
+        """
+        Lastkombinationerna beräknas enligt följande principer:
+        - **ULS STR 6.10:** \( V_{Ed} = \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot} \)
+        - **ULS EQU 6.10:** \( V_{Ed} = 0.9 \cdot \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot} \) (Permanent last antas gynnsam)
+        - **SLS 6.14b:** \( V_{Ed} = G_{tot} + M_{tot} \)
+
+        Där \( \gamma_d \) är säkerhetsfaktorn vald ovan, \( G_{tot} \) total vertikal last och \( M_{tot} \) total moment.
+        """
+    )
+
+    df_lastkomb = pd.DataFrame({
+        "ULS STR 6.10": [f"{VEd_ULS_STR:.1f}", ""],
+        "ULS EQU 6.10": [f"{VEd_ULS_EQU:.1f}", ""],
+        "SLS 6.14b": [f"{VEd_SLS:.1f}", ""]
+    }, index=["VEd (kN)", ""])
+
+    df_lastkomb.loc["MEd (kNm)"] = [f"{M_tot:.1f}"]*3
+
+    st.table(df_lastkomb)
+
 with col_out:
     st.header("Figur")
 
     fig, ax = plt.subplots(figsize=(8, 8))
     max_diameter = max(D_b, D_s)
 
-    # Markyta (ljusbrun) under y=0, lika bred som vattenytan
-    ax.fill_between(
-        x=[-max_diameter - 1, max_diameter + 1],
-        y1=-1, y2=0,
-        color='burlywood', alpha=0.5
-    )
-
-    # Vattennivå (ljusblå) mellan y=0 och y=z_v
+    # Vattennivå
     if fundament_i_vatten and z_v is not None and z_v > 0:
         ax.fill_between(
             x=[-max_diameter - 1, max_diameter + 1],
-            y1=0, y2=z_v,
-            color='lightblue', alpha=0.5
-        )
+            y1=0, y2=z_v, color='lightblue', alpha=0.5)
         ax.hlines(y=z_v, xmin=-max_diameter - 1, xmax=max_diameter + 1,
                   colors='blue', linestyles='--', linewidth=2)
 
@@ -143,20 +212,7 @@ with col_out:
                     arrowprops=dict(arrowstyle="<->", color='blue'))
         ax.text(max_diameter + 0.7, z_v / 2, r"$z_{v}$", va='center', fontsize=12, color='blue')
 
-    # Bottenplatta (ljusgrå skraffering)
-    ax.fill_between(
-        x=[-D_b / 2, D_b / 2],
-        y1=0, y2=H_b,
-        color='lightgrey', alpha=0.5, hatch='////'
-    )
-    # Skaft (ljusgrå skraffering)
-    ax.fill_between(
-        x=[-D_s / 2, D_s / 2],
-        y1=H_b, y2=H_b + H_s,
-        color='lightgrey', alpha=0.5, hatch='////'
-    )
-
-    # Fundamentets geometri - konturer
+    # Fundamentets geometri
     ax.plot([-D_b / 2, D_b / 2], [0, 0], 'k-')
     ax.plot([-D_b / 2, -D_b / 2], [0, H_b], 'k-')
     ax.plot([D_b / 2, D_b / 2], [0, H_b], 'k-')
@@ -234,53 +290,39 @@ with col_out:
         )
         ax.text(0, pil_längd_extra_vert + 0.3, r"$G_{k,\mathrm{övrigt}}$", fontsize=14, color='red', ha='center')
 
+    # Lägg till grå skraffering för bottenplatta
+    ax.fill_between(
+        x=[-D_b / 2, D_b / 2],
+        y1=0, y2=H_b,
+        color='lightgrey',
+        alpha=0.5,
+        hatch='///'
+    )
+
+    # Lägg till grå skraffering för skaft
+    ax.fill_between(
+        x=[-D_s / 2, D_s / 2],
+        y1=H_b, y2=H_b + H_s,
+        color='lightgrey',
+        alpha=0.5,
+        hatch='///'
+    )
+
+    # Lägg till ljusbrun mark under bottenplatta
+    ax.fill_between(
+        x=[-max_diameter - 1, max_diameter + 1],
+        y1=-1.5, y2=0,
+        color='#deb887',  # ljusbrun färg
+        alpha=0.7,
+        hatch='\\\\\\'
+    )
+
     # Justera x-axelgränser symmetriskt för att centrera figuren
     max_offset = max(pil_längd_extra + max(zQ1_x_offset, zQ2_x_offset) + 1, 1.5)
     ax.set_xlim(-max_diameter - max_offset, max_diameter + max_offset)
 
-    ax.set_ylim(-pil_längd_extra_vert - 1, max(H_b + H_s, z_v if z_v else 0, z_Q1, z_Q2) + 1)
+    ax.set_ylim(-1.7, max(H_b + H_s, z_v if z_v else 0, z_Q1, z_Q2) + 1)
     ax.set_aspect('equal')
     ax.axis('off')
 
     st.pyplot(fig, use_container_width=True)
-
-with col_res:
-    st.header("Resultat")
-
-    # ... (tidigare kod med beräkningar)
-
-    st.markdown("### Vertikala laster")
-    df_vertikala = pd.DataFrame({
-        "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
-    }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
-    st.table(df_vertikala.style.format("{:.1f}"))
-
-    st.markdown("### Moment vid fundamentets underkant")
-    df_moment = pd.DataFrame({
-        "Moment (kNm)": [M_Q1, M_Q2, M_tot]
-    }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
-    st.table(df_moment.style.format("{:.1f}"))
-
-    # Här lägger du in den nya beskrivningen och tabellen för lastkombinationer:
-    st.markdown("### Lastkombinationer enligt SS-EN 1990")
-
-    st.markdown(
-        """
-        Lastkombinationerna beräknas enligt följande principer:
-        - **ULS STR 6.10:** \( V_{Ed} = \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot} \)
-        - **ULS EQU 6.10:** \( V_{Ed} = 0.9 \cdot \gamma_d \cdot G_{tot} + 1.5 \cdot M_{tot} \) (Permanent last antas gynnsam)
-        - **SLS 6.14b:** \( V_{Ed} = G_{tot} + M_{tot} \)
-
-        Där \( \gamma_d \) är säkerhetsfaktorn vald ovan, \( G_{tot} \) total vertikal last och \( M_{tot} \) total moment.
-        """
-    )
-
-    df_lastkomb = pd.DataFrame({
-        "ULS STR 6.10": [f"{VEd_ULS_STR:.1f}", ""],
-        "ULS EQU 6.10": [f"{VEd_ULS_EQU:.1f}", ""],
-        "SLS 6.14b": [f"{VEd_SLS:.1f}", ""]
-    }, index=["VEd (kN)", ""])
-
-    df_lastkomb.loc["MEd (kNm)"] = [f"{M_tot:.1f}"]*3
-
-    st.table(df_lastkomb)
