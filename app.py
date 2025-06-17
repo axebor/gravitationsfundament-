@@ -317,8 +317,8 @@ with col_res:
     | Permanent last, gynnsam                | $0.90$                             | $1.00$                              |
     | Variabel last, ogynnsam huvudlast     | $1.50 \\times \\gamma_d$           | $1.40 \\times \\gamma_d$              |
     | Variabel last, ogynnsam övriga laster | $1.50 \\times \\gamma_d \\times \\psi_0$ | $1.40 \\times \\gamma_d \\times \\psi_0$ |
-    | $\\leftV_{{Ed}}\\right$               | {VEd_LK3:.1f} kN                   | {VEd_LK4:.1f} kN                     |
-    | $\\leftM_{{Ed}}\\right$               | {MEd_LK3:.1f} kNm                  | {MEd_LK4:.1f} kNm                    |
+    | $\\left(V_{{Ed}}\\right)$               | {VEd_LK3:.1f} kN                   | {VEd_LK4:.1f} kN                     |
+    | $\\left(M_{{Ed}}\\right)$               | {MEd_LK3:.1f} kNm                  | {MEd_LK4:.1f} kNm                    |
     """
 
     st.markdown(lastkombination_md)
