@@ -96,7 +96,8 @@ with col_in:
 with col_out:
     st.header("Figur")
 
-    fig, ax = plt.subplots(figsize=(6, 6))
+    # Ändrad figsize till (9,9) för mer bredd och höjd
+    fig, ax = plt.subplots(figsize=(9, 9))
     max_diameter = max(D_b, D_s)
 
     # Vattennivå
@@ -194,7 +195,8 @@ with col_out:
     ax.set_aspect('equal')
     ax.axis('off')
 
-    st.pyplot(fig, use_container_width=True)
+    # Viktigt: use_container_width och bbox_inches för att fylla kolumnen
+    st.pyplot(fig, use_container_width=True, bbox_inches='tight', pad_inches=0.1)
 
 with col_res:
     st.header("Resultat")
