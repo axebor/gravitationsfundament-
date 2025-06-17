@@ -28,7 +28,7 @@ pil_längd_extra_vert = 1.5
 zQ1_x_offset = 1.2  # flytt ut åt vänster för zQ1
 zQ2_x_offset = 0.9  # flytt ut åt vänster för zQ2
 
-col_in, col_out, col_res = st.columns([1, 1, 2])
+col_in, col_out, col_res = st.columns([1, 1, 1])
 
 with col_in:
     st.header("Indata")
