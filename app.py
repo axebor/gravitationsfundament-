@@ -275,36 +275,21 @@ with col_res:
     M_Q1 = Qk_H1 * z_Q1
     M_Q2 = Qk_H2 * z_Q2
 
-    st.markdown("### Vertikala laster")
+    col1, col2 = st.columns([1, 1])
 
-    df_vertikala = pd.DataFrame({
-        "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
-    }, index=["Gk,b (Bottenplatta)", "Gk,s (Skaft)", "Gk,övrigt", "Gk,tot"])
-    st.table(df_vertikala.style.format("{:.1f}"))
+    with col1:
+        st.markdown("### Permanenta laster")
+        df_vertikala = pd.DataFrame({
+            "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
+        }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
+        st.table(df_vertikala.style.format("{:.1f}"))
 
-    st.latex(r"""
-    \begin{align*}
-    G_{k,b} &= \text{Egenvikt bottenplatta} \\
-    G_{k,s} &= \text{Egenvikt skaft} \\
-    G_{k,\mathrm{övrigt}} &= \text{Övrig vertikal last} \\
-    G_{k,\mathrm{tot}} &= G_{k,b} + G_{k,s} + G_{k,\mathrm{övrigt}}
-    \end{align*}
-    """)
-
-    st.markdown("### Moment vid fundamentets underkant")
-
-    df_moment = pd.DataFrame({
-        "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
-    }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
-    st.table(df_moment.style.format("{:.1f}"))
-
-    st.latex(r"""
-    \begin{align*}
-    M_{Q1} &= Q_{k,H1} \cdot z_{Q1} \\
-    M_{Q2} &= Q_{k,H2} \cdot z_{Q2} \\
-    M_{\mathrm{tot}} &= M_{Q1} + M_{Q2}
-    \end{align*}
-    """)
+    with col2:
+        st.markdown("### Variabla laster")
+        df_moment = pd.DataFrame({
+            "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
+        }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
+        st.table(df_moment.style.format("{:.1f}"))
 
     st.markdown("### Lastkombinationer enligt SS-EN 1990 & BFS 2024:6")
 
@@ -336,3 +321,4 @@ with col_res:
     """
 
     st.markdown(lastkombination_md)
+
