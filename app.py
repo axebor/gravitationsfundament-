@@ -243,8 +243,7 @@ with col_out:
 
     st.pyplot(fig, use_container_width=True)
 
-    # --- Lastsammanställning under figuren ---
-
+    # Lastsammanställning under figuren
     st.header("Lastsammanställning")
 
     col_vert, col_moment = st.columns(2)
@@ -262,7 +261,6 @@ with col_out:
             "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
         }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
         st.table(df_moment.style.format("{:.1f}"))
-
 
 with col_res:
     st.header("Resultat")
@@ -296,20 +294,6 @@ with col_res:
     M_Q1 = Qk_H1 * z_Q1
     M_Q2 = Qk_H2 * z_Q2
 
-    st.markdown("### Vertikala laster")
-
-    df_vertikala = pd.DataFrame({
-        "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
-    }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
-    st.table(df_vertikala.style.format("{:.1f}"))
-
-    st.markdown("### Moment vid fundamentets underkant")
-
-    df_moment = pd.DataFrame({
-        "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
-    }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
-    st.table(df_moment.style.format("{:.1f}"))
-
     st.markdown("### Lastkombinationer enligt SS-EN 1990 & BFS 2024:6")
 
     st.markdown(
@@ -321,8 +305,6 @@ with col_res:
         """
     , unsafe_allow_html=True
     )
-
-    # Beräkning av VEd och MEd för Lastkombination 3 och 4
 
     VEd_LK3 = 0.9 * Gk_tot  # gynnsam vertikal last utan gamma_d
     VEd_LK4 = max(1.1 * gamma_d * Gk_tot, Gk_tot)
