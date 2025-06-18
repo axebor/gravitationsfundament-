@@ -263,10 +263,6 @@ with col_res:
         under_vatten_skaft = 0
         ovan_vatten_skaft = vol_skaft
 
-    vikt_ovan = (ovan_vatten_botten + ovan_vatten_skaft) * 25
-    vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
-    vikt_tot = vikt_ovan + vikt_under
-
     Gk_b = (ovan_vatten_botten * 25) + (under_vatten_botten * 15)
     Gk_s = (ovan_vatten_skaft * 25) + (under_vatten_skaft * 15)
     Gk_ovr = float(Gk_ovr_str)
@@ -275,20 +271,69 @@ with col_res:
     M_Q1 = Qk_H1 * z_Q1
     M_Q2 = Qk_H2 * z_Q2
 
-    st.markdown("### Vertikala laster")
+    # CSS-stil för tabellbredd och flexbox
+    st.markdown(
+        """
+        <style>
+        .flex-container {
+            display: flex;
+            gap: 40px;
+        }
+        .table-container {
+            width: 45%;  /* Justera bredd här */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    df_vertikala = pd.DataFrame({
+    st.markdown("### Lastsammanställning")
+
+    st.markdown(
+        """
+        <div class="flex-container">
+            <div class="table-container">
+                <h4>Permanenta laster</h4>
+            </div>
+            <div class="table-container">
+                <h4>Variabla laster (Moment)</h4>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Bygg tabeller i två kolumner med html-divar
+    col1_table = pd.DataFrame({
         "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
     }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
-    st.table(df_vertikala.style.format("{:.1f}"))
 
-    st.markdown("### Moment vid fundamentets underkant")
-
-    df_moment = pd.DataFrame({
+    col2_table = pd.DataFrame({
         "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
     }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
-    st.table(df_moment.style.format("{:.1f}"))
 
+    # Rendera tabeller separat i flexbox divar med unsafe_allow_html
+    # Eftersom Streamlit inte stöder flexbox direkt med st.table
+    # Vi använder st.markdown med HTML + pandas.to_html
+
+    col1_html = col1_table.style.format("{:.1f}").set_table_attributes('style="width:100%;"').render()
+    col2_html = col2_table.style.format("{:.1f}").set_table_attributes('style="width:100%;"').render()
+
+    # Slå ihop till en flexbox i HTML
+    html = f"""
+    <div class="flex-container">
+        <div class="table-container">
+            {col1_html}
+        </div>
+        <div class="table-container">
+            {col2_html}
+        </div>
+    </div>
+    """
+
+    st.markdown(html, unsafe_allow_html=True)
+
+    # Resten av koden som tidigare med lastkombinationer
     st.markdown("### Lastkombinationer enligt SS-EN 1990 & BFS 2024:6")
 
     st.markdown(
@@ -297,8 +342,8 @@ with col_res:
         I denna app används <b>Lastkombination 3</b> för kontroll av statisk jämvikt och <b>Lastkombination 4</b> för dimensionering av geotekniska laster.<br><br>
         <b>Permanent last:</b> inkluderar egenvikt och andra permanenta laster.<br>
         <b>Variabel last:</b> inkluderar laster som kan variera, t.ex. is och våg-last.<br>
-        """
-    , unsafe_allow_html=True
+        """,
+        unsafe_allow_html=True,
     )
 
     VEd_LK3 = 0.9 * Gk_tot  # gynnsam vertikal last utan gamma_d
@@ -317,4 +362,6 @@ with col_res:
     | $V_{{Ed}}$                              | {VEd_LK3:.1f} kN                   | {VEd_LK4:.1f} kN                     |
     | $M_{{Ed}}$                              | {MEd_LK3:.1f} kNm                  | {MEd_LK4:.1f} kNm                    |
     """
+
     st.markdown(lastkombination_md)
+
