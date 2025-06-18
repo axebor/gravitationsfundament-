@@ -330,6 +330,19 @@ Vd_val = VEd_LK4
 e_val = Md_val / Vd_val if Vd_val != 0 else 0
 Db_val = D_b
 
+# CSS för vänsterjustering av allt i detta block
+st.markdown(
+    """
+    <style>
+    .stMarkdown, .stLatex {
+        text-align: left !important;
+        margin-left: 0 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 st.subheader("Stjälpningskontroll")
 st.markdown("Lastexcentriciteten beräknas enligt formeln:")
 
