@@ -324,36 +324,22 @@ with st.container():
         st.markdown(lastkombination_md)
         
 st.subheader("Stjälpningskontroll")
-st.markdown("Lastexcentriciteten beräknas enligt formeln:")
 
-col1, col2 = st.columns([1, 1])
+Md_val = MEd_LK3
+Vd_val = VEd_LK3
+e_val = Md_val / Vd_val if Vd_val != 0 else 0
+Db_val = D_b
 
-with col1:
-    # Formeln i LaTeX, vänsterställd
-    st.latex(r"""
-    \begin{aligned}
-    e &= \frac{M_d}{V_d} \\
-    r &= \frac{D_b}{2}
-    \end{aligned}
-    """)
+st.markdown(f"""
+- Formel: e = M_d / V_d
+- Numeriskt: e = {Md_val:.2f} / {Vd_val:.2f}
+- Resultat: e = {e_val:.2f} m
+- Bottendelens radie: r = {Db_val:.2f} / 2 = {Db_val / 2:.2f} m
+""")
 
-with col2:
-    # Numeriska uträkningar i LaTeX, vänsterställd
-    Md_val = MEd_LK3
-    Vd_val = VEd_LK3
-    e_val = Md_val / Vd_val if Vd_val != 0 else 0
-    Db_val = D_b
-
-    st.latex(fr"""
-    \begin{aligned}
-    e &= \frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}} = {e_val:.2f} \, \mathrm{{m}} \\
-    r &= \frac{{{Db_val:.2f}}}{{2}} = {Db_val / 2:.2f} \, \mathrm{{m}}
-    \end{aligned}
-    """)
-
-# Kontrollmeddelande under
 if e_val > Db_val / 2:
     st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
 else:
     st.success("✅ Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
+
 
