@@ -325,22 +325,28 @@ with st.container():
         
    # Lägg till detta i slutet av din col_res-block, efter allt annat
 
-    st.subheader("Stjälpningskontroll")
-    st.markdown("Lastexcentriciteten beräknas som:")
+st.subheader("Stjälpningskontroll")
 
-    col_formula, col_calc = st.columns([1, 2])
+st.markdown("Lastexcentriciteten beräknas enligt formeln:")
 
-    with col_formula:
-        st.latex(r"e = \frac{M_d}{V_d}")
+col_formula, col_calc = st.columns([1, 2])
 
-    with col_calc:
-        Md_val = MEd_LK4
-        Vd_val = VEd_LK4
-        e_val = Md_val / Vd_val if Vd_val != 0 else 0
+with col_formula:
+    st.latex(r"e = \frac{M_d}{V_d}")
 
-        st.markdown(f"$$e = \\frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}} = {e_val:.2f}\\,m$$")
-        st.markdown(f"Bottendelens radie: **r = {D_b/2:.2f} m**")
+with col_calc:
+    Md_val = MEd_LK4  # Överliggande moment
+    Vd_val = VEd_LK4  # Vertikal last
+    e_val = Md_val / Vd_val if Vd_val != 0 else 0
+    r_val = D_b / 2
 
+    st.markdown(f"$$e = \\frac{{M_d}}{{V_d}} = \\frac{{{Md_val:.2f} \\, \\mathrm{{kNm}}}}{{{Vd_val:.2f} \\, \\mathrm{{kN}}}} = {e_val:.2f} \\, \\mathrm{{m}}$$")
+    st.markdown(f"Bottendelens radie: $$r = \\frac{{D_b}}{{2}} = \\frac{{{D_b:.2f} \\, \\mathrm{{m}}}}{{2}} = {r_val:.2f} \\, \\mathrm{{m}}$$")
+
+    if e_val > r_val:
+        st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
+    else:
+        st.success("✅ Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
         if e_val > D_b / 2:
             st.warning("Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
         else:
