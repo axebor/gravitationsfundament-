@@ -271,7 +271,7 @@ with col_res:
     M_Q1 = Qk_H1 * z_Q1
     M_Q2 = Qk_H2 * z_Q2
 
-    # CSS-stil för tabellbredd och flexbox
+    # CSS för flexbox och breddkontroll
     st.markdown(
         """
         <style>
@@ -280,7 +280,7 @@ with col_res:
             gap: 40px;
         }
         .table-container {
-            width: 45%;  /* Justera bredd här */
+            width: 45%;  /* Justera bredden här */
         }
         </style>
         """,
@@ -289,21 +289,17 @@ with col_res:
 
     st.markdown("### Lastsammanställning")
 
+    # Rubriker i flexbox för tabellområdena
     st.markdown(
         """
         <div class="flex-container">
-            <div class="table-container">
-                <h4>Permanenta laster</h4>
-            </div>
-            <div class="table-container">
-                <h4>Variabla laster (Moment)</h4>
-            </div>
+            <div class="table-container"><h4>Permanenta laster</h4></div>
+            <div class="table-container"><h4>Variabla laster</h4></div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    # Bygg tabeller i två kolumner med html-divar
     col1_table = pd.DataFrame({
         "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
     }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
@@ -312,14 +308,9 @@ with col_res:
         "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
     }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
 
-    # Rendera tabeller separat i flexbox divar med unsafe_allow_html
-    # Eftersom Streamlit inte stöder flexbox direkt med st.table
-    # Vi använder st.markdown med HTML + pandas.to_html
+    col1_html = col1_table.style.format("{:.1f}").set_table_attributes('style="width:100%"').render()
+    col2_html = col2_table.style.format("{:.1f}").set_table_attributes('style="width:100%"').render()
 
-    col1_html = col1_table.style.format("{:.1f}").set_table_attributes('style="width:100%;"').render()
-    col2_html = col2_table.style.format("{:.1f}").set_table_attributes('style="width:100%;"').render()
-
-    # Slå ihop till en flexbox i HTML
     html = f"""
     <div class="flex-container">
         <div class="table-container">
@@ -333,7 +324,6 @@ with col_res:
 
     st.markdown(html, unsafe_allow_html=True)
 
-    # Resten av koden som tidigare med lastkombinationer
     st.markdown("### Lastkombinationer enligt SS-EN 1990 & BFS 2024:6")
 
     st.markdown(
@@ -343,7 +333,7 @@ with col_res:
         <b>Permanent last:</b> inkluderar egenvikt och andra permanenta laster.<br>
         <b>Variabel last:</b> inkluderar laster som kan variera, t.ex. is och våg-last.<br>
         """,
-        unsafe_allow_html=True,
+        unsafe_allow_html=True
     )
 
     VEd_LK3 = 0.9 * Gk_tot  # gynnsam vertikal last utan gamma_d
