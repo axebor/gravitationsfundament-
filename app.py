@@ -323,35 +323,33 @@ with st.container():
         """
         st.markdown(lastkombination_md)
         
-Md_val = MEd_LK4
-Vd_val = VEd_LK4
+Md_val = MEd_LK3  # Använd Lastkombination 3:s moment
+Vd_val = VEd_LK3  # Använd Lastkombination 3:s last
 e_val = Md_val / Vd_val if Vd_val != 0 else 0
 Db_val = D_b
 
-with st.container():
-    st.subheader("Stjälpningskontroll")
-    st.markdown("Lastexcentriciteten beräknas enligt formeln:")
+st.subheader("Stjälpningskontroll")
+st.markdown("Lastexcentriciteten beräknas enligt formeln:")
 
-    col_formula, col_calc = st.columns([1, 3])
+# Formeln med både symboler och värden i en rad
+formula = rf"e = \frac{{M_d}}{{V_d}} = \frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}} = {e_val:.2f} \text{{ m}}"
 
-    with col_formula:
-        st.latex(r"""
-        e = \frac{M_d}{V_d} = \frac{0.00}{0.00} = 0.00 \text{ m}
-        """)
+# Visa formeln vänsterjusterad
+st.markdown(
+    f'<div style="text-align:left; font-size:20px;">$$ {formula} $$</div>',
+    unsafe_allow_html=True
+)
 
-    with col_calc:
-        st.markdown(
-            rf"""
-            <div style="text-align:left; font-size:16px; line-height:1.4;">
-                = {Md_val:.2f} kNm / {Vd_val:.2f} kN = {e_val:.2f} m<br><br>
-                Bottendelens radie: <b>r = {Db_val:.2f} / 2 = {Db_val/2:.2f} m</b>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+# Visa radien också, vänsterjusterad
+st.markdown(
+    f'<div style="text-align:left; font-size:18px; margin-top:10px;">'
+    f'Bottendelens radie: <b>r = \\frac{{D_b}}{{2}} = \\frac{{{Db_val:.2f}}}{{2}} = {Db_val/2:.2f} \\, m</b>'
+    '</div>',
+    unsafe_allow_html=True
+)
 
-    if e_val > Db_val / 2:
-        st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
-    else:
-        st.success("✅ Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
-
+# Kontroll av stjälpningskriteriet
+if e_val > Db_val / 2:
+    st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
+else:
+    st.success("✅ Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
