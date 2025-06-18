@@ -331,32 +331,32 @@ Db_val = D_b
 r_val = Db_val / 2
 
 st.subheader("Stjälpningskontroll")
-
 st.markdown("Lastexcentriciteten beräknas enligt formeln och numeriskt:")
 
-st.subheader("Stjälpningskontroll")
-st.markdown("Lastexcentriciteten beräknas enligt formeln och numeriskt:")
-
-Md_val = MEd_LK3  # Använd Lastkombination 3
+Md_val = MEd_LK3  # Lastkombination 3
 Vd_val = VEd_LK3
 e_val = Md_val / Vd_val if Vd_val != 0 else 0
 
-calc_line = (
-    r"$\textstyle e = \frac{M_d}{V_d}$"
-    r"\quad\Longrightarrow\quad"
-    rf"$\textstyle e = \frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}}$"
-    r"\quad\Longrightarrow\quad"
-    rf"$\textstyle e = {e_val:.2f}~\mathrm{{m}}$"
-)
-st.markdown(calc_line)
-
+# Visa e på tydligt steg-för-steg sätt
 st.markdown(
-    rf"Bottendelens radie: $r = \frac{{D_b}}{{2}} = \frac{{{D_b:.2f}}}{{2}} = {D_b/2:.2f}~\mathrm{{m}}$"
+    rf"""
+    $$ 
+    e = \frac{{M_d}}{{V_d}} = \frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}} = {e_val:.2f} \, m
+    $$
+    """
 )
 
-st.markdown(f"Bottendelens radie:  $r = \\frac{{D_b}}{{2}} = \\frac{{{Db_val:.2f}}}{{2}} = {r_val:.2f} \\text{{ m}}$")
+# Visa r på samma tydliga sätt
+st.markdown(
+    rf"""
+    $$ 
+    r = \frac{{D_b}}{{2}} = \frac{{{D_b:.2f}}}{{2}} = {D_b/2:.2f} \, m
+    $$
+    """
+)
 
-if e_val > r_val:
-    st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
+if e_val > D_b / 2:
+    st.warning("Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
 else:
-    st.success("✅ Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
+    st.success("Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
+
