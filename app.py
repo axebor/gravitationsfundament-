@@ -288,7 +288,7 @@ with col_out:
     with col_moment:
         st.subheader("Variabla laster")
         df_moment = pd.DataFrame({
-            "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
+            "Mom. (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
         }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
 
         styled_df_moment = df_moment.style.format("{:.1f}").set_table_styles([
