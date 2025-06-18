@@ -301,8 +301,6 @@ with col_res:
     , unsafe_allow_html=True
     )
 
-    # Beräkning av VEd och MEd för Lastkombination 3 och 4
-
     VEd_LK3 = 0.9 * Gk_tot  # gynnsam vertikal last utan gamma_d
     VEd_LK4 = max(1.1 * gamma_d * Gk_tot, Gk_tot)
 
@@ -319,5 +317,4 @@ with col_res:
     | $V_{{Ed}}$                              | {VEd_LK3:.1f} kN                   | {VEd_LK4:.1f} kN                     |
     | $M_{{Ed}}$                              | {MEd_LK3:.1f} kNm                  | {MEd_LK4:.1f} kNm                    |
     """
-
     st.markdown(lastkombination_md)
