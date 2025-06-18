@@ -325,7 +325,7 @@ with st.container():
         
    # Lägg till detta i slutet av din col_res-block, efter allt annat
 
-  st.subheader("Stjälpningskontroll")
+    st.subheader("Stjälpningskontroll")
     st.markdown("Lastexcentriciteten beräknas som:")
 
     col_formula, col_calc = st.columns([1, 2])
