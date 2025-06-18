@@ -275,34 +275,37 @@ with col_res:
     M_Q1 = Qk_H1 * z_Q1
     M_Q2 = Qk_H2 * z_Q2
 
-    def render_latex_table(df, value_col_name):
-        html = '<table border="1" class="dataframe" style="border-collapse: collapse;">'
-        html += "<thead><tr><th></th><th>{}</th></tr></thead>".format(value_col_name)
-        html += "<tbody>"
-        for idx, val in zip(df.index, df.iloc[:, 0]):
-            html += f'<tr><td style="white-space: nowrap;">$$ {idx} $$</td><td style="text-align: right;">{val:.1f}</td></tr>'
-        html += "</tbody></table>"
-        return html
+    st.markdown("### Vertikala laster")
 
-    col1_table = pd.DataFrame({
+    df_vertikala = pd.DataFrame({
         "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
-    }, index=[r"G_{k,b} \text{ (Bottenplatta)}", r"G_{k,s} \text{ (Skaft)}", r"G_{k,\mathrm{övrigt}}", r"G_{k,\mathrm{tot}}"])
+    }, index=["Gk,b (Bottenplatta)", "Gk,s (Skaft)", "Gk,övrigt", "Gk,tot"])
+    st.table(df_vertikala.style.format("{:.1f}"))
 
-    col2_table = pd.DataFrame({
+    st.latex(r"""
+    \begin{align*}
+    G_{k,b} &= \text{Egenvikt bottenplatta} \\
+    G_{k,s} &= \text{Egenvikt skaft} \\
+    G_{k,\mathrm{övrigt}} &= \text{Övrig vertikal last} \\
+    G_{k,\mathrm{tot}} &= G_{k,b} + G_{k,s} + G_{k,\mathrm{övrigt}}
+    \end{align*}
+    """)
+
+    st.markdown("### Moment vid fundamentets underkant")
+
+    df_moment = pd.DataFrame({
         "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
-    }, index=[r"M_{Q1} = Q_{k,H1} \cdot z_{Q1}", r"M_{Q2} = Q_{k,H2} \cdot z_{Q2}", r"M_{\mathrm{tot}}"])
+    }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
+    st.table(df_moment.style.format("{:.1f}"))
 
-    col1, col2 = st.columns([1, 1])
+    st.latex(r"""
+    \begin{align*}
+    M_{Q1} &= Q_{k,H1} \cdot z_{Q1} \\
+    M_{Q2} &= Q_{k,H2} \cdot z_{Q2} \\
+    M_{\mathrm{tot}} &= M_{Q1} + M_{Q2}
+    \end{align*}
+    """)
 
-    with col1:
-        st.markdown("### Permanenta laster")
-        st.markdown(render_latex_table(col1_table, "Värde (kN)"), unsafe_allow_html=True)
-
-    with col2:
-        st.markdown("### Variabla laster")
-        st.markdown(render_latex_table(col2_table, "Moment (kNm)"), unsafe_allow_html=True)
-
-    # Fortsätt med tidigare lastkombinationer här, t.ex.:
     st.markdown("### Lastkombinationer enligt SS-EN 1990 & BFS 2024:6")
 
     st.markdown(
@@ -311,8 +314,8 @@ with col_res:
         I denna app används <b>Lastkombination 3</b> för kontroll av statisk jämvikt och <b>Lastkombination 4</b> för dimensionering av geotekniska laster.<br><br>
         <b>Permanent last:</b> inkluderar egenvikt och andra permanenta laster.<br>
         <b>Variabel last:</b> inkluderar laster som kan variera, t.ex. is och våg-last.<br>
-        """,
-        unsafe_allow_html=True
+        """
+    , unsafe_allow_html=True
     )
 
     VEd_LK3 = 0.9 * Gk_tot  # gynnsam vertikal last utan gamma_d
