@@ -326,30 +326,32 @@ with st.container():
    # Lägg till detta i slutet av din col_res-block, efter allt annat
 
 st.subheader("Stjälpningskontroll")
-
 st.markdown("Lastexcentriciteten beräknas enligt formeln:")
 
-col_formula, col_calc = st.columns([1, 2])
+col_formula, col_calc = st.columns([1, 3])
 
 with col_formula:
-    # Tar bort formeln som du inte ville visa
+    st.latex(r"e = \frac{M_d}{V_d}")
 
 with col_calc:
-    Md_val = MEd_LK4  # Överliggande moment
-    Vd_val = VEd_LK4  # Vertikal last
+    Md_val = MEd_LK4
+    Vd_val = VEd_LK4
     e_val = Md_val / Vd_val if Vd_val != 0 else 0
-    r_val = D_b / 2
 
-    st.markdown(f"""
-    $$\\begin{{aligned}}
-    e &= \\frac{{M_d}}{{V_d}} = \\frac{{{Md_val:.2f} \\, \\mathrm{{kNm}}}}{{{Vd_val:.2f} \\, \\mathrm{{kN}}}} = {e_val:.2f} \\, \\mathrm{{m}} \\\\
-    r &= \\frac{{D_b}}{{2}} = \\frac{{{D_b:.2f} \\, \\mathrm{{m}}}}{{2}} = {r_val:.2f} \\, \\mathrm{{m}} \\\\
-    \\text{{Stjälpningskriteriet är}} &:\\quad e < r
-    \\end{{aligned}}$$
-    """, unsafe_allow_html=True)
+    st.markdown(
+        f"""$$
+        e = \\frac{{{Md_val:.2f} \\, \\mathrm{{kNm}}}}{{{Vd_val:.2f} \\, \\mathrm{{kN}}}} = {e_val:.2f} \\, \\mathrm{{m}}
+        $$"""
+    )
+    st.markdown(
+        f"""$$
+        r = \\frac{{D_b}}{{2}} = \\frac{{{D_b:.2f}}}{{2}} = {D_b/2:.2f} \\, \\mathrm{{m}}
+        $$"""
+    )
 
-    if e_val > r_val:
-        st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
+    if e_val > D_b / 2:
+        st.warning("Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
     else:
-        st.success("✅ Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
+        st.success("Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
+
 
