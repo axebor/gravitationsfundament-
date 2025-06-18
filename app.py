@@ -325,31 +325,25 @@ with st.container():
         
    # Lägg till detta i slutet av din col_res-block, efter allt annat
 
+Md_val = MEd_LK4
+Vd_val = VEd_LK4
+e_val = Md_val / Vd_val if Vd_val != 0 else 0
+Db_val = D_b
+
 st.subheader("Stjälpningskontroll")
 st.markdown("Lastexcentriciteten beräknas enligt formeln:")
 
-col_formula, col_calc = st.columns([1, 3])
+st.latex(rf"""
+\begin{{align*}}
+e &= \frac{{M_d}}{{V_d}} \\
+  &= \frac{{{Md_val:.2f} \, \mathrm{{kNm}}}}{{{Vd_val:.2f} \, \mathrm{{kN}}}} \\
+  &= {e_val:.2f} \, \mathrm{{m}} \\
+\\
+r &= \frac{{D_b}}{{2}} = \frac{{{Db_val:.2f}}}{{2}} = {Db_val/2:.2f} \, \mathrm{{m}} \\
+\end{{align*}}
+""")
 
-with col_formula:
-    st.latex(r"e = \frac{M_d}{V_d}")
-
-with col_calc:
-    Md_val = MEd_LK4
-    Vd_val = VEd_LK4
-    e_val = Md_val / Vd_val if Vd_val != 0 else 0
-
-    # Visa stegvis uträkning som vanlig text men med LaTeX-stil via st.latex och st.markdown utan $$ i markdown
-    st.markdown(
-        f"$$e = \\frac{{{Md_val:.2f}\\,\\mathrm{{kNm}}}}{{{Vd_val:.2f}\\,\\mathrm{{kN}}}} = {e_val:.2f}\\,\\mathrm{{m}}$$",
-        unsafe_allow_html=True
-    )
-    st.markdown(
-        f"$$r = \\frac{{D_b}}{{2}} = \\frac{{{D_b:.2f}}}{{2}} = {D_b / 2:.2f}\\,\\mathrm{{m}}$$",
-        unsafe_allow_html=True
-    )
-
-    if e_val > D_b / 2:
-        st.warning("Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
-    else:
-        st.success("Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
-
+if e_val > Db_val / 2:
+    st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
+else:
+    st.success("✅ Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
