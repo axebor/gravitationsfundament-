@@ -290,7 +290,15 @@ with col_out:
         df_moment = pd.DataFrame({
             "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
         }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
-        st.table(df_moment.style.format("{:.1f}"))
+
+        styled_df_moment = df_moment.style.format("{:.1f}").set_table_styles([
+            {'selector': 'th.col0', 'props': [('white-space', 'nowrap'), ('min-width', '200px')]},
+            {'selector': 'td.col0', 'props': [('white-space', 'nowrap')]},
+            {'selector': 'th.col1', 'props': [('white-space', 'nowrap'), ('min-width', '80px')]},
+            {'selector': 'td.col1', 'props': [('white-space', 'nowrap')]}
+        ])
+        st.table(styled_df_moment)
+
 
 with col_res:
     st.header("Resultat")
