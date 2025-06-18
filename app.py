@@ -275,24 +275,34 @@ with col_res:
     M_Q1 = Qk_H1 * z_Q1
     M_Q2 = Qk_H2 * z_Q2
 
+    def render_latex_table(df, value_col_name):
+        html = '<table border="1" class="dataframe" style="border-collapse: collapse;">'
+        html += "<thead><tr><th></th><th>{}</th></tr></thead>".format(value_col_name)
+        html += "<tbody>"
+        for idx, val in zip(df.index, df.iloc[:, 0]):
+            html += f'<tr><td style="white-space: nowrap;">$$ {idx} $$</td><td style="text-align: right;">{val:.1f}</td></tr>'
+        html += "</tbody></table>"
+        return html
+
     col1_table = pd.DataFrame({
         "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
-    }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
+    }, index=[r"G_{k,b} \text{ (Bottenplatta)}", r"G_{k,s} \text{ (Skaft)}", r"G_{k,\mathrm{övrigt}}", r"G_{k,\mathrm{tot}}"])
 
     col2_table = pd.DataFrame({
         "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
-    }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
+    }, index=[r"M_{Q1} = Q_{k,H1} \cdot z_{Q1}", r"M_{Q2} = Q_{k,H2} \cdot z_{Q2}", r"M_{\mathrm{tot}}"])
 
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([1, 1])
 
     with col1:
         st.markdown("### Permanenta laster")
-        st.dataframe(col1_table.style.format("{:.1f}"), use_container_width=True)
+        st.markdown(render_latex_table(col1_table, "Värde (kN)"), unsafe_allow_html=True)
 
     with col2:
         st.markdown("### Variabla laster")
-        st.dataframe(col2_table.style.format("{:.1f}"), use_container_width=True)
+        st.markdown(render_latex_table(col2_table, "Moment (kNm)"), unsafe_allow_html=True)
 
+    # Fortsätt med tidigare lastkombinationer här, t.ex.:
     st.markdown("### Lastkombinationer enligt SS-EN 1990 & BFS 2024:6")
 
     st.markdown(
@@ -323,4 +333,3 @@ with col_res:
     """
 
     st.markdown(lastkombination_md)
-
