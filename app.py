@@ -40,8 +40,8 @@ zQ2_x_offset = 0.9
 col_in, col_out = st.columns([1, 1])
 
 with col_in:
-    st.header("1. Indata")
-    st.subheader("1.1 Geometri")
+    st.header("Indata")
+    st.subheader("Geometri")
 
     st.markdown("**Bottenplatta**")
     col_b1, col_b2 = st.columns(2)
@@ -66,7 +66,7 @@ with col_in:
         else:
             z_niva_str = None
 
-    st.subheader("1.2 Laster")
+    st.subheader("Laster")
 
     sk_col1, sk_col2 = st.columns([1, 1])
     with sk_col1:
@@ -122,8 +122,6 @@ with col_in:
         st.stop()
 
 with col_out:
-    st.header("2. Figur")
-
     fig, ax = plt.subplots(figsize=(8, 8))
     max_diameter = max(D_b, D_s)
 
@@ -243,8 +241,8 @@ with col_out:
 
     st.pyplot(fig, use_container_width=True)
 
-# Resultat med full bredd under
-st.header("3. Resultat")
+# Resultat över hela bredden
+st.header("Resultat")
 
 pi = np.pi
 
@@ -269,60 +267,61 @@ vikt_tot = vikt_ovan + vikt_under
 
 Gk_b = (ovan_vatten_botten * 25) + (under_vatten_botten * 15)
 Gk_s = (ovan_vatten_skaft * 25) + (under_vatten_skaft * 15)
-Gk_ovr = float(Gk_ovr_str)
 Gk_tot = Gk_b + Gk_s + Gk_ovr
 
 M_Q1 = Qk_H1 * z_Q1
 M_Q2 = Qk_H2 * z_Q2
 
-st.markdown("### Permanenta laster")
-df_vertikala = pd.DataFrame({
-    "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
-}, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
-st.table(df_vertikala.style.format("{:.1f}"))
+# Skapa två breda kolumner för tabeller och lastkombination
+col_vertikala, col_moment, col_lastkomb = st.columns([1, 1, 1])
 
-st.markdown("### Variabla laster")
-df_moment = pd.DataFrame({
-    "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
-}, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
-st.table(df_moment.style.format("{:.1f}"))
+with col_vertikala:
+    st.subheader("Permanenta laster")
+    df_vertikala = pd.DataFrame({
+        "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
+    }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
+    st.table(df_vertikala.style.format("{:.1f}"))
 
-st.markdown("### Lastkombinationer enligt SS-EN 1990 & BFS 2024:6")
+with col_moment:
+    st.subheader("Variabla laster")
+    df_moment = pd.DataFrame({
+        "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
+    }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
+    st.table(df_moment.style.format("{:.1f}"))
 
-st.markdown(
+with col_lastkomb:
+    st.subheader("Lastkombinationer enligt SS-EN 1990 & BFS 2024:6")
+    st.markdown(
+        """
+        Kombination av laster görs enligt SS-EN 1990 samt de svenska reglerna i BFS 2024:6.<br>
+        I denna app används <b>Lastkombination 3</b> för kontroll av statisk jämvikt och <b>Lastkombination 4</b> för dimensionering av geotekniska laster.<br><br>
+        <b>Permanent last:</b> inkluderar egenvikt och andra permanenta laster.<br>
+        <b>Variabel last:</b> inkluderar laster som kan variera, t.ex. is och våg-last.<br>
+        """
+    , unsafe_allow_html=True
+    )
+
+    VEd_LK3 = 0.9 * Gk_tot  # gynnsam vertikal last utan gamma_d
+    VEd_LK4 = max(1.1 * gamma_d * Gk_tot, Gk_tot)
+
+    MEd_LK3 = gamma_d * (1.5 * M_Q1 + 1.5 * psi_ovr * M_Q2)
+    MEd_LK4 = gamma_d * (1.4 * M_Q1 + 1.4 * psi_ovr * M_Q2)
+
+    lastkombination_md = f"""
+    | Parameter                               | Lastkombination 3 (Jämvikt)         | Lastkombination 4 (Geoteknisk)       |
+    |---------------------------------------|------------------------------------|--------------------------------------|
+    | Permanent last, ogynnsam               | $1.10$                             | $1.10 \\times \\gamma_d$              |
+    | Permanent last, gynnsam                | $0.90$                             | $1.00$                              |
+    | Variabel last, ogynnsam huvudlast     | $1.50 \\times \\gamma_d$           | $1.40 \\times \\gamma_d$              |
+    | Variabel last, ogynnsam övriga laster | $1.50 \\times \\gamma_d \\times \\psi_0$ | $1.40 \\times \\gamma_d \\times \\psi_0$ |
+    | $V_{{Ed}}$                              | {VEd_LK3:.1f} kN                   | {VEd_LK4:.1f} kN                     |
+    | $M_{{Ed}}$                              | {MEd_LK3:.1f} kNm                  | {MEd_LK4:.1f} kNm                    |
     """
-    Kombination av laster görs enligt SS-EN 1990 samt de svenska reglerna i BFS 2024:6.<br>
-    I denna app används <b>Lastkombination 3</b> för kontroll av statisk jämvikt och <b>Lastkombination 4</b> för dimensionering av geotekniska laster.<br><br>
-    <b>Permanent last:</b> inkluderar egenvikt och andra permanenta laster.<br>
-    <b>Variabel last:</b> inkluderar laster som kan variera, t.ex. is och våg-last.<br>
-    """
-, unsafe_allow_html=True
-)
 
-# Beräkning av VEd och MEd för Lastkombination 3 och 4
+    st.markdown(lastkombination_md)
 
-VEd_LK3 = 0.9 * Gk_tot  # gynnsam vertikal last utan gamma_d
-VEd_LK4 = max(1.1 * gamma_d * Gk_tot, Gk_tot)
-
-MEd_LK3 = gamma_d * (1.5 * M_Q1 + 1.5 * psi_ovr * M_Q2)
-MEd_LK4 = gamma_d * (1.4 * M_Q1 + 1.4 * psi_ovr * M_Q2)
-
-lastkombination_md = f"""
-| Parameter                               | Lastkombination 3 (Jämvikt)         | Lastkombination 4 (Geoteknisk)       |
-|---------------------------------------|------------------------------------|--------------------------------------|
-| Permanent last, ogynnsam               | $1.10$                             | $1.10 \\times \\gamma_d$              |
-| Permanent last, gynnsam                | $0.90$                             | $1.00$                              |
-| Variabel last, ogynnsam huvudlast     | $1.50 \\times \\gamma_d$           | $1.40 \\times \\gamma_d$              |
-| Variabel last, ogynnsam övriga laster | $1.50 \\times \\gamma_d \\times \\psi_0$ | $1.40 \\times \\gamma_d \\times \\psi_0$ |
-| $V_{{Ed}}$                              | {VEd_LK3:.1f} kN                   | {VEd_LK4:.1f} kN                     |
-| $M_{{Ed}}$                              | {MEd_LK3:.1f} kNm                  | {MEd_LK4:.1f} kNm                    |
-"""
-
-st.markdown(lastkombination_md)
-
-# Stjälpningskontroll
-
-st.subheader("3.4 Stjälpningskontroll")
+# Stjälpningskontroll längst ned under resultatdelen
+st.subheader("Stjälpningskontroll")
 
 Md = MEd_LK4
 Vd = VEd_LK4
@@ -330,7 +329,7 @@ r = D_b / 2
 e = Md / Vd if Vd != 0 else float('inf')
 
 st.markdown(r"""
-Lastexcentriciteten beräknas som test:
+Lastexcentriciteten beräknas som:
 """)
 st.latex(r"e = \frac{M_d}{V_d}")
 
@@ -339,7 +338,7 @@ Där:
 - $M_d = {Md:.1f} \, \mathrm{{kNm}}$
 - $V_d = {Vd:.1f} \, \mathrm{{kN}}$
 - Diameter bottenplatta $D_b = {D_b:.1f} \, m$
-- Radie bottenplatta $r = D_b / 2 = {r:.2f} \, m$
+- Radie bottenplatta $r = \frac{{D_b}}{2} = {r:.2f} \, m$
 """)
 
 st.markdown(r"""
