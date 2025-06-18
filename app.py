@@ -337,30 +337,23 @@ Md_val = MEd_LK3  # Lastkombination 3
 Vd_val = VEd_LK3
 e_val = Md_val / Vd_val if Vd_val != 0 else 0
 
-# Två kolumner: en smal för indragning och en bredare för innehållet
-indent_col, content_col = st.columns([0.2, 4])
+latex_html = f"""
+<div style='margin-left: 2em; font-size: 18px; font-family: "serif"; line-height: 1.4;'>
+<p>Lastexcentriciteten beräknas enligt formeln och numeriskt:</p>
 
-with indent_col:
-    st.write("")  # Tom kolumn för indragning
+<p>
+$$ e = \\frac{{M_d}}{{V_d}} = \\frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}} = {e_val:.2f} \\, m $$
+</p>
 
-with content_col:
-    st.markdown(
-        rf"""
-        $$ 
-        e = \frac{{M_d}}{{V_d}} = \frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}} = {e_val:.2f} \, m
-        $$
-        """
-    )
-    st.markdown(
-        rf"""
-        $$ 
-        r = \frac{{D_b}}{{2}} = \frac{{{D_b:.2f}}}{{2}} = {D_b/2:.2f} \, m
-        $$
-        """
-    )
+<p>
+$$ r = \\frac{{D_b}}{{2}} = \\frac{{{D_b:.2f}}}{{2}} = {D_b/2:.2f} \\, m $$
+</p>
+</div>
+"""
+
+st.markdown(latex_html, unsafe_allow_html=True)
 
 if e_val > D_b / 2:
     st.warning("Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
 else:
     st.success("Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
-
