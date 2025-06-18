@@ -292,7 +292,7 @@ with col_out:
         }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
 
         styled_df_moment = df_moment.style.format("{:.1f}").set_table_styles([
-            {'selector': 'th.col0', 'props': [('white-space', 'nowrap'), ('min-width', '60px')]},
+            {'selector': 'th.col0', 'props': [('white-space', 'nowrap'), ('min-width', '20px')]},
             {'selector': 'td.col0', 'props': [('white-space', 'nowrap')]},
             {'selector': 'th.col1', 'props': [('white-space', 'nowrap'), ('min-width', '300px')]},
             {'selector': 'td.col1', 'props': [('white-space', 'nowrap')]}
