@@ -323,42 +323,47 @@ with st.container():
         """
         st.markdown(lastkombination_md)
         
-# Värden för stjälpningskontroll
+# --- Stjälpningskontroll ---
+
 Md_val = MEd_LK4
 Vd_val = VEd_LK4
 e_val = Md_val / Vd_val if Vd_val != 0 else 0
 Db_val = D_b
 
-# CSS för vänsterjustering av markdown och latex
-st.markdown(
-    """
-    <style>
-    .stMarkdown, .stLatex {
-        text-align: left !important;
-        margin-left: 0 !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# Container för stjälpningskontrollen
+with st.container():
+    st.subheader("Stjälpningskontroll")
+    st.markdown("Lastexcentriciteten beräknas enligt formeln:")
 
-# Rubrik och text
-st.subheader("Stjälpningskontroll")
-st.markdown("Lastexcentriciteten beräknas enligt formeln:")
+    # Kolumnlayout för formel och uträkning bredvid varandra, vänsterjusterade
+    col_formula, col_calc = st.columns([1, 3])
 
-# Latexformeln med värden och beräkning
-st.latex(rf"""
-\begin{{align*}}
-e &= \frac{{M_d}}{{V_d}} \\
-  &= \frac{{{Md_val:.2f} \text{{ kNm}}}}{{{Vd_val:.2f} \text{{ kN}}}} \\
-  &= {e_val:.2f} \text{{ m}} \\
-\\
-r &= \frac{{D_b}}{{2}} = \frac{{{Db_val:.2f}}}{{2}} = {Db_val/2:.2f} \text{{ m}} \\
-\end{{align*}}
-""")
+    with col_formula:
+        st.latex(r"""
+        \begin{aligned}
+        e &= \frac{M_d}{V_d} \\
+          &= \frac{ }{ } \\
+          &= \\
+        r &= \frac{D_b}{2}
+        \end{aligned}
+        """)
 
-# Villkor med alert
-if e_val > Db_val / 2:
-    st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
-else:
-    st.success("✅ Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
+    with col_calc:
+        st.markdown(
+            rf"""
+            <div style="text-align:left; font-size:16px; line-height:1.4;">
+                &nbsp;&nbsp;&nbsp;&nbsp;= {Md_val:.2f} kNm<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {Vd_val:.2f} kN<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;= {e_val:.2f} m<br><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;= \(\frac{{{Db_val:.2f}}}{{2}}\) = {Db_val/2:.2f} m
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    # Statusmeddelande
+    if e_val > Db_val / 2:
+        st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
+    else:
+        st.success("✅ Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
+
