@@ -36,7 +36,7 @@ pil_längd_extra_vert = 1.5
 zQ1_x_offset = 1.2
 zQ2_x_offset = 0.9
 
-col_in, col_out, col_res = st.columns([1, 1, 1.2])
+col_in, col_out, col_res = st.columns([1, 1, 1])
 
 with col_in:
     st.header("1. Indata")
@@ -82,6 +82,7 @@ with col_in:
             unsafe_allow_html=True
         )
 
+    # Horisontella laster och lastkombinationsfaktor med angreppsplan på samma rad
     col_q1, col_psi, col_zq1 = st.columns([1, 1, 1])
     with col_q1:
         Qk_H1_str = st.text_input(r"Huvudlast horisontell $Q_{k,H1}$ (kN)", value="0.0")
@@ -266,36 +267,3 @@ with col_out:
             {'selector': 'td.col1', 'props': [('white-space', 'nowrap')]}
         ])
         st.table(styled_df_moment)
-
-with col_res:
-    st.header("4. Resultat")
-
-    st.markdown(
-        """
-        Kombination av laster görs enligt SS-EN 1990 samt de svenska reglerna i BFS 2024:6.<br>
-        I denna app används <b>Lastkombination 3</b> för kontroll av statisk jämvikt och <b>Lastkombination 4</b> för dimensionering av geotekniska laster.<br><br>
-        <b>Permanent last:</b> inkluderar egenvikt och andra permanenta laster.<br>
-        <b>Variabel last:</b> inkluderar laster som kan variera, t.ex. is och våg-last.<br>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # Beräkning av VEd och MEd för Lastkombination 3 och 4
-
-    VEd_LK3 = 0.9 * Gk_tot  # gynnsam vertikal last utan gamma_d
-    VEd_LK4 = max(1.1 * gamma_d * Gk_tot, Gk_tot)
-
-    MEd_LK3 = gamma_d * (1.5 * M_Q1 + 1.5 * psi_ovr * M_Q2)
-    MEd_LK4 = gamma_d * (1.4 * M_Q1 + 1.4 * psi_ovr * M_Q2)
-
-    lastkombination_md = f"""
-    | Parameter                               | Lastkombination 3 (Jämvikt)         | Lastkombination 4 (Geoteknisk)       |
-    |---------------------------------------|------------------------------------|--------------------------------------|
-    | Permanent last, ogynnsam               | $1.10$                             | $1.10 \\times \\gamma_d$              |
-    | Permanent last, gynnsam                | $0.90$                             | $1.00$                              |
-    | Variabel last, ogynnsam huvudlast     | $1.50 \\times \\gamma_d$           | $1.40 \\times \\gamma_d$              |
-    | Variabel last, ogynnsam övriga laster | $1.50 \\times \\gamma_d \\times \\psi_0$ | $1.40 \\times \\gamma_d \\times \\psi_0$ |
-    | $V_{Ed}$                              | {VEd_LK3:.1f} kN                   | {VEd_LK4:.1f} kN                     |
-    | $M_{Ed}$                              | {MEd_LK3:.1f} kNm                  | {MEd_LK4:.1f} kNm                    |
-    """
-    st.markdown(lastkombination_md)
