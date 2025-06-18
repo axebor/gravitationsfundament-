@@ -325,23 +325,23 @@ with st.container():
         
    # Lägg till detta i slutet av din col_res-block, efter allt annat
 
-st.subheader("Stjälpningskontroll")
-st.markdown("Lastexcentriciteten beräknas som test:")
+  st.subheader("Stjälpningskontroll")
+    st.markdown("Lastexcentriciteten beräknas som:")
 
-col_formula, col_calc = st.columns([1, 2])
+    col_formula, col_calc = st.columns([1, 2])
 
-with col_formula:
-    st.latex(r"e = \frac{M_d}{V_d}")
+    with col_formula:
+        st.latex(r"e = \frac{M_d}{V_d}")
 
-with col_calc:
-    Md_val = MEd_LK4
-    Vd_val = VEd_LK4
-    e_val = Md_val / Vd_val if Vd_val != 0 else 0
+    with col_calc:
+        Md_val = MEd_LK4
+        Vd_val = VEd_LK4
+        e_val = Md_val / Vd_val if Vd_val != 0 else 0
 
-    st.markdown(f"$$e = \\frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}} = {e_val:.2f}\\,m$$")
-    st.markdown(f"Bottendelens radie: **r = {D_b/2:.2f} m**")
+        st.markdown(f"$$e = \\frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}} = {e_val:.2f}\\,m$$")
+        st.markdown(f"Bottendelens radie: **r = {D_b/2:.2f} m**")
 
-    if e_val > D_b / 2:
-        st.warning("Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
-    else:
-        st.success("Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
+        if e_val > D_b / 2:
+            st.warning("Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
+        else:
+            st.success("Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
