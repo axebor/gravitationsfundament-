@@ -2,13 +2,10 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import io
-from fpdf import FPDF
-import datetime
 
 st.set_page_config(page_title="Gravitationsfundament", layout="wide")
 
-# --- CSS för layout ---
+# CSS för lika breda inputfält + vertikala linjer mellan kolumner (ej indata-kolumn)
 st.markdown(
     """
     <style>
@@ -21,6 +18,7 @@ st.markdown(
     div[data-testid="stTextInput"][data-key="z_Q2"] > div > input {
         max-width: 150px;
     }
+    /* Vertikala linjer mellan kolumner - endast mellan mitt och höger */
     [data-testid="stColumns"] > div:nth-child(2) {
         border-right: 1px solid #cccccc;
         padding-right: 15px;
@@ -60,16 +58,16 @@ with col_in:
 
     col_chk, col_zv = st.columns(2)
     with col_chk:
-        fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=False)
+        fundament_i_vatten = st.checkbox("Fundament delvis i vatten", value=True)
     with col_zv:
         if fundament_i_vatten:
-            z_niva_str = st.text_input(r"$z_{v}$ (m) från underkant fundament", value="0.0", key="z_niva")
+            z_niva_str = st.text_input(r"$z_{v}$ (m) från underkant fundament", value="3.0", key="z_niva")
         else:
             z_niva_str = None
 
     st.subheader("Laster")
 
-    sk_col1, sk_col2, sk_col3 = st.columns([1, 1, 1])
+    sk_col1, sk_col2 = st.columns([1, 1])
     with sk_col1:
         säkerhetsklass_val = st.selectbox(
             "Välj säkerhetsklass",
@@ -83,26 +81,25 @@ with col_in:
             f'<div style="padding-top: 24px;">γ<sub>d</sub> = <b>{gamma_d:.2f}</b></div>',
             unsafe_allow_html=True
         )
-    with sk_col3:
-        psi_ovr = st.number_input("Lastkombinationsfaktor ψ₀ (övrig last)", min_value=0.0, max_value=1.0, value=1.0, step=0.05)
 
-    col_q1, col_psi1, col_zq1 = st.columns(3)
+    # Horisontella laster och lastkombinationsfaktor med angreppsplan på samma rad
+    col_q1, col_psi, col_zq1 = st.columns([1, 1, 1])
     with col_q1:
-        Qk_H1_str = st.text_input(r"Huvudlast horisontell $Q_{k,H1}$ (kN)", value="5.0")
-    with col_psi1:
-        st.write("—")  # Huvudlast har ingen ψ₀
+        Qk_H1_str = st.text_input(r"Huvudlast horisontell $Q_{k,H1}$ (kN)", value="0.0")
+    with col_psi:
+        st.markdown("")  # Ingen lastkombinationsfaktor för huvudlast
     with col_zq1:
         z_Q1_str = st.text_input(r"Angreppsplan $z_{Q1}$ (m)", value="0.0")
 
-    col_q2, col_psi2, col_zq2 = st.columns(3)
+    col_q2, col_psi2, col_zq2 = st.columns([1, 1, 1])
     with col_q2:
         Qk_H2_str = st.text_input(r"Övrig last horisontell $Q_{k,H2}$ (kN)", value="0.0")
     with col_psi2:
-        st.markdown(r"$\psi_0$")
+        psi_ovr = st.number_input("Lastkombinationsfaktor $\psi_0$", min_value=0.0, max_value=1.0, value=1.0, step=0.05)
     with col_zq2:
         z_Q2_str = st.text_input(r"Angreppsplan $z_{Q2}$ (m)", value="0.0", key="z_Q2")
 
-    Gk_ovr_str = st.text_input(r"Vertikal last $G_{k,\mathrm{övrigt}}$ (kN)", value="5.0")
+    Gk_ovr_str = st.text_input(r"Vertikal last $G_{k,\mathrm{övrigt}}$ (kN)", value="0.0")
 
     try:
         D_b = round(float(D_b_str), 1)
@@ -111,8 +108,8 @@ with col_in:
         H_s = round(float(H_s_str), 1)
 
         Qk_H1 = float(Qk_H1_str)
-        z_Q1 = round(float(z_Q1_str), 1)
         Qk_H2 = float(Qk_H2_str)
+        z_Q1 = round(float(z_Q1_str), 1)
         z_Q2 = round(float(z_Q2_str), 1)
         Gk_ovr = float(Gk_ovr_str)
 
@@ -151,6 +148,22 @@ with col_out:
     ax.plot([D_s / 2, D_s / 2], [H_b, H_b + H_s], 'k-')
     ax.plot([-D_s / 2, D_s / 2], [H_b + H_s, H_b + H_s], 'k-')
 
+    ax.annotate("", xy=(D_b / 2, -0.5), xytext=(-D_b / 2, -0.5),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(0, -0.7, r"$D_b$", ha='center', va='top', fontsize=12)
+
+    ax.annotate("", xy=(D_s / 2, H_b + H_s + 0.5), xytext=(-D_s / 2, H_b + H_s + 0.5),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(0, H_b + H_s + 0.7, r"$D_s$", ha='center', va='bottom', fontsize=12)
+
+    ax.annotate("", xy=(D_b / 2 + 0.5, 0), xytext=(D_b / 2 + 0.5, H_b),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(D_b / 2 + 0.6, H_b / 2, r"$H_b$", va='center', fontsize=12)
+
+    ax.annotate("", xy=(D_s / 2 + 0.5, H_b), xytext=(D_s / 2 + 0.5, H_b + H_s),
+                arrowprops=dict(arrowstyle="<->"))
+    ax.text(D_s / 2 + 0.6, H_b + H_s / 2, r"$H_s$", va='center', fontsize=12)
+
     if Qk_H1 > 0:
         ax.annotate(
             "",
@@ -161,24 +174,42 @@ with col_out:
         ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ1_x_offset, z_Q1 + 0.3,
                 r"$Q_{k,H1}$", fontsize=14, color='red', ha='center')
 
+        ax.annotate(
+            "",
+            xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, 0),
+            xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ1_x_offset, z_Q1),
+            arrowprops=dict(arrowstyle="<->", color='red')
+        )
+        ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ1_x_offset, z_Q1 / 2,
+                r"$z_{Q1}$", va='center', fontsize=12, color='red')
+
     if Qk_H2 > 0:
         ax.annotate(
             "",
             xy=(-D_s / 2, z_Q2),
             xytext=(-D_s / 2 - pil_längd_extra, z_Q2),
-            arrowprops=dict(arrowstyle='->', color='orange', linewidth=3)
+            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
         )
         ax.text(-D_s / 2 - pil_längd_extra / 2 - zQ2_x_offset, z_Q2 + 0.3,
-                r"$Q_{k,H2}$", fontsize=14, color='orange', ha='center')
+                r"$Q_{k,H2}$", fontsize=14, color='red', ha='center')
+
+        ax.annotate(
+            "",
+            xy=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, 0),
+            xytext=(-D_s / 2 - pil_längd_extra - 0.3 - zQ2_x_offset, z_Q2),
+            arrowprops=dict(arrowstyle="<->", color='red')
+        )
+        ax.text(-D_s / 2 - pil_längd_extra - 0.1 - zQ2_x_offset, z_Q2 / 2,
+                r"$z_{Q2}$", va='center', fontsize=12, color='red')
 
     if Gk_ovr > 0:
         ax.annotate(
             "",
             xy=(0, 0),
             xytext=(0, pil_längd_extra_vert),
-            arrowprops=dict(arrowstyle='->', color='green', linewidth=3)
+            arrowprops=dict(arrowstyle='->', color='red', linewidth=3)
         )
-        ax.text(0, pil_längd_extra_vert + 0.3, r"$G_{k,\mathrm{övrigt}}$", fontsize=14, color='green', ha='center')
+        ax.text(0, pil_längd_extra_vert + 0.3, r"$G_{k,\mathrm{övrigt}}$", fontsize=14, color='red', ha='center')
 
     ax.fill_between(
         x=[-max_diameter - 1, max_diameter + 1],
@@ -186,7 +217,7 @@ with col_out:
         y2=0,
         color='#d2b48c', alpha=0.5
     )
-
+    
     ax.fill_between(
         x=[-D_b/2, D_b/2],
         y1=0,
@@ -194,7 +225,7 @@ with col_out:
         color='lightgrey',
         alpha=0.8
     )
-
+    
     ax.fill_between(
         x=[-D_s/2, D_s/2],
         y1=H_b,
@@ -202,7 +233,7 @@ with col_out:
         color='lightgrey',
         alpha=0.8
     )
-
+    
     max_offset = max(pil_längd_extra + max(zQ1_x_offset, zQ2_x_offset) + 1, 1.5)
     ax.set_xlim(-max_diameter - max_offset, max_diameter + max_offset)
 
@@ -243,7 +274,6 @@ with col_res:
 
     M_Q1 = Qk_H1 * z_Q1
     M_Q2 = Qk_H2 * z_Q2
-    M_tot = M_Q1 + M_Q2
 
     st.markdown("### Vertikala laster")
 
@@ -255,7 +285,7 @@ with col_res:
     st.markdown("### Moment vid fundamentets underkant")
 
     df_moment = pd.DataFrame({
-        "Moment (kNm)": [M_Q1, M_Q2, M_tot]
+        "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
     }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
     st.table(df_moment.style.format("{:.1f}"))
 
@@ -270,6 +300,8 @@ with col_res:
         """
     , unsafe_allow_html=True
     )
+
+    # Beräkning av VEd och MEd för Lastkombination 3 och 4
 
     VEd_LK3 = 0.9 * Gk_tot  # gynnsam vertikal last utan gamma_d
     VEd_LK4 = max(1.1 * gamma_d * Gk_tot, Gk_tot)
@@ -289,131 +321,3 @@ with col_res:
     """
 
     st.markdown(lastkombination_md)
-
-# --- Spara figur till PNG-buffer för PDF ---
-buf = io.BytesIO()
-fig.savefig(buf, format="png")
-buf.seek(0)
-
-# --- PDF-generator ---
-
-class PDFBerakning(FPDF):
-    def header(self):
-        pass
-    def footer(self):
-        self.set_y(-15)
-        self.set_font('Arial','I',8)
-        self.cell(0,10,f'Sida {self.page_no()}',0,0,'C')
-
-def skapa_pdf_rapport(projekt, beskrivning, datum,
-                      D_b, H_b, D_s, H_s,
-                      fundament_i_vatten, z_v,
-                      Qk_H1, z_Q1, Qk_H2, z_Q2,
-                      Gk_ovr, figur_bytes):
-    pi = np.pi
-    vol_bottenplatta = pi * (D_b / 2) ** 2 * H_b
-    vol_skaft = pi * (D_s / 2) ** 2 * H_s
-    if fundament_i_vatten and z_v is not None and z_v > 0:
-        under_vatten_botten = max(0, min(z_v, H_b)) * pi * (D_b / 2) ** 2
-        ovan_vatten_botten = vol_bottenplatta - under_vatten_botten
-        under_vatten_skaft = max(0, min(z_v - H_b, H_s)) * pi * (D_s / 2) ** 2
-        ovan_vatten_skaft = vol_skaft - under_vatten_skaft
-    else:
-        under_vatten_botten = 0
-        ovan_vatten_botten = vol_bottenplatta
-        under_vatten_skaft = 0
-        ovan_vatten_skaft = vol_skaft
-    vikt_ovan = (ovan_vatten_botten + ovan_vatten_skaft) * 25
-    vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
-    vikt_tot = vikt_ovan + vikt_under
-    Gk_b = (ovan_vatten_botten * 25) + (under_vatten_botten * 15)
-    Gk_s = (ovan_vatten_skaft * 25) + (under_vatten_skaft * 15)
-    M_Q1 = Qk_H1 * z_Q1
-    M_Q2 = Qk_H2 * z_Q2
-    M_tot = M_Q1 + M_Q2
-
-    pdf = PDFBerakning()
-    pdf.add_page()
-
-    pdf.set_fill_color(230,230,230)
-    pdf.rect(10,10,190,40,'F')
-    pdf.set_xy(15,15)
-    pdf.set_font("Arial","B",14)
-    pdf.cell(0,10,f"Projekt: {projekt}",ln=True)
-    pdf.set_font("Arial","",12)
-    pdf.cell(0,8,f"Beskrivning: {beskrivning}",ln=True)
-    pdf.cell(0,8,f"Datum: {datum}",ln=True)
-    pdf.ln(12)
-
-    pdf.set_font("Arial","B",16)
-    pdf.cell(0,10,"Beräkningar Gravitationsfundament",ln=True,align="C")
-    pdf.ln(6)
-
-    pdf.set_font("Arial","B",12)
-    pdf.cell(0,8,"Geometri:",ln=True)
-    pdf.set_font("Arial","",12)
-    pdf.cell(0,8,f"Bottenplatta: Diameter = {D_b:.2f} m, Höjd = {H_b:.2f} m",ln=True)
-    pdf.cell(0,8,f"Skaft: Diameter = {D_s:.2f} m, Höjd = {H_s:.2f} m",ln=True)
-    pdf.ln(4)
-
-    if fundament_i_vatten:
-        pdf.cell(0,8,f"Fundament delvis i vatten, vattennivå z_v = {z_v:.2f} m från underkant",ln=True)
-    else:
-        pdf.cell(0,8,"Fundament ej i vatten",ln=True)
-    pdf.ln(6)
-
-    pdf.set_font("Arial","B",12)
-    pdf.cell(0,8,"Laster:",ln=True)
-    pdf.set_font("Arial","",12)
-    pdf.cell(0,8,f"Huvudlast horisontell Q_k,H1 = {Qk_H1:.2f} kN vid z_Q1 = {z_Q1:.2f} m",ln=True)
-    pdf.cell(0,8,f"Övrig last horisontell Q_k,H2 = {Qk_H2:.2f} kN vid z_Q2 = {z_Q2:.2f} m",ln=True)
-    pdf.cell(0,8,f"Vertikal last G_k,övrigt = {Gk_ovr:.2f} kN",ln=True)
-    pdf.ln(6)
-
-    pdf.cell(0,8,"Figur av fundament och laster:",ln=True)
-    with open("fig_temp.png","wb") as f:
-        f.write(figur_bytes.getbuffer())
-    pdf.image("fig_temp.png", x=pdf.get_x(), y=pdf.get_y(), w=150)
-    pdf.ln(85)
-
-    pdf.set_font("Arial","B",12)
-    pdf.cell(0,8,"Volym och vikt:",ln=True)
-    pdf.set_font("Arial","",12)
-    pdf.cell(0,8,f"Volym bottenplatta = {vol_bottenplatta:.2f} m³",ln=True)
-    pdf.cell(0,8,f"Volym skaft = {vol_skaft:.2f} m³",ln=True)
-    pdf.cell(0,8,f"Vikt ovan vatten = {vikt_ovan:.2f} kN",ln=True)
-    pdf.cell(0,8,f"Vikt under vatten = {vikt_under:.2f} kN",ln=True)
-    pdf.cell(0,8,f"Total vikt = {vikt_tot:.2f} kN",ln=True)
-    pdf.ln(6)
-
-    pdf.set_font("Arial","B",12)
-    pdf.cell(0,8,"Moment:",ln=True)
-    pdf.set_font("Arial","",12)
-    pdf.cell(0,8,f"M_Q1 = {M_Q1:.2f} kNm (Huvudlast)",ln=True)
-    pdf.cell(0,8,f"M_Q2 = {M_Q2:.2f} kNm (Övrig last)",ln=True)
-    pdf.cell(0,8,f"Totalt moment M_tot = {M_tot:.2f} kNm",ln=True)
-
-    return pdf.output(dest='S').encode('latin1')
-
-# --- Projektinformation och PDF knapp ---
-st.markdown("---")
-st.header("Projektinformation för PDF-rapport")
-
-projekt = st.text_input("Projektnamn", value="Projekt X")
-beskrivning = st.text_area("Beskrivning av projektet", value="Beskrivning av beräkningar för fundament.")
-datum = st.date_input("Datum", value=datetime.date.today())
-
-if st.button("Generera och ladda ner PDF-rapport"):
-    pdf_bytes = skapa_pdf_rapport(
-        projekt, beskrivning, datum.strftime("%Y-%m-%d"),
-        D_b, H_b, D_s, H_s,
-        fundament_i_vatten, z_v,
-        Qk_H1, z_Q1, Qk_H2, z_Q2,
-        Gk_ovr, buf
-    )
-    st.download_button(
-        label="Ladda ner PDF",
-        data=pdf_bytes,
-        file_name="berakningsrapport.pdf",
-        mime="application/pdf"
-    )
