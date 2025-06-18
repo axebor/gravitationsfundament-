@@ -279,14 +279,14 @@ with col_out:
     col_vert, col_moment = st.columns(2)
 
     with col_vert:
-        st.subheader("Vertikala laster")
+        st.subheader("Permanenta laster")
         df_vertikala = pd.DataFrame({
             "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
         }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
         st.table(df_vertikala.style.format("{:.1f}"))
 
     with col_moment:
-        st.subheader("Moment vid fundamentets underkant")
+        st.subheader("Variabla laster")
         df_moment = pd.DataFrame({
             "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
         }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
