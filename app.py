@@ -323,14 +323,13 @@ with st.container():
         """
         st.markdown(lastkombination_md)
         
-   # Lägg till detta i slutet av din col_res-block, efter allt annat
-
+# Värden för stjälpningskontroll
 Md_val = MEd_LK4
 Vd_val = VEd_LK4
 e_val = Md_val / Vd_val if Vd_val != 0 else 0
 Db_val = D_b
 
-# CSS för vänsterjustering av allt i detta block
+# CSS för vänsterjustering av markdown och latex
 st.markdown(
     """
     <style>
@@ -343,19 +342,22 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# Rubrik och text
 st.subheader("Stjälpningskontroll")
 st.markdown("Lastexcentriciteten beräknas enligt formeln:")
 
+# Latexformeln med värden och beräkning
 st.latex(rf"""
 \begin{{align*}}
 e &= \frac{{M_d}}{{V_d}} \\
-  &= \frac{{{Md_val:.2f} \, \mathrm{{kNm}}}}{{{Vd_val:.2f} \, \mathrm{{kN}}}} \\
-  &= {e_val:.2f} \, \mathrm{{m}} \\
+  &= \frac{{{Md_val:.2f} \text{{ kNm}}}}{{{Vd_val:.2f} \text{{ kN}}}} \\
+  &= {e_val:.2f} \text{{ m}} \\
 \\
-r &= \frac{{D_b}}{{2}} = \frac{{{Db_val:.2f}}}{{2}} = {Db_val/2:.2f} \, \mathrm{{m}} \\
+r &= \frac{{D_b}}{{2}} = \frac{{{Db_val:.2f}}}{{2}} = {Db_val/2:.2f} \text{{ m}} \\
 \end{{align*}}
 """)
 
+# Villkor med alert
 if e_val > Db_val / 2:
     st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
 else:
