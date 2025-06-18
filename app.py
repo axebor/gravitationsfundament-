@@ -330,7 +330,7 @@ r = D_b / 2
 e = Md / Vd if Vd != 0 else float('inf')
 
 st.markdown(r"""
-Lastexcentriciteten beräknas som:
+Lastexcentriciteten beräknas som test:
 """)
 st.latex(r"e = \frac{M_d}{V_d}")
 
