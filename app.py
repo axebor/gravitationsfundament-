@@ -275,44 +275,23 @@ with col_res:
     M_Q1 = Qk_H1 * z_Q1
     M_Q2 = Qk_H2 * z_Q2
 
-    st.markdown("### Permanenta laster")
-
     col1_table = pd.DataFrame({
         "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
     }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
-
-    st.markdown("### Variabla laster")
 
     col2_table = pd.DataFrame({
         "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
     }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
 
-    col1_html = (
-        col1_table.style
-        .format("{:.1f}")
-        .set_table_styles([{'selector': 'table', 'props': [('width', '100%')]}])
-        .render()
-    )
-    col2_html = (
-        col2_table.style
-        .format("{:.1f}")
-        .set_table_styles([{'selector': 'table', 'props': [('width', '100%')]}])
-        .render()
-    )
+    col1, col2 = st.columns(2)
 
-    st.markdown(
-        f"""
-        <div style="display: flex; gap: 2rem;">
-            <div style="flex: 1;">
-                {col1_html}
-            </div>
-            <div style="flex: 1;">
-                {col2_html}
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    with col1:
+        st.markdown("### Permanenta laster")
+        st.dataframe(col1_table.style.format("{:.1f}"), use_container_width=True)
+
+    with col2:
+        st.markdown("### Variabla laster")
+        st.dataframe(col2_table.style.format("{:.1f}"), use_container_width=True)
 
     st.markdown("### Lastkombinationer enligt SS-EN 1990 & BFS 2024:6")
 
