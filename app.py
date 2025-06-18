@@ -335,11 +335,12 @@ st.subheader("Stjälpningskontroll")
 st.markdown("Lastexcentriciteten beräknas enligt formeln och numeriskt:")
 
 calc_line = (
-    f"$e = \\frac{{M_d}}{{V_d}}$  →  "
-    f"$e = \\frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}}$  →  "
-    f"$e = {e_val:.2f} \\text{{ m}}$"
+    r"$\textstyle e = \frac{M_d}{V_d}$"  # Formeln i normal textstorlek
+    r"\quad \Longrightarrow \quad"
+    f"$\textstyle e = \\frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}}$"
+    r"\quad \Longrightarrow \quad"
+    f"$\textstyle e = {e_val:.2f} \text{{ m}}$"
 )
-
 st.markdown(calc_line)
 
 st.markdown(f"Bottendelens radie:  $r = \\frac{{D_b}}{{2}} = \\frac{{{Db_val:.2f}}}{{2}} = {r_val:.2f} \\text{{ m}}$")
