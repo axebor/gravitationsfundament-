@@ -39,8 +39,8 @@ zQ2_x_offset = 0.9
 col_in, col_out, col_res = st.columns([1, 1, 1])
 
 with col_in:
-    st.header("1. Indata")
-    st.subheader("1.1 Geometri")
+    st.header("Indata")
+    st.subheader("Geometri")
 
     st.markdown("**Bottenplatta**")
     col_b1, col_b2 = st.columns(2)
@@ -65,7 +65,7 @@ with col_in:
         else:
             z_niva_str = None
 
-    st.subheader("1.2 Laster")
+    st.subheader("Laster")
 
     sk_col1, sk_col2 = st.columns([1, 1])
     with sk_col1:
@@ -122,7 +122,7 @@ with col_in:
         st.stop()
 
 with col_out:
-    st.header("2. Figur")
+    st.header("Figur")
 
     fig, ax = plt.subplots(figsize=(8, 8))
     max_diameter = max(D_b, D_s)
@@ -243,27 +243,81 @@ with col_out:
 
     st.pyplot(fig, use_container_width=True)
 
-    st.header("3. Lastsammanställning")
+with col_res:
+    st.header("Resultat")
 
-    col_vert, col_moment = st.columns(2)
+    pi = np.pi
 
-    with col_vert:
-        st.subheader("3.1 Permanenta laster")
-        df_vertikala = pd.DataFrame({
-            "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
-        }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
-        st.table(df_vertikala.style.format("{:.1f}"))
+    vol_bottenplatta = pi * (D_b / 2) ** 2 * H_b
+    vol_skaft = pi * (D_s / 2) ** 2 * H_s
 
-    with col_moment:
-        st.subheader("3.2 Variabla laster")
-        df_moment = pd.DataFrame({
-            "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
-        }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
+    if fundament_i_vatten and z_v is not None and z_v > 0:
+        under_vatten_botten = max(0, min(z_v, H_b)) * pi * (D_b / 2) ** 2
+        ovan_vatten_botten = vol_bottenplatta - under_vatten_botten
 
-        styled_df_moment = df_moment.style.format("{:.1f}").set_table_styles([
-            {'selector': 'th.col0', 'props': [('white-space', 'nowrap'), ('min-width', '200px')]},
-            {'selector': 'td.col0', 'props': [('white-space', 'nowrap')]},
-            {'selector': 'th.col1', 'props': [('white-space', 'nowrap'), ('min-width', '80px')]},
-            {'selector': 'td.col1', 'props': [('white-space', 'nowrap')]}
-        ])
-        st.table(styled_df_moment)
+        under_vatten_skaft = max(0, min(z_v - H_b, H_s)) * pi * (D_s / 2) ** 2
+        ovan_vatten_skaft = vol_skaft - under_vatten_skaft
+    else:
+        under_vatten_botten = 0
+        ovan_vatten_botten = vol_bottenplatta
+        under_vatten_skaft = 0
+        ovan_vatten_skaft = vol_skaft
+
+    vikt_ovan = (ovan_vatten_botten + ovan_vatten_skaft) * 25
+    vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
+    vikt_tot = vikt_ovan + vikt_under
+
+    Gk_b = (ovan_vatten_botten * 25) + (under_vatten_botten * 15)
+    Gk_s = (ovan_vatten_skaft * 25) + (under_vatten_skaft * 15)
+    Gk_ovr = float(Gk_ovr_str)
+    Gk_tot = Gk_b + Gk_s + Gk_ovr
+
+    M_Q1 = Qk_H1 * z_Q1
+    M_Q2 = Qk_H2 * z_Q2
+
+    st.markdown("### Vertikala laster")
+
+    df_vertikala = pd.DataFrame({
+        "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
+    }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
+    st.table(df_vertikala.style.format("{:.1f}"))
+
+    st.markdown("### Moment vid fundamentets underkant")
+
+    df_moment = pd.DataFrame({
+        "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
+    }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
+    st.table(df_moment.style.format("{:.1f}"))
+
+    st.markdown("### Lastkombinationer enligt SS-EN 1990 & BFS 2024:6")
+
+    st.markdown(
+        """
+        Kombination av laster görs enligt SS-EN 1990 samt de svenska reglerna i BFS 2024:6.<br>
+        I denna app används <b>Lastkombination 3</b> för kontroll av statisk jämvikt och <b>Lastkombination 4</b> för dimensionering av geotekniska laster.<br><br>
+        <b>Permanent last:</b> inkluderar egenvikt och andra permanenta laster.<br>
+        <b>Variabel last:</b> inkluderar laster som kan variera, t.ex. is och våg-last.<br>
+        """
+    , unsafe_allow_html=True
+    )
+
+    # Beräkning av VEd och MEd för Lastkombination 3 och 4
+
+    VEd_LK3 = 0.9 * Gk_tot  # gynnsam vertikal last utan gamma_d
+    VEd_LK4 = max(1.1 * gamma_d * Gk_tot, Gk_tot)
+
+    MEd_LK3 = gamma_d * (1.5 * M_Q1 + 1.5 * psi_ovr * M_Q2)
+    MEd_LK4 = gamma_d * (1.4 * M_Q1 + 1.4 * psi_ovr * M_Q2)
+
+    lastkombination_md = f"""
+    | Parameter                               | Lastkombination 3 (Jämvikt)         | Lastkombination 4 (Geoteknisk)       |
+    |---------------------------------------|------------------------------------|--------------------------------------|
+    | Permanent last, ogynnsam               | $1.10$                             | $1.10 \\times \\gamma_d$              |
+    | Permanent last, gynnsam                | $0.90$                             | $1.00$                              |
+    | Variabel last, ogynnsam huvudlast     | $1.50 \\times \\gamma_d$           | $1.40 \\times \\gamma_d$              |
+    | Variabel last, ogynnsam övriga laster | $1.50 \\times \\gamma_d \\times \\psi_0$ | $1.40 \\times \\gamma_d \\times \\psi_0$ |
+    | $V_{{Ed}}$                              | {VEd_LK3:.1f} kN                   | {VEd_LK4:.1f} kN                     |
+    | $M_{{Ed}}$                              | {MEd_LK3:.1f} kNm                  | {MEd_LK4:.1f} kNm                    |
+    """
+
+    st.markdown(lastkombination_md)
