@@ -263,6 +263,10 @@ with col_res:
         under_vatten_skaft = 0
         ovan_vatten_skaft = vol_skaft
 
+    vikt_ovan = (ovan_vatten_botten + ovan_vatten_skaft) * 25
+    vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
+    vikt_tot = vikt_ovan + vikt_under
+
     Gk_b = (ovan_vatten_botten * 25) + (under_vatten_botten * 15)
     Gk_s = (ovan_vatten_skaft * 25) + (under_vatten_skaft * 15)
     Gk_ovr = float(Gk_ovr_str)
@@ -271,58 +275,44 @@ with col_res:
     M_Q1 = Qk_H1 * z_Q1
     M_Q2 = Qk_H2 * z_Q2
 
-    # CSS för flexbox och breddkontroll
-    st.markdown(
-        """
-        <style>
-        .flex-container {
-            display: flex;
-            gap: 40px;
-        }
-        .table-container {
-            width: 45%;  /* Justera bredden här */
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("### Lastsammanställning")
-
-    # Rubriker i flexbox för tabellområdena
-    st.markdown(
-        """
-        <div class="flex-container">
-            <div class="table-container"><h4>Permanenta laster</h4></div>
-            <div class="table-container"><h4>Variabla laster</h4></div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.markdown("### Permanenta laster")
 
     col1_table = pd.DataFrame({
         "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
     }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
 
+    st.markdown("### Variabla laster")
+
     col2_table = pd.DataFrame({
         "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
     }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
 
-    col1_html = col1_table.style.format("{:.1f}").set_table_attributes('style="width:100%"').render()
-    col2_html = col2_table.style.format("{:.1f}").set_table_attributes('style="width:100%"').render()
+    col1_html = (
+        col1_table.style
+        .format("{:.1f}")
+        .set_table_styles([{'selector': 'table', 'props': [('width', '100%')]}])
+        .render()
+    )
+    col2_html = (
+        col2_table.style
+        .format("{:.1f}")
+        .set_table_styles([{'selector': 'table', 'props': [('width', '100%')]}])
+        .render()
+    )
 
-    html = f"""
-    <div class="flex-container">
-        <div class="table-container">
-            {col1_html}
+    st.markdown(
+        f"""
+        <div style="display: flex; gap: 2rem;">
+            <div style="flex: 1;">
+                {col1_html}
+            </div>
+            <div style="flex: 1;">
+                {col2_html}
+            </div>
         </div>
-        <div class="table-container">
-            {col2_html}
-        </div>
-    </div>
-    """
-
-    st.markdown(html, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True
+    )
 
     st.markdown("### Lastkombinationer enligt SS-EN 1990 & BFS 2024:6")
 
