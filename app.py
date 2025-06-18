@@ -323,33 +323,27 @@ with st.container():
         """
         st.markdown(lastkombination_md)
         
-Md_val = MEd_LK3  # Använd Lastkombination 3:s moment
-Vd_val = VEd_LK3  # Använd Lastkombination 3:s last
-e_val = Md_val / Vd_val if Vd_val != 0 else 0
-Db_val = D_b
-
 st.subheader("Stjälpningskontroll")
 st.markdown("Lastexcentriciteten beräknas enligt formeln:")
 
-# Formeln med både symboler och värden i en rad
-formula = rf"e = \frac{{M_d}}{{V_d}} = \frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}} = {e_val:.2f} \text{{ m}}"
+# Visa formeln snyggt med st.latex
+st.latex(r"e = \frac{M_d}{V_d}")
 
-# Visa formeln vänsterjusterad
-st.markdown(
-    f'<div style="text-align:left; font-size:20px;">$$ {formula} $$</div>',
-    unsafe_allow_html=True
-)
+# Visa uträkningen som vanlig text med LaTeX-kompatibla bråktal i string-format
+Md_val = MEd_LK3
+Vd_val = VEd_LK3
+e_val = Md_val / Vd_val if Vd_val != 0 else 0
+Db_val = D_b
 
-# Visa radien också, vänsterjusterad
-st.markdown(
-    f'<div style="text-align:left; font-size:18px; margin-top:10px;">'
-    f'Bottendelens radie: <b>r = \\frac{{D_b}}{{2}} = \\frac{{{Db_val:.2f}}}{{2}} = {Db_val/2:.2f} \\, m</b>'
-    '</div>',
-    unsafe_allow_html=True
-)
+st.markdown(f"$$ e = \\frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}} = {e_val:.2f} \\, \\mathrm{{m}} $$")
 
-# Kontroll av stjälpningskriteriet
+# Visa radien som separat latex
+st.latex(r"r = \frac{D_b}{2}")
+st.markdown(f"$$ r = \\frac{{{Db_val:.2f}}}{{2}} = {Db_val / 2:.2f} \\, \\mathrm{{m}} $$")
+
+# Kontrollmeddelande
 if e_val > Db_val / 2:
     st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
 else:
     st.success("✅ Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
+
