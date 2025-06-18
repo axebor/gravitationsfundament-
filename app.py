@@ -338,20 +338,18 @@ with col_calc:
     Vd_val = VEd_LK4
     e_val = Md_val / Vd_val if Vd_val != 0 else 0
 
+    # Visa stegvis uträkning som vanlig text men med LaTeX-stil via st.latex och st.markdown utan $$ i markdown
     st.markdown(
-        f"""$$
-        e = \\frac{{{Md_val:.2f} \\, \\mathrm{{kNm}}}}{{{Vd_val:.2f} \\, \\mathrm{{kN}}}} = {e_val:.2f} \\, \\mathrm{{m}}
-        $$"""
+        f"$$e = \\frac{{{Md_val:.2f}\\,\\mathrm{{kNm}}}}{{{Vd_val:.2f}\\,\\mathrm{{kN}}}} = {e_val:.2f}\\,\\mathrm{{m}}$$",
+        unsafe_allow_html=True
     )
     st.markdown(
-        f"""$$
-        r = \\frac{{D_b}}{{2}} = \\frac{{{D_b:.2f}}}{{2}} = {D_b/2:.2f} \\, \\mathrm{{m}}
-        $$"""
+        f"$$r = \\frac{{D_b}}{{2}} = \\frac{{{D_b:.2f}}}{{2}} = {D_b / 2:.2f}\\,\\mathrm{{m}}$$",
+        unsafe_allow_html=True
     )
 
     if e_val > D_b / 2:
         st.warning("Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
     else:
         st.success("Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
-
 
