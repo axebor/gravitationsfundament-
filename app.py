@@ -36,11 +36,11 @@ pil_längd_extra_vert = 1.5
 zQ1_x_offset = 1.2
 zQ2_x_offset = 0.9
 
-col_in, col_out, col_res = st.columns([1, 1, 1])
+col_in, col_out, col_res = st.columns([1, 1, 1.2])
 
 with col_in:
-    st.header("Indata")
-    st.subheader("Geometri")
+    st.header("1. Indata")
+    st.subheader("1.1 Geometri")
 
     st.markdown("**Bottenplatta**")
     col_b1, col_b2 = st.columns(2)
@@ -65,7 +65,7 @@ with col_in:
         else:
             z_niva_str = None
 
-    st.subheader("Laster")
+    st.subheader("1.2 Laster")
 
     sk_col1, sk_col2 = st.columns([1, 1])
     with sk_col1:
@@ -82,7 +82,6 @@ with col_in:
             unsafe_allow_html=True
         )
 
-    # Horisontella laster och lastkombinationsfaktor med angreppsplan på samma rad
     col_q1, col_psi, col_zq1 = st.columns([1, 1, 1])
     with col_q1:
         Qk_H1_str = st.text_input(r"Huvudlast horisontell $Q_{k,H1}$ (kN)", value="0.0")
@@ -101,58 +100,28 @@ with col_in:
 
     Gk_ovr_str = st.text_input(r"Vertikal last $G_{k,\mathrm{övrigt}}$ (kN)", value="0.0")
 
-try:
-    D_b = round(float(D_b_str), 1)
-    H_b = round(float(H_b_str), 1)
-    D_s = round(float(D_s_str), 1)
-    H_s = round(float(H_s_str), 1)
+    try:
+        D_b = round(float(D_b_str), 1)
+        H_b = round(float(H_b_str), 1)
+        D_s = round(float(D_s_str), 1)
+        H_s = round(float(H_s_str), 1)
 
-    Qk_H1 = float(Qk_H1_str)
-    Qk_H2 = float(Qk_H2_str)
-    z_Q1 = round(float(z_Q1_str), 1)
-    z_Q2 = round(float(z_Q2_str), 1)
-    Gk_ovr = float(Gk_ovr_str)
+        Qk_H1 = float(Qk_H1_str)
+        Qk_H2 = float(Qk_H2_str)
+        z_Q1 = round(float(z_Q1_str), 1)
+        z_Q2 = round(float(z_Q2_str), 1)
+        Gk_ovr = float(Gk_ovr_str)
 
-    if fundament_i_vatten:
-        z_v = float(z_niva_str)
-    else:
-        z_v = None
-except ValueError:
-    st.error("❌ Ange giltiga numeriska värden för geometri, vattennivå och laster.")
-    st.stop()
-
-# Flytta här beräkningarna så variablerna blir globala
-
-pi = np.pi
-
-vol_bottenplatta = pi * (D_b / 2) ** 2 * H_b
-vol_skaft = pi * (D_s / 2) ** 2 * H_s
-
-if fundament_i_vatten and z_v is not None and z_v > 0:
-    under_vatten_botten = max(0, min(z_v, H_b)) * pi * (D_b / 2) ** 2
-    ovan_vatten_botten = vol_bottenplatta - under_vatten_botten
-
-    under_vatten_skaft = max(0, min(z_v - H_b, H_s)) * pi * (D_s / 2) ** 2
-    ovan_vatten_skaft = vol_skaft - under_vatten_skaft
-else:
-    under_vatten_botten = 0
-    ovan_vatten_botten = vol_bottenplatta
-    under_vatten_skaft = 0
-    ovan_vatten_skaft = vol_skaft
-
-vikt_ovan = (ovan_vatten_botten + ovan_vatten_skaft) * 25
-vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
-vikt_tot = vikt_ovan + vikt_under
-
-Gk_b = (ovan_vatten_botten * 25) + (under_vatten_botten * 15)
-Gk_s = (ovan_vatten_skaft * 25) + (under_vatten_skaft * 15)
-Gk_tot = Gk_b + Gk_s + Gk_ovr
-
-M_Q1 = Qk_H1 * z_Q1
-M_Q2 = Qk_H2 * z_Q2
+        if fundament_i_vatten:
+            z_v = float(z_niva_str)
+        else:
+            z_v = None
+    except ValueError:
+        st.error("❌ Ange giltiga numeriska värden för geometri, vattennivå och laster.")
+        st.stop()
 
 with col_out:
-    st.header("Figur")
+    st.header("2. Figur")
 
     fig, ax = plt.subplots(figsize=(8, 8))
     max_diameter = max(D_b, D_s)
@@ -273,35 +242,33 @@ with col_out:
 
     st.pyplot(fig, use_container_width=True)
 
-    # Lastsammanställning under figuren
-    st.header("Lastsammanställning")
+    st.header("3. Lastsammanställning")
 
     col_vert, col_moment = st.columns(2)
 
     with col_vert:
-        st.subheader("Permanenta laster")
+        st.subheader("3.1 Permanenta laster")
         df_vertikala = pd.DataFrame({
             "Värde (kN)": [Gk_b, Gk_s, Gk_ovr, Gk_tot]
         }, index=[r"$G_{k,b}$ (Bottenplatta)", r"$G_{k,s}$ (Skaft)", r"$G_{k,\mathrm{övrigt}}$", r"$G_{k,\mathrm{tot}}$"])
         st.table(df_vertikala.style.format("{:.1f}"))
 
     with col_moment:
-        st.subheader("Variabla laster")
+        st.subheader("3.2 Variabla laster")
         df_moment = pd.DataFrame({
-            "Mom. (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
+            "Moment (kNm)": [M_Q1, M_Q2, M_Q1 + M_Q2]
         }, index=[r"$M_{Q1} = Q_{k,H1} \cdot z_{Q1}$", r"$M_{Q2} = Q_{k,H2} \cdot z_{Q2}$", r"$M_{\mathrm{tot}}$"])
 
         styled_df_moment = df_moment.style.format("{:.1f}").set_table_styles([
-            {'selector': 'th.col0', 'props': [('white-space', 'nowrap'), ('min-width', '20px')]},
+            {'selector': 'th.col0', 'props': [('white-space', 'nowrap'), ('min-width', '200px')]},
             {'selector': 'td.col0', 'props': [('white-space', 'nowrap')]},
-            {'selector': 'th.col1', 'props': [('white-space', 'nowrap'), ('min-width', '300px')]},
+            {'selector': 'th.col1', 'props': [('white-space', 'nowrap'), ('min-width', '80px')]},
             {'selector': 'td.col1', 'props': [('white-space', 'nowrap')]}
         ])
         st.table(styled_df_moment)
 
-
 with col_res:
-    st.header("Resultat")
+    st.header("4. Resultat")
 
     st.markdown(
         """
@@ -309,9 +276,11 @@ with col_res:
         I denna app används <b>Lastkombination 3</b> för kontroll av statisk jämvikt och <b>Lastkombination 4</b> för dimensionering av geotekniska laster.<br><br>
         <b>Permanent last:</b> inkluderar egenvikt och andra permanenta laster.<br>
         <b>Variabel last:</b> inkluderar laster som kan variera, t.ex. is och våg-last.<br>
-        """
-    , unsafe_allow_html=True
+        """,
+        unsafe_allow_html=True
     )
+
+    # Beräkning av VEd och MEd för Lastkombination 3 och 4
 
     VEd_LK3 = 0.9 * Gk_tot  # gynnsam vertikal last utan gamma_d
     VEd_LK4 = max(1.1 * gamma_d * Gk_tot, Gk_tot)
@@ -326,8 +295,7 @@ with col_res:
     | Permanent last, gynnsam                | $0.90$                             | $1.00$                              |
     | Variabel last, ogynnsam huvudlast     | $1.50 \\times \\gamma_d$           | $1.40 \\times \\gamma_d$              |
     | Variabel last, ogynnsam övriga laster | $1.50 \\times \\gamma_d \\times \\psi_0$ | $1.40 \\times \\gamma_d \\times \\psi_0$ |
-    | $V_{{Ed}}$                              | {VEd_LK3:.1f} kN                   | {VEd_LK4:.1f} kN                     |
-    | $M_{{Ed}}$                              | {MEd_LK3:.1f} kNm                  | {MEd_LK4:.1f} kNm                    |
+    | $V_{Ed}$                              | {VEd_LK3:.1f} kN                   | {VEd_LK4:.1f} kN                     |
+    | $M_{Ed}$                              | {MEd_LK3:.1f} kNm                  | {MEd_LK4:.1f} kNm                    |
     """
-
     st.markdown(lastkombination_md)
