@@ -332,7 +332,7 @@ st.markdown("Lastexcentriciteten beräknas enligt formeln:")
 col_formula, col_calc = st.columns([1, 2])
 
 with col_formula:
-    st.latex(r"e = \frac{M_d}{V_d}")
+    # Tar bort formeln som du inte ville visa
 
 with col_calc:
     Md_val = MEd_LK4  # Överliggande moment
@@ -340,14 +340,16 @@ with col_calc:
     e_val = Md_val / Vd_val if Vd_val != 0 else 0
     r_val = D_b / 2
 
-    st.markdown(f"$$e = \\frac{{M_d}}{{V_d}} = \\frac{{{Md_val:.2f} \\, \\mathrm{{kNm}}}}{{{Vd_val:.2f} \\, \\mathrm{{kN}}}} = {e_val:.2f} \\, \\mathrm{{m}}$$")
-    st.markdown(f"Bottendelens radie: $$r = \\frac{{D_b}}{{2}} = \\frac{{{D_b:.2f} \\, \\mathrm{{m}}}}{{2}} = {r_val:.2f} \\, \\mathrm{{m}}$$")
+    st.markdown(f"""
+    $$\\begin{{aligned}}
+    e &= \\frac{{M_d}}{{V_d}} = \\frac{{{Md_val:.2f} \\, \\mathrm{{kNm}}}}{{{Vd_val:.2f} \\, \\mathrm{{kN}}}} = {e_val:.2f} \\, \\mathrm{{m}} \\\\
+    r &= \\frac{{D_b}}{{2}} = \\frac{{{D_b:.2f} \\, \\mathrm{{m}}}}{{2}} = {r_val:.2f} \\, \\mathrm{{m}} \\\\
+    \\text{{Stjälpningskriteriet är}} &:\\quad e < r
+    \\end{{aligned}}$$
+    """, unsafe_allow_html=True)
 
     if e_val > r_val:
         st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
     else:
         st.success("✅ Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
-        if e_val > D_b / 2:
-            st.warning("Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
-        else:
-            st.success("Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
+
