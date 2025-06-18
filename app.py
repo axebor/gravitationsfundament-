@@ -326,22 +326,32 @@ with st.container():
 st.subheader("Stjälpningskontroll")
 st.markdown("Lastexcentriciteten beräknas enligt formeln:")
 
-# Visa formeln snyggt med st.latex
-st.latex(r"e = \frac{M_d}{V_d}")
+col1, col2 = st.columns([1, 1])
 
-# Visa uträkningen som vanlig text med LaTeX-kompatibla bråktal i string-format
-Md_val = MEd_LK3
-Vd_val = VEd_LK3
-e_val = Md_val / Vd_val if Vd_val != 0 else 0
-Db_val = D_b
+with col1:
+    # Formeln i LaTeX, vänsterställd
+    st.latex(r"""
+    \begin{aligned}
+    e &= \frac{M_d}{V_d} \\
+    r &= \frac{D_b}{2}
+    \end{aligned}
+    """)
 
-st.markdown(f"$$ e = \\frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}} = {e_val:.2f} \\, \\mathrm{{m}} $$")
+with col2:
+    # Numeriska uträkningar i LaTeX, vänsterställd
+    Md_val = MEd_LK3
+    Vd_val = VEd_LK3
+    e_val = Md_val / Vd_val if Vd_val != 0 else 0
+    Db_val = D_b
 
-# Visa radien som separat latex
-st.latex(r"r = \frac{D_b}{2}")
-st.markdown(f"$$ r = \\frac{{{Db_val:.2f}}}{{2}} = {Db_val / 2:.2f} \\, \\mathrm{{m}} $$")
+    st.latex(fr"""
+    \begin{aligned}
+    e &= \frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}} = {e_val:.2f} \, \mathrm{{m}} \\
+    r &= \frac{{{Db_val:.2f}}}{{2}} = {Db_val / 2:.2f} \, \mathrm{{m}}
+    \end{aligned}
+    """)
 
-# Kontrollmeddelande
+# Kontrollmeddelande under
 if e_val > Db_val / 2:
     st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
 else:
