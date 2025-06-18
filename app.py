@@ -323,45 +323,33 @@ with st.container():
         """
         st.markdown(lastkombination_md)
         
-# --- Stjälpningskontroll ---
-
 Md_val = MEd_LK4
 Vd_val = VEd_LK4
 e_val = Md_val / Vd_val if Vd_val != 0 else 0
 Db_val = D_b
 
-# Container för stjälpningskontrollen
 with st.container():
     st.subheader("Stjälpningskontroll")
     st.markdown("Lastexcentriciteten beräknas enligt formeln:")
 
-    # Kolumnlayout för formel och uträkning bredvid varandra, vänsterjusterade
     col_formula, col_calc = st.columns([1, 3])
 
     with col_formula:
         st.latex(r"""
-        \begin{aligned}
-        e &= \frac{M_d}{V_d} \\
-          &= \frac{ }{ } \\
-          &= \\
-        r &= \frac{D_b}{2}
-        \end{aligned}
+        e = \frac{M_d}{V_d} = \frac{0.00}{0.00} = 0.00 \text{ m}
         """)
 
     with col_calc:
         st.markdown(
             rf"""
             <div style="text-align:left; font-size:16px; line-height:1.4;">
-                &nbsp;&nbsp;&nbsp;&nbsp;= {Md_val:.2f} kNm<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {Vd_val:.2f} kN<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;= {e_val:.2f} m<br><br>
-                &nbsp;&nbsp;&nbsp;&nbsp;= \(\frac{{{Db_val:.2f}}}{{2}}\) = {Db_val/2:.2f} m
+                = {Md_val:.2f} kNm / {Vd_val:.2f} kN = {e_val:.2f} m<br><br>
+                Bottendelens radie: <b>r = {Db_val:.2f} / 2 = {Db_val/2:.2f} m</b>
             </div>
             """,
             unsafe_allow_html=True
         )
 
-    # Statusmeddelande
     if e_val > Db_val / 2:
         st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
     else:
