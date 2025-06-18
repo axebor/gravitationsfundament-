@@ -337,23 +337,20 @@ Md_val = MEd_LK3  # Lastkombination 3
 Vd_val = VEd_LK3
 e_val = Md_val / Vd_val if Vd_val != 0 else 0
 
-latex_html = f"""
-<div style='margin-left: 2em; font-size: 18px; font-family: "serif"; line-height: 1.4;'>
-<p>Lastexcentriciteten beräknas enligt formeln och numeriskt:</p>
+# Text med indrag i markdown
+st.markdown("<div style='margin-left: 2em;'>Lastexcentriciteten beräknas enligt formeln och numeriskt:</div>", unsafe_allow_html=True)
 
-<p>
-$$ e = \\frac{{M_d}}{{V_d}} = \\frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}} = {e_val:.2f} \\, m $$
-</p>
+# Latex formler, med indrag anpassat i container (Streamlit latex är centrerad men omges av div så påverkas marginal)
+st.markdown("<div style='margin-left: 4em;'>", unsafe_allow_html=True)
+st.latex(r"e = \frac{M_d}{V_d}")
+st.latex(r"= \frac{" + f"{Md_val:.2f}" + "}{" + f"{Vd_val:.2f}" + "} = " + f"{e_val:.2f} \, m")
+st.latex(r"r = \frac{D_b}{2}")
+st.latex(r"= \frac{" + f"{D_b:.2f}" + "}{2} = " + f"{D_b/2:.2f} \, m")
+st.markdown("</div>", unsafe_allow_html=True)
 
-<p>
-$$ r = \\frac{{D_b}}{{2}} = \\frac{{{D_b:.2f}}}{{2}} = {D_b/2:.2f} \\, m $$
-</p>
-</div>
-"""
-
-st.markdown(latex_html, unsafe_allow_html=True)
-
+# Kontrollmeddelande
 if e_val > D_b / 2:
     st.warning("Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
 else:
     st.success("Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
+
