@@ -294,7 +294,7 @@ with col_out:
         styled_df_moment = df_moment.style.format("{:.1f}").set_table_styles([
             {'selector': 'th.col0', 'props': [('white-space', 'nowrap'), ('min-width', '60px')]},
             {'selector': 'td.col0', 'props': [('white-space', 'nowrap')]},
-            {'selector': 'th.col1', 'props': [('white-space', 'nowrap'), ('min-width', '250px')]},
+            {'selector': 'th.col1', 'props': [('white-space', 'nowrap'), ('min-width', '300px')]},
             {'selector': 'td.col1', 'props': [('white-space', 'nowrap')]}
         ])
         st.table(styled_df_moment)
