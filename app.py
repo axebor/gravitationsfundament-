@@ -101,25 +101,55 @@ with col_in:
 
     Gk_ovr_str = st.text_input(r"Vertikal last $G_{k,\mathrm{övrigt}}$ (kN)", value="0.0")
 
-    try:
-        D_b = round(float(D_b_str), 1)
-        H_b = round(float(H_b_str), 1)
-        D_s = round(float(D_s_str), 1)
-        H_s = round(float(H_s_str), 1)
+try:
+    D_b = round(float(D_b_str), 1)
+    H_b = round(float(H_b_str), 1)
+    D_s = round(float(D_s_str), 1)
+    H_s = round(float(H_s_str), 1)
 
-        Qk_H1 = float(Qk_H1_str)
-        Qk_H2 = float(Qk_H2_str)
-        z_Q1 = round(float(z_Q1_str), 1)
-        z_Q2 = round(float(z_Q2_str), 1)
-        Gk_ovr = float(Gk_ovr_str)
+    Qk_H1 = float(Qk_H1_str)
+    Qk_H2 = float(Qk_H2_str)
+    z_Q1 = round(float(z_Q1_str), 1)
+    z_Q2 = round(float(z_Q2_str), 1)
+    Gk_ovr = float(Gk_ovr_str)
 
-        if fundament_i_vatten:
-            z_v = float(z_niva_str)
-        else:
-            z_v = None
-    except ValueError:
-        st.error("❌ Ange giltiga numeriska värden för geometri, vattennivå och laster.")
-        st.stop()
+    if fundament_i_vatten:
+        z_v = float(z_niva_str)
+    else:
+        z_v = None
+except ValueError:
+    st.error("❌ Ange giltiga numeriska värden för geometri, vattennivå och laster.")
+    st.stop()
+
+# Flytta här beräkningarna så variablerna blir globala
+
+pi = np.pi
+
+vol_bottenplatta = pi * (D_b / 2) ** 2 * H_b
+vol_skaft = pi * (D_s / 2) ** 2 * H_s
+
+if fundament_i_vatten and z_v is not None and z_v > 0:
+    under_vatten_botten = max(0, min(z_v, H_b)) * pi * (D_b / 2) ** 2
+    ovan_vatten_botten = vol_bottenplatta - under_vatten_botten
+
+    under_vatten_skaft = max(0, min(z_v - H_b, H_s)) * pi * (D_s / 2) ** 2
+    ovan_vatten_skaft = vol_skaft - under_vatten_skaft
+else:
+    under_vatten_botten = 0
+    ovan_vatten_botten = vol_bottenplatta
+    under_vatten_skaft = 0
+    ovan_vatten_skaft = vol_skaft
+
+vikt_ovan = (ovan_vatten_botten + ovan_vatten_skaft) * 25
+vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
+vikt_tot = vikt_ovan + vikt_under
+
+Gk_b = (ovan_vatten_botten * 25) + (under_vatten_botten * 15)
+Gk_s = (ovan_vatten_skaft * 25) + (under_vatten_skaft * 15)
+Gk_tot = Gk_b + Gk_s + Gk_ovr
+
+M_Q1 = Qk_H1 * z_Q1
+M_Q2 = Qk_H2 * z_Q2
 
 with col_out:
     st.header("Figur")
@@ -264,37 +294,6 @@ with col_out:
 
 with col_res:
     st.header("Resultat")
-
-    pi = np.pi
-
-    vol_bottenplatta = pi * (D_b / 2) ** 2 * H_b
-    vol_skaft = pi * (D_s / 2) ** 2 * H_s
-
-    if fundament_i_vatten and z_v is not None and z_v > 0:
-        under_vatten_botten = max(0, min(z_v, H_b)) * pi * (D_b / 2) ** 2
-        ovan_vatten_botten = vol_bottenplatta - under_vatten_botten
-
-        under_vatten_skaft = max(0, min(z_v - H_b, H_s)) * pi * (D_s / 2) ** 2
-        ovan_vatten_skaft = vol_skaft - under_vatten_skaft
-    else:
-        under_vatten_botten = 0
-        ovan_vatten_botten = vol_bottenplatta
-        under_vatten_skaft = 0
-        ovan_vatten_skaft = vol_skaft
-
-    vikt_ovan = (ovan_vatten_botten + ovan_vatten_skaft) * 25
-    vikt_under = (under_vatten_botten + under_vatten_skaft) * 15
-    vikt_tot = vikt_ovan + vikt_under
-
-    Gk_b = (ovan_vatten_botten * 25) + (under_vatten_botten * 15)
-    Gk_s = (ovan_vatten_skaft * 25) + (under_vatten_skaft * 15)
-    Gk_ovr = float(Gk_ovr_str)
-    Gk_tot = Gk_b + Gk_s + Gk_ovr
-
-    M_Q1 = Qk_H1 * z_Q1
-    M_Q2 = Qk_H2 * z_Q2
-
-    st.markdown("### Lastkombinationer enligt SS-EN 1990 & BFS 2024:6")
 
     st.markdown(
         """
