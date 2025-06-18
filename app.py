@@ -323,23 +323,28 @@ with st.container():
         """
         st.markdown(lastkombination_md)
         
-st.subheader("Stjälpningskontroll")
-
 Md_val = MEd_LK3
 Vd_val = VEd_LK3
 e_val = Md_val / Vd_val if Vd_val != 0 else 0
+
 Db_val = D_b
+r_val = Db_val / 2
 
-st.markdown(f"""
-- Formel: e = M_d / V_d
-- Numeriskt: e = {Md_val:.2f} / {Vd_val:.2f}
-- Resultat: e = {e_val:.2f} m
-- Bottendelens radie: r = {Db_val:.2f} / 2 = {Db_val / 2:.2f} m
-""")
+st.subheader("Stjälpningskontroll")
 
-if e_val > Db_val / 2:
+st.markdown("Lastexcentriciteten beräknas enligt formeln och numeriskt:")
+
+calc_line = (
+    f"$e = \\frac{{M_d}}{{V_d}}$  →  "
+    f"$e = \\frac{{{Md_val:.2f}}}{{{Vd_val:.2f}}}$  →  "
+    f"$e = {e_val:.2f} \\text{{ m}}$"
+)
+
+st.markdown(calc_line)
+
+st.markdown(f"Bottendelens radie:  $r = \\frac{{D_b}}{{2}} = \\frac{{{Db_val:.2f}}}{{2}} = {r_val:.2f} \\text{{ m}}$")
+
+if e_val > r_val:
     st.warning("⚠️ Fundamentet är i riskzonen för stjälpning (excentricitet större än radie).")
 else:
     st.success("✅ Fundamentet är stabilt mot stjälpning (excentricitet mindre än radie).")
-
-
